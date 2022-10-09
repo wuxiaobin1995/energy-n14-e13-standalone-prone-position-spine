@@ -1,24 +1,16 @@
-# energy-n14-e13-standalone-prone-position-spine
+<!--
+ * @Author      : Mr.bin
+ * @Date        : 2022-10-08 10:52:08
+ * @LastEditTime: 2022-10-08 10:57:36
+ * @Description : energy-n14-e13-standalone-prone-position-spine
+-->
 
-## Project setup
-```
-npm install
-```
+# 核心稳定训练系统-单机版
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+## 传感器
 
-### Compiles and minifies for production
-```
-npm run build
-```
+- 范围：0~100
 
-### Lints and fixes files
-```
-npm run lint
-```
+## 设备类别
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+- 卧姿设备类别
