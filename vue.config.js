@@ -1,12 +1,13 @@
 /*
  * @Author      : Mr.bin
  * @Date        : 2022-10-08 10:57:12
- * @LastEditTime: 2022-10-08 10:57:19
+ * @LastEditTime: 2022-12-06 11:04:11
  * @Description : vue.config.js
  */
 
 const projectName = 'energy-n14-e13-standalone-prone-position-spine' // 项目名称，是一个程序的唯一标识符
 const softwareName = '核心稳定训练系统-单机版' // 软件名称
+
 const logo = './public/ico/logo/medical.ico' // 软件图标（医疗）
 // const logo = './public/ico/logo/power.ico' // 软件图标（运动）
 // const logo = './public/ico/logo/common.ico' // 软件图标（通用）
@@ -59,8 +60,9 @@ module.exports = {
         /* nsis安装界面配置 */
         nsis: {
           oneClick: false, // 是否一键安装
+          perMachine: true, // 是否总是针对所有用户（每台机器）进行安装
           allowElevation: true, // 是否允许请求提升。如果为false，则用户必须使用提升的权限重新启动安装程序
-          allowToChangeInstallationDirectory: true, // 允许修改安装目录
+          allowToChangeInstallationDirectory: false, // 允许修改安装目录
           installerIcon: './public/ico/install/common.ico', // 安装图标
           uninstallerIcon: './public/ico/delete/common.ico', // 卸载图标
           createDesktopShortcut: true, // 创建桌面图标
