@@ -14,9 +14,13 @@ export default {
 
   data() {
     return {
-      fullscreenLoading: true,
-      routerName: this.$route.query.routerName,
-      duration: this.$route.query.duration ? this.$route.query.duration : 800 // 刷新时长
+      fullscreenLoading: true, // 加载动画
+
+      /* 路由传参 */
+      routerName: JSON.parse(this.$route.query.routerName),
+      duration: JSON.parse(
+        this.$route.query.duration ? this.$route.query.duration : 800
+      ) // 刷新时长
     }
   },
 

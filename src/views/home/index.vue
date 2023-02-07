@@ -1,50 +1,294 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2021-11-09 11:55:02
- * @LastEditTime: 2021-12-15 15:10:32
+ * @LastEditTime: 2023-02-07 17:28:47
  * @Description : 首页
 -->
 <template>
   <div class="home">
-    <el-tabs tab-position="right">
-      <el-tab-pane label="1、内核心是什么？">
-        <div class="title">内核心是什么？</div>
-        <div class="text">
-          是位于腹腔、盆腔最深处的一组肌群，正常情况下，它们共同配合工作，将腹腔、盆腔围成一个坚实的桶状结构，但在妊娠分娩的过程中，内核心肌群也会面临一系列的结构改变，从而出现漏尿、腰疼、腹直肌分离等一系列问题。
-        </div>
-        <div class="img">
-          <el-image class="img__one" :src="oneImgSrc" fit="fit"></el-image>
-          <el-image class="img__two" :src="twoImgSrc" fit="fit"></el-image>
-        </div>
-      </el-tab-pane>
+    <div class="wrapper">
+      <div class="main-photo">
+        <el-image class="item0" :src="src0" fit="scale-down"></el-image>
+      </div>
+      <div class="one">
+        <el-image
+          class="item item3"
+          :src="src3"
+          fit="scale-down"
+          @click.native="handleClick('src3')"
+        ></el-image>
+      </div>
+      <div class="two">
+        <el-image
+          class="item item2"
+          :src="src2"
+          fit="scale-down"
+          @click.native="handleClick('src2')"
+        ></el-image>
+        <el-image
+          class="item item4"
+          :src="src4"
+          fit="scale-down"
+          @click.native="handleClick('src4')"
+        ></el-image>
+      </div>
+      <div class="three">
+        <el-image
+          class="item item1"
+          :src="src1"
+          fit="scale-down"
+          @click.native="handleClick('src1')"
+        ></el-image>
+        <el-image
+          class="item item5"
+          :src="src5"
+          fit="scale-down"
+          @click.native="handleClick('src5')"
+        ></el-image>
+      </div>
 
-      <el-tab-pane label="2、为什么要训练内核心？">
-        <div class="title">为什么要训练内核心？</div>
-        <div class="text">
-          产后出现的很多问题都与内核心肌群相关，如果不加以重视的话，很可能出现症状加重，从而影响生活质量。
+      <!-- 数据记录选择弹窗 -->
+      <el-dialog
+        :visible.sync="centerDialogVisible"
+        width="45%"
+        center
+        top="35vh"
+        :show-close="false"
+      >
+        <div class="record-select-wrapper">
+          <el-button class="btn" type="success" @click="handleGoTestRecord"
+            >测试记录</el-button
+          >
+          <el-button class="btn" type="primary" @click="handleGoTrainRecord"
+            >训练记录</el-button
+          >
         </div>
-        <div class="img">
-          <el-image class="img__three" :src="threeImgSrc" fit="fit"></el-image>
-        </div>
-      </el-tab-pane>
-    </el-tabs>
+      </el-dialog>
+
+      <!-- 语音相关 -->
+      <div class="audio-control">
+        <div class="title">语音功能</div>
+        <el-switch
+          v-model="switchValue"
+          active-text="开"
+          inactive-text="关"
+          @change="handleSwitchChange"
+        >
+        </el-switch>
+      </div>
+    </div>
+
+    <!-- 打开控制台按钮 -->
+    <el-button
+      class="btn-control"
+      type="info"
+      size="mini"
+      @click="handleOpenDev"
+      >Open Dev</el-button
+    >
   </div>
 </template>
 
 <script>
+/* 用于打开控制台 */
+import { remote } from 'electron'
+
 export default {
   name: 'home',
 
   data() {
     return {
-      oneImgSrc: require('@/assets/img/home/1.png'),
-      twoImgSrc: require('@/assets/img/home/2.png'),
-      threeImgSrc: require('@/assets/img/home/3.png')
+      src0: require('@/assets/img/Home/设备实物.png'),
+      src1: require('@/assets/img/Home/用户.png'),
+      src2: require('@/assets/img/Home/测试模块.png'),
+      src3: require('@/assets/img/Home/训练模块.png'),
+      src4: require('@/assets/img/Home/数据记录.png'),
+      src5: require('@/assets/img/Home/游戏.png'),
+
+      centerDialogVisible: false, // 数据记录选择弹窗
+
+      /* 语音相关 */
+      switchValue: null
     }
   },
 
   created() {
-    this.$store.dispatch('setIsCollapse', false)
+    this.switchValue = this.$store.state.voiceSwitch
+  },
+
+  methods: {
+    /**
+     * @description: 页面跳转
+     * @param {String} src
+     */
+    handleClick(src) {
+      if (src === 'src1') {
+        this.$router.push({
+          path: '/user'
+        })
+      } else if (src === 'src2') {
+        if (this.$store.state.currentUserInfo.userId) {
+          this.$router.push({
+            path: '/test-flexibility-show'
+          })
+        } else {
+          this.$confirm(
+            `检测到您还没有选择用户，请先到用户页面进行选择！`,
+            '提示',
+            {
+              type: 'warning',
+              center: true,
+              showCancelButton: false,
+              confirmButtonText: '确 定'
+            }
+          )
+            .then(() => {
+              this.$router.push({
+                path: '/user'
+              })
+            })
+            .catch(() => {})
+        }
+      } else if (src === 'src3') {
+        if (this.$store.state.currentUserInfo.userId) {
+          if (
+            this.$store.state.bothFlexibility.maxDepth !== null &&
+            this.$store.state.bothFlexibility.minDepth !== null
+          ) {
+            this.$router.push({
+              path: '/train-select/activity-improvement-set'
+            })
+          } else {
+            this.$confirm(
+              `检测到您没有最大和最小灵活度测量值，请先进行"骨盆灵活度测试"`,
+              '提示',
+              {
+                type: 'warning',
+                center: true,
+                showCancelButton: false,
+                confirmButtonText: '确 定'
+              }
+            )
+              .then(() => {
+                this.$router.push({
+                  path: '/test-flexibility-show'
+                })
+              })
+              .catch(() => {})
+          }
+        } else {
+          this.$confirm(
+            `检测到您还没有选择用户，请先到用户页面进行选择！`,
+            '提示',
+            {
+              type: 'warning',
+              center: true,
+              showCancelButton: false,
+              confirmButtonText: '确 定'
+            }
+          )
+            .then(() => {
+              this.$router.push({
+                path: '/user'
+              })
+            })
+            .catch(() => {})
+        }
+      } else if (src === 'src4') {
+        if (this.$store.state.currentUserInfo.userId) {
+          this.centerDialogVisible = true
+        } else {
+          this.$confirm(
+            `检测到您还没有选择用户，请先到用户页面进行选择！`,
+            '提示',
+            {
+              type: 'warning',
+              center: true,
+              showCancelButton: false,
+              confirmButtonText: '确 定'
+            }
+          )
+            .then(() => {
+              this.$router.push({
+                path: '/user'
+              })
+            })
+            .catch(() => {})
+        }
+      } else if (src === 'src5') {
+        if (this.$store.state.currentUserInfo.userId) {
+          this.$router.push({
+            path: '/game'
+          })
+        } else {
+          this.$confirm(
+            `检测到您还没有选择用户，请先到用户页面进行选择！`,
+            '提示',
+            {
+              type: 'warning',
+              center: true,
+              showCancelButton: false,
+              confirmButtonText: '确 定'
+            }
+          )
+            .then(() => {
+              this.$router.push({
+                path: '/user'
+              })
+            })
+            .catch(() => {})
+        }
+      }
+    },
+
+    /**
+     * @description: 语音开关
+     */
+    handleSwitchChange() {
+      if (this.switchValue === true) {
+        this.$store.dispatch('setVoiceSwitch', true)
+      } else {
+        this.$store.dispatch('setVoiceSwitch', false)
+      }
+    },
+
+    /**
+     * @description: 打开控制台
+     */
+    handleOpenDev() {
+      this.$prompt('请输入密码', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPattern: /^htpm$/,
+        inputErrorMessage: '密码不正确',
+        showClose: true,
+        closeOnClickModal: false
+      })
+        .then(() => {
+          try {
+            remote.getCurrentWebContents().openDevTools()
+          } catch (err) {
+            this.$message({
+              type: 'error',
+              message: `打开控制台失败：${err}`
+            })
+          }
+        })
+        .catch(() => {})
+    },
+
+    /**
+     * @description: 跳转至测试记录页
+     */
+    handleGoTestRecord() {
+      this.$router.push({ path: '/test-record' })
+    },
+    /**
+     * @description: 跳转至训练记录页
+     */
+    handleGoTrainRecord() {
+      this.$router.push({ path: '/train-record' })
+    }
   }
 }
 </script>
@@ -53,33 +297,81 @@ export default {
 .home {
   width: 100%;
   height: 100%;
-  padding: 40px 20px 20px 40px;
+  @include flex(row, center, center);
 
-  .title {
-    @include flex(row, center, center);
-    font-size: 38px;
-    color: #7a31b0;
+  .wrapper {
+    width: 86%;
+    height: 90%;
+    border-radius: 34px;
+    background-color: #ffffff;
+    box-shadow: 0 0 10px #929292;
+    position: relative;
+
+    .item0 {
+      width: 560px;
+    }
+    .item {
+      width: 130px;
+    }
+
+    .main-photo {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 20px;
+    }
+    .one {
+      margin-top: 30px;
+      @include flex(row, center, center);
+    }
+    .two {
+      @include flex(row, center, center);
+      .item2 {
+        margin-right: 260px;
+      }
+      .item4 {
+        margin-left: 260px;
+      }
+    }
+    .three {
+      margin-top: 60px;
+      @include flex(row, center, center);
+      .item1 {
+        margin-right: 420px;
+      }
+      .item5 {
+        margin-left: 420px;
+      }
+    }
+
+    /* 数据记录选择弹窗 */
+    .record-select-wrapper {
+      @include flex(row, space-around, center);
+      .btn {
+        font-size: 30px;
+        margin-bottom: 15px;
+      }
+    }
+
+    /* 语音相关 */
+    .audio-control {
+      @include flex(column, center, center);
+      position: absolute;
+      left: 30px;
+      top: 20px;
+      .title {
+        margin-bottom: 10px;
+        font-size: 22px;
+        font-weight: 700;
+      }
+    }
   }
 
-  .text {
-    margin-top: 20px;
-    font-size: 22px;
-    text-indent: 2em;
-    line-height: 1.5;
-  }
-
-  .img {
-    margin-top: 40px;
-    @include flex(row, space-between, center);
-    .img__one {
-      width: 40%;
-    }
-    .img__two {
-      width: 56%;
-    }
-    .img__three {
-      width: 100%;
-    }
+  /* 打开控制台按钮 */
+  .btn-control {
+    position: absolute;
+    right: 0;
+    bottom: 0;
   }
 }
 </style>

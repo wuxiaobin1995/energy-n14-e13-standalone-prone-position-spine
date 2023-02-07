@@ -1,7 +1,7 @@
 /*
  * @Author      : Mr.bin
  * @Date        : 2021-11-09 09:16:02
- * @LastEditTime: 2022-05-23 11:50:15
+ * @LastEditTime: 2023-02-07 17:36:46
  * @Description : 路由
  */
 import Vue from 'vue'
@@ -22,32 +22,11 @@ const routes = [
    * 比如父 "/father"，子 "child"，要想访问子路由，跳转链接需要写成 "/father/child"
    */
 
-  /* 登录主页面 */
   {
     path: '/',
-    name: 'login',
-    component: () => import('@/views/login')
-  },
-
-  /* 注册页面 */
-  {
-    path: '/register',
-    name: 'register',
-    component: () => import('@/views/register')
-  },
-
-  /* 普通用户登录选择页面 */
-  {
-    path: '/login-select',
-    name: 'login-select',
-    component: () => import('@/views/login-select')
-  },
-
-  /* 布局组件 */
-  {
-    path: '/layout',
     name: 'layout',
     component: () => import('@/layout'),
+    redirect: '/home',
     children: [
       // 首页
       {
@@ -56,323 +35,263 @@ const routes = [
         component: () => import('@/views/home'),
         meta: ['首页']
       },
-      // 个人信息修改
+      // 用户
+      {
+        path: 'user',
+        name: 'user',
+        component: () => import('@/views/user'),
+        meta: ['用户']
+      },
+      // 添加用户
+      {
+        path: 'user-add',
+        name: 'user-add',
+        component: () => import('@/views/user-add'),
+        meta: ['添加用户']
+      },
+      // 用户信息修改
       {
         path: 'user-edit',
         name: 'user-edit',
         component: () => import('@/views/user-edit'),
-        meta: ['个人信息修改']
+        meta: ['用户信息修改']
       },
-      // 用户管理
+      // 设置医院名称
       {
-        path: 'user-manage',
-        name: 'user-manage',
-        component: () => import('@/views/user-manage'),
-        meta: ['用户管理']
+        path: 'set-hospital',
+        name: 'set-hospital',
+        component: () => import('@/views/set/set-hospital'),
+        meta: ['设置医院名称']
       },
-      // 管理员信息修改
+      // 开发者
       {
-        path: 'admin-edit',
-        name: 'admin-edit',
-        component: () => import('@/views/admin-edit'),
-        meta: ['管理员信息修改']
+        path: 'set-developer',
+        name: 'set-developer',
+        component: () => import('@/views/set/set-developer'),
+        meta: ['开发者']
       },
-      // 用户报告查看选择页
+      // 数据迁移
       {
-        path: 'user-pdf-check',
-        name: 'user-pdf-check',
-        component: () => import('@/views/user-pdf-check'),
-        meta: ['用户报告查看选择页']
+        path: 'set-data-migration',
+        name: 'set-data-migration',
+        component: () => import('@/views/set/set-data-migration'),
+        meta: ['数据迁移']
       },
-      // 用户测试报告
+      // 游戏
       {
-        path: 'user-pdf-check-test',
-        name: 'user-pdf-check-test',
-        component: () => import('@/views/user-pdf-check/test-check'),
-        meta: ['用户测试报告']
-      },
-      // 用户训练报告
-      {
-        path: 'user-pdf-check-train',
-        name: 'user-pdf-check-train',
-        component: () => import('@/views/user-pdf-check/train-check'),
-        meta: ['用户训练报告']
-      },
-      // 设备信息
-      {
-        path: 'facility-info',
-        name: 'facility-info',
-        component: () => import('@/views/facility-info'),
-        meta: ['设备信息']
-      },
-      // 开发者页面
-      {
-        path: 'developer',
-        name: 'developer',
-        component: () => import('@/views/developer'),
-        meta: ['开发者页面']
+        path: 'game',
+        name: 'game',
+        component: () => import('@/views/game'),
+        meta: ['游戏']
       },
 
       /* 测试模式 */
-      // 灵活性测试-描述页面
+      // 骨盆灵活度测试-动作展示
       {
-        path: 'flexibility-test-des',
-        name: 'flexibility-test-des',
-        component: () => import('@/views/test-mode/flexibility-test/des'),
-        meta: ['灵活性测试-描述页面']
+        path: 'test-flexibility-show',
+        name: 'test-flexibility-show',
+        component: () => import('@/views/test-mode/flexibility/show'),
+        meta: ['骨盆灵活度测试-动作展示']
       },
-      // 灵活性测试-测量页面
+      // 骨盆灵活度测试-内核心是什么
       {
-        path: 'flexibility-test-measure',
-        name: 'flexibility-test-measure',
-        component: () => import('@/views/test-mode/flexibility-test/measure'),
-        meta: ['灵活性测试-测量页面']
+        path: 'test-flexibility-what',
+        name: 'test-flexibility-what',
+        component: () => import('@/views/test-mode/flexibility/what'),
+        meta: ['骨盆灵活度测试-内核心是什么']
       },
-      // 灵活性测试-PDF报告
+      // 骨盆灵活度测试-内核心训练的好处
       {
-        path: 'flexibility-test-pdf',
-        name: 'flexibility-test-pdf',
-        component: () => import('@/views/test-mode/flexibility-test/pdf'),
-        meta: ['灵活性测试-PDF报告']
+        path: 'test-flexibility-why',
+        name: 'test-flexibility-why',
+        component: () => import('@/views/test-mode/flexibility/why'),
+        meta: ['骨盆灵活度测试-内核心训练的好处']
       },
-      // 深感觉测试-参数设置页面
+      // 骨盆灵活度测试-测量页面
       {
-        path: 'deep-sensory-test-set',
-        name: 'deep-sensory-test-set',
-        component: () => import('@/views/test-mode/deep-sensory-test/set'),
-        meta: ['深感觉测试-参数设置页面']
-      },
-      // 深感觉测试-测量页面
-      {
-        path: 'deep-sensory-test-measure',
-        name: 'deep-sensory-test-measure',
-        component: () => import('@/views/test-mode/deep-sensory-test/measure'),
-        meta: ['深感觉测试-测量页面']
-      },
-      // 深感觉测试-PDF报告
-      {
-        path: 'deep-sensory-test-pdf',
-        name: 'deep-sensory-test-pdf',
-        component: () => import('@/views/test-mode/deep-sensory-test/pdf'),
-        meta: ['深感觉测试-PDF报告']
+        path: 'test-flexibility-measure',
+        name: 'test-flexibility-measure',
+        component: () => import('@/views/test-mode/flexibility/measure'),
+        meta: ['骨盆灵活度测试-测量页面']
       },
 
       /* 训练模式 */
-      // 内核心激活训练-参数设置页面
+      // 训练项目选择
       {
-        path: 'core-activation-train-set',
-        name: 'core-activation-train-set',
-        component: () => import('@/views/train-mode/core-activation-train/set'),
-        meta: ['内核心激活训练-参数设置页面']
+        path: 'train-select',
+        name: 'train-select',
+        component: () => import('@/views/train-mode'),
+        meta: ['训练项目选择'],
+        redirect: '/train-select/activity-improvement-set',
+        children: [
+          // 活动度改善训练-参数设置
+          {
+            path: 'activity-improvement-set',
+            name: 'activity-improvement-set',
+            component: () =>
+              import('@/views/train-mode/activity-improvement/set'),
+            meta: ['活动度改善训练-参数设置']
+          },
+          // 静态训练-参数设置
+          {
+            path: 'static-set',
+            name: 'static-set',
+            component: () => import('@/views/train-mode/static/set'),
+            meta: ['静态训练-参数设置']
+          },
+          // 动态训练-参数设置
+          {
+            path: 'dynamic-set',
+            name: 'dynamic-set',
+            component: () => import('@/views/train-mode/dynamic/set'),
+            meta: ['动态训练-参数设置']
+          }
+        ]
       },
-      // 内核心激活训练-测量页面
+      // 活动度改善训练-具体测量
       {
-        path: 'core-activation-train-measure',
-        name: 'core-activation-train-measure',
+        path: 'activity-improvement-measure',
+        name: 'activity-improvement-measure',
         component: () =>
-          import('@/views/train-mode/core-activation-train/measure'),
-        meta: ['内核心激活训练-测量页面']
-      },
-      // 活动度改善训练-参数设置页面
-      {
-        path: 'activity-improvement-train-set',
-        name: 'activity-improvement-train-set',
-        component: () =>
-          import('@/views/train-mode/activity-improvement-train/set'),
-        meta: ['活动度改善训练-参数设置页面']
-      },
-      // 活动度改善训练-测量页面
-      {
-        path: 'activity-improvement-train-measure',
-        name: 'activity-improvement-train-measure',
-        component: () =>
-          import('@/views/train-mode/activity-improvement-train/measure'),
+          import('@/views/train-mode/activity-improvement/measure'),
         meta: ['活动度改善训练-测量页面']
       },
-      // 活动度改善训练-PDF报告
+      // 静态训练-具体测量
       {
-        path: 'activity-improvement-train-pdf',
-        name: 'activity-improvement-train-pdf',
-        component: () =>
-          import('@/views/train-mode/activity-improvement-train/pdf'),
-        meta: ['活动度改善训练-PDF报告']
-      },
-      // 腹式呼吸训练-参数设置页面
-      {
-        path: 'abdominal-respiration-train-set',
-        name: 'abdominal-respiration-train-set',
-        component: () =>
-          import('@/views/train-mode/abdominal-respiration-train/set'),
-        meta: ['腹式呼吸训练-参数设置页面']
-      },
-      // 腹式呼吸训练-测量页面
-      {
-        path: 'abdominal-respiration-train-measure',
-        name: 'abdominal-respiration-train-measure',
-        component: () =>
-          import('@/views/train-mode/abdominal-respiration-train/measure'),
-        meta: ['腹式呼吸训练-测量页面']
-      },
-      // 腹式呼吸训练-PDF报告
-      {
-        path: 'abdominal-respiration-train-pdf',
-        name: 'abdominal-respiration-train-pdf',
-        component: () =>
-          import('@/views/train-mode/abdominal-respiration-train/pdf'),
-        meta: ['腹式呼吸训练-PDF报告']
-      },
-      // 静态训练-参数设置页面
-      {
-        path: 'static-train-set',
-        name: 'static-train-set',
-        component: () => import('@/views/train-mode/static-train/set'),
-        meta: ['静态训练-参数设置页面']
-      },
-      // 静态训练-测量页面
-      {
-        path: 'static-train-measure',
-        name: 'static-train-measure',
-        component: () => import('@/views/train-mode/static-train/measure'),
+        path: 'static-measure',
+        name: 'static-measure',
+        component: () => import('@/views/train-mode/static/measure'),
         meta: ['静态训练-测量页面']
       },
-      // 静态训练-PDF报告
+      // 动态训练-具体测量
       {
-        path: 'static-train-pdf',
-        name: 'static-train-pdf',
-        component: () => import('@/views/train-mode/static-train/pdf'),
-        meta: ['静态训练-PDF报告']
-      },
-      // 动态训练-参数设置页面
-      {
-        path: 'dynamic-train-set',
-        name: 'dynamic-train-set',
-        component: () => import('@/views/train-mode/dynamic-train/set'),
-        meta: ['动态训练-参数设置页面']
-      },
-      // 动态训练-测量页面
-      {
-        path: 'dynamic-train-measure',
-        name: 'dynamic-train-measure',
-        component: () => import('@/views/train-mode/dynamic-train/measure'),
+        path: 'dynamic-measure',
+        name: 'dynamic-measure',
+        component: () => import('@/views/train-mode/dynamic/measure'),
         meta: ['动态训练-测量页面']
-      },
-      // 动态训练-PDF报告
-      {
-        path: 'dynamic-train-pdf',
-        name: 'dynamic-train-pdf',
-        component: () => import('@/views/train-mode/dynamic-train/pdf'),
-        meta: ['动态训练-PDF报告']
       },
 
       /* 数据记录 */
-      /* 测试 */
-      // 灵活性测试-数据记录
+      // 测试
       {
-        path: 'flexibility-test-record',
-        name: 'flexibility-test-record',
-        component: () => import('@/views/test-record/flexibility-test'),
-        meta: ['灵活性测试-数据记录']
+        path: 'test-record',
+        name: 'test-record',
+        component: () => import('@/views/record/test'),
+        meta: ['测试-数据记录'],
+        redirect: '/test-record/flexibility',
+        children: [
+          // 骨盆灵活度测试
+          {
+            path: 'flexibility',
+            name: 'test-flexibility-record',
+            component: () => import('@/views/record/test/flexibility'),
+            meta: ['骨盆灵活度测试']
+          }
+        ]
       },
-      // 灵活性测试-长期趋势报告
+      // 训练
       {
-        path: 'flexibility-test-secular-trend-pdf',
-        name: 'flexibility-test-secular-trend-pdf',
-        component: () =>
-          import('@/views/test-record/flexibility-test/secular-trend-pdf'),
-        meta: ['灵活性测试-长期趋势报告']
-      },
-      // 深感觉测试-数据记录
-      {
-        path: 'deep-sensory-test-record',
-        name: 'deep-sensory-test-record',
-        component: () => import('@/views/test-record/deep-sensory-test'),
-        meta: ['深感觉测试-数据记录']
-      },
-      /* 训练 */
-      // 内核心激活训练-数据记录
-      {
-        path: 'core-activation-train-record',
-        name: 'core-activation-train-record',
-        component: () => import('@/views/train-record/core-activation-train'),
-        meta: ['内核心激活训练-数据记录']
-      },
-      // 活动度改善训练-数据记录
-      {
-        path: 'activity-improvement-train-record',
-        name: 'activity-improvement-train-record',
-        component: () =>
-          import('@/views/train-record/activity-improvement-train'),
-        meta: ['活动度改善训练-数据记录']
-      },
-      // 活动度改善训练-长期趋势报告
-      {
-        path: 'activity-improvement-train-secular-trend-pdf',
-        name: 'activity-improvement-train-secular-trend-pdf',
-        component: () =>
-          import(
-            '@/views/train-record/activity-improvement-train/secular-trend-pdf'
-          ),
-        meta: ['活动度改善训练-长期趋势报告']
-      },
-      // 腹式呼吸训练-数据记录
-      {
-        path: 'abdominal-respiration-train-record',
-        name: 'abdominal-respiration-train-record',
-        component: () =>
-          import('@/views/train-record/abdominal-respiration-train'),
-        meta: ['腹式呼吸训练-数据记录']
-      },
-      // 腹式呼吸训练-长期趋势报告
-      {
-        path: 'abdominal-respiration-train-secular-trend-pdf',
-        name: 'abdominal-respiration-train-secular-trend-pdf',
-        component: () =>
-          import(
-            '@/views/train-record/abdominal-respiration-train/secular-trend-pdf'
-          ),
-        meta: ['腹式呼吸训练-长期趋势报告']
-      },
-      // 静态训练-数据记录
-      {
-        path: 'static-train-record',
-        name: 'static-train-record',
-        component: () => import('@/views/train-record/static-train'),
-        meta: ['静态训练-数据记录']
-      },
-      // 静态训练-长期趋势报告
-      {
-        path: 'static-train-secular-trend-pdf',
-        name: 'static-train-secular-trend-pdf',
-        component: () =>
-          import('@/views/train-record/static-train/secular-trend-pdf'),
-        meta: ['静态训练-长期趋势报告']
-      },
-      // 动态训练-数据记录
-      {
-        path: 'dynamic-train-record',
-        name: 'dynamic-train-record',
-        component: () => import('@/views/train-record/dynamic-train'),
-        meta: ['动态训练-数据记录']
-      },
-      // 动态训练-长期趋势报告
-      {
-        path: 'dynamic-train-secular-trend-pdf',
-        name: 'dynamic-train-secular-trend-pdf',
-        component: () =>
-          import('@/views/train-record/dynamic-train/secular-trend-pdf'),
-        meta: ['动态训练-长期趋势报告']
+        path: 'train-record',
+        name: 'train-record',
+        component: () => import('@/views/record/train'),
+        meta: ['训练-数据记录'],
+        redirect: '/train-record/activity-improvement',
+        children: [
+          // 活动度改善训练
+          {
+            path: 'activity-improvement',
+            name: 'train-activity-improvement-record',
+            component: () =>
+              import('@/views/record/train/activity-improvement'),
+            meta: ['活动度改善训练']
+          },
+          // 静态训练
+          {
+            path: 'static',
+            name: 'train-static-record',
+            component: () => import('@/views/record/train/static'),
+            meta: ['静态训练']
+          },
+          // 动态训练
+          {
+            path: 'dynamic',
+            name: 'train-dynamic-record',
+            component: () => import('@/views/record/train/dynamic'),
+            meta: ['动态训练']
+          }
+        ]
       }
     ]
   },
 
-  /* 刷新中转页 */
+  /* 测试报告 */
+  // 骨盆灵活度测试-导出PDF
+  {
+    path: '/test-flexibility-pdf',
+    name: 'test-flexibility-pdf',
+    component: () => import('@/views/test-mode/flexibility/pdf'),
+    meta: ['骨盆灵活度测试-导出PDF']
+  },
+  // 骨盆灵活度测试-导出长期趋势PDF
+  {
+    path: '/test-flexibility-secular-trend-pdf',
+    name: 'test-flexibility-secular-trend-pdf',
+    component: () =>
+      import('@/views/record/test/flexibility/secular-trend-pdf'),
+    meta: ['骨盆灵活度测试-导出长期趋势PDF']
+  },
+
+  /* 训练报告 */
+  // 活动度改善训练-导出PDF
+  {
+    path: '/train-activity-improvement-pdf',
+    name: 'train-activity-improvement-pdf',
+    component: () => import('@/views/train-mode/activity-improvement/pdf'),
+    meta: ['活动度改善训练-导出PDF']
+  },
+  // 活动度改善训练-导出长期趋势PDF
+  {
+    path: '/train-activity-improvement-secular-trend-pdf',
+    name: 'train-activity-improvement-secular-trend-pdf',
+    component: () =>
+      import('@/views/record/train/activity-improvement/secular-trend-pdf'),
+    meta: ['活动度改善训练-导出长期趋势PDF']
+  },
+  // 静态训练-导出PDF
+  {
+    path: '/train-static-pdf',
+    name: 'train-static-pdf',
+    component: () => import('@/views/train-mode/static/pdf'),
+    meta: ['静态训练-导出PDF']
+  },
+  // 静态训练-导出长期趋势PDF
+  {
+    path: '/train-static-secular-trend-pdf',
+    name: 'train-static-secular-trend-pdf',
+    component: () => import('@/views/record/train/static/secular-trend-pdf'),
+    meta: ['静态训练-导出长期趋势PDF']
+  },
+  // 动态训练-导出PDF
+  {
+    path: '/train-dynamic-pdf',
+    name: 'train-dynamic-pdf',
+    component: () => import('@/views/train-mode/dynamic/pdf'),
+    meta: ['动态训练-导出PDF']
+  },
+  // 动态训练-导出长期趋势PDF
+  {
+    path: '/train-dynamic-secular-trend-pdf',
+    name: 'train-dynamic-secular-trend-pdf',
+    component: () => import('@/views/record/train/dynamic/secular-trend-pdf'),
+    meta: ['动态训练-导出长期趋势PDF']
+  },
+
   {
     path: '/refresh',
     name: 'refresh',
     component: () => import('@/views/refresh')
   },
 
-  /* 路由出错时跳转至登录页 */
   {
     path: '*',
     redirect: '/'

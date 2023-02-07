@@ -1,12 +1,12 @@
 /*
  * @Author      : Mr.bin
  * @Date        : 2022-10-08 10:57:12
- * @LastEditTime: 2022-12-06 11:04:11
+ * @LastEditTime: 2023-02-07 10:51:30
  * @Description : vue.config.js
  */
 
 const projectName = 'energy-n14-e13-standalone-prone-position-spine' // 项目名称，是一个程序的唯一标识符
-const softwareName = '核心稳定训练系统-单机版' // 软件名称
+const softwareName = '卧姿肢体康复评估与训练系统-单机版' // 软件名称
 
 const logo = './public/ico/logo/medical.ico' // 软件图标（医疗）
 // const logo = './public/ico/logo/power.ico' // 软件图标（运动）

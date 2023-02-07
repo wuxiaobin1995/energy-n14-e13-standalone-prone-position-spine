@@ -34,7 +34,7 @@ async function createWindow() {
   })
 
   // 永久删除菜单栏，快捷键也会删除
-  // Menu.setApplicationMenu(null)
+  Menu.setApplicationMenu(null)
   // 窗口默认最大化打开
   win.maximize()
 

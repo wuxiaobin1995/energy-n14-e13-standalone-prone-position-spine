@@ -1,6 +1,6 @@
 {
   "name": "energy-n14-e13-standalone-prone-position-spine",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -13,16 +13,16 @@
   },
   "main": "background.js",
   "dependencies": {
-    "axios": "^1.1.2",
+    "axios": "^1.2.1",
     "core-js": "^3.6.5",
-    "dexie": "^3.2.2",
+    "dexie": "^3.2.3",
     "echarts": "^5.4.0",
-    "element-ui": "^2.15.8",
+    "element-ui": "^2.15.12",
     "ffi-napi": "^4.0.3",
     "file-saver": "^2.0.5",
     "html2canvas": "^1.4.1",
     "jspdf": "^2.5.1",
-    "log4js": "^6.7.0",
+    "log4js": "^6.7.1",
     "moment": "^2.29.4",
     "qier-progress": "^1.0.4",
     "serialport": "^9.2.5",
