@@ -1,7 +1,7 @@
 /*
  * @Author      : Mr.bin
  * @Date        : 2021-11-09 09:16:02
- * @LastEditTime: 2023-02-07 17:36:46
+ * @LastEditTime: 2023-02-08 14:14:54
  * @Description : 路由
  */
 import Vue from 'vue'
@@ -131,6 +131,21 @@ const routes = [
             component: () =>
               import('@/views/train-mode/activity-improvement/set'),
             meta: ['活动度改善训练-参数设置']
+          },
+          // 局部稳定肌激活训练-参数设置
+          {
+            path: 'stabilizer-activation-set',
+            name: 'stabilizer-activation-set',
+            component: () =>
+              import('@/views/train-mode/stabilizer-activation/set'),
+            meta: ['局部稳定肌激活训练-参数设置']
+          },
+          // 深感觉训练-参数设置
+          {
+            path: 'deep-sensory-set',
+            name: 'deep-sensory-set',
+            component: () => import('@/views/train-mode/deep-sensory/set'),
+            meta: ['深感觉训练-参数设置']
           },
           // 静态训练-参数设置
           {

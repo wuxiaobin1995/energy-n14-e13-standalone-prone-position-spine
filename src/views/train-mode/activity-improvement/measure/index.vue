@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-12 17:42:55
- * @LastEditTime: 2023-02-07 17:58:11
+ * @LastEditTime: 2023-02-08 09:52:49
  * @Description : 活动度改善训练-具体测量
 -->
 <template>
@@ -400,7 +400,7 @@ export default {
           yesArray.push(differenceVal)
         }
       }
-      const result = parseFloat(
+      const completion = parseFloat(
         ((yesArray.length / this.depthArray.length) * 100).toFixed(0)
       )
 
@@ -421,7 +421,7 @@ export default {
           pdfTime: this.pdfTime,
           num: this.num,
           intervalTime: this.intervalTime,
-          completion: result,
+          completion: completion,
           depthArray: this.depthArray,
           targetUp: this.targetUp,
           targetDown: this.targetDown,

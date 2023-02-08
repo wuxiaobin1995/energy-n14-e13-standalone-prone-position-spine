@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-09 16:54:56
- * @LastEditTime: 2023-02-07 17:35:43
+ * @LastEditTime: 2023-02-08 14:22:07
  * @Description : 训练-项目选择
 -->
 <template>
@@ -19,6 +19,28 @@
         round
         @click="handleActivityImprovement"
         >活动度改善训练</el-button
+      >
+
+      <el-button
+        class="item"
+        :class="[isStabilizerActivation]"
+        :icon="
+          isStabilizerActivation === 'btn__active' ? 'el-icon-circle-check' : ''
+        "
+        type="warning"
+        round
+        @click="handleStabilizerActivation"
+        >局部稳定肌激活</el-button
+      >
+
+      <el-button
+        class="item"
+        :class="[isDeepSensory]"
+        :icon="isDeepSensory === 'btn__active' ? 'el-icon-circle-check' : ''"
+        type="success"
+        round
+        @click="handleDeepSensory"
+        >深感觉训练</el-button
       >
 
       <el-button
@@ -58,6 +80,8 @@ export default {
     return {
       /* 动态css */
       isActiveActivityImprovement: '',
+      isStabilizerActivation: '',
+      isDeepSensory: '',
       isActiveStatic: '',
       isActiveDynamic: ''
     }
@@ -70,6 +94,16 @@ export default {
           this.isActiveActivityImprovement = 'btn__active'
         } else {
           this.isActiveActivityImprovement = ''
+        }
+        if (newVal === '/train-select/stabilizer-activation-set') {
+          this.isStabilizerActivation = 'btn__active'
+        } else {
+          this.isStabilizerActivation = ''
+        }
+        if (newVal === '/train-select/deep-sensory-set') {
+          this.isDeepSensory = 'btn__active'
+        } else {
+          this.isDeepSensory = ''
         }
         if (newVal === '/train-select/static-set') {
           this.isActiveStatic = 'btn__active'
@@ -92,6 +126,20 @@ export default {
      */
     handleActivityImprovement() {
       this.$router.push({ path: '/train-select/activity-improvement-set' })
+    },
+
+    /**
+     * @description: 局部稳定肌激活训练
+     */
+    handleStabilizerActivation() {
+      this.$router.push({ path: '/train-select/stabilizer-activation-set' })
+    },
+
+    /**
+     * @description: 深感觉训练
+     */
+    handleDeepSensory() {
+      this.$router.push({ path: '/train-select/deep-sensory-set' })
     },
 
     /**
