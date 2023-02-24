@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-12 21:31:50
- * @LastEditTime: 2022-12-15 15:30:08
+ * @LastEditTime: 2023-02-22 17:17:12
  * @Description : 静态训练-导出PDF
 -->
 <template>
@@ -59,7 +59,8 @@
 </template>
 
 <script>
-import { ipcRenderer } from 'electron'
+/* 数据库 */
+import { initDB } from '@/db/index.js'
 
 export default {
   name: 'train-static-pdf',
@@ -67,7 +68,8 @@ export default {
   data() {
     return {
       /* 路由传参 */
-      dataId: JSON.parse(this.$route.query.dataId),
+      userId: JSON.parse(this.$route.query.userId),
+      pdfTime: JSON.parse(this.$route.query.pdfTime),
       routerName: JSON.parse(this.$route.query.routerName),
 
       /* 图形相关变量 */
@@ -110,125 +112,83 @@ export default {
   },
 
   created() {
-    this.getOnlyData()
+    this.getTrainData()
   },
 
   methods: {
     /**
-     * @description: 从后端通过 train_record_id 获取一条训练数据
+     * @description: 获取对应 [ID、训练时间] 的训练报告源数据，并做相关计算
      */
-    getOnlyData() {
+    getTrainData() {
       this.fullscreenLoading = true
-      this.$axios
-        .post('/getOneTrainRecord_v2', {
-          train_record_id: this.dataId
+      const db = initDB()
+      db.train_data
+        .where({
+          userId: this.userId,
+          pdfTime: this.pdfTime
         })
+        .toArray()
         .then(res => {
-          const data = res.data
-          if (data.status === 1) {
-            /* 成功 */
-            this.pdfData.userName = data.result.user_name
-            this.pdfData.sex = data.result.sex === 1 ? '男' : '女'
-            this.pdfData.pdfTime = data.result.create_time
-            this.pdfData.depthArray = JSON.parse(data.result.record_array)
-            this.pdfData.completion = data.result.completion
-            this.pdfData.keepTime = data.result.keep_time
-            this.pdfData.target = data.result.training_target
-            this.pdfData.type = data.result.type
-
-            /* 根据不同的类型展示不同图片 */
-            if (this.pdfData.type === 'static-1') {
-              this.showSrc = this.oneSrc
-            } else if (this.pdfData.type === 'static-2') {
-              this.showSrc = this.twoSrc
-            } else if (this.pdfData.type === 'static-3') {
-              this.showSrc = this.threeSrc
-            }
-
-            /* 根据不同的评分动态变化显示 */
-            if (this.pdfData.completion < 40) {
-              this.advice = '内核心稳定性差，建议加强静态训练'
-              this.lv = this.fourLv
-              this.textLv = '差'
-              this.colorLv = '#FA5151'
-            } else if (
-              this.pdfData.completion >= 40 &&
-              this.pdfData.completion <= 59
-            ) {
-              this.advice = '内核心稳定性较差，建议加强静态训练'
-              this.lv = this.threeLv
-              this.textLv = '较差'
-              this.colorLv = '#FFC300'
-            } else if (
-              this.pdfData.completion >= 60 &&
-              this.pdfData.completion <= 79
-            ) {
-              this.advice = '内核心稳定性良好，建议加强静态训练'
-              this.lv = this.twoLv
-              this.textLv = '良好'
-              this.colorLv = '#00B578'
-            } else {
-              this.advice = '内核心稳定性优秀，建议加强动态训练'
-              this.lv = this.oneLv
-              this.textLv = '优秀'
-              this.colorLv = '#07B9B9'
-            }
-
-            /* 渲染图形 */
-            this.initChart()
-          } else if (data.status === 0) {
-            /* 失败 */
-            this.$confirm(
-              `[状态码为 ${data.status}] 获取数据失败，请重试！`,
-              '警告',
-              {
-                type: 'error',
-                center: true,
-                showClose: false,
-                closeOnClickModal: false,
-                closeOnPressEscape: false,
-                confirmButtonText: '重 试',
-                cancelButtonText: '返 回'
-              }
-            )
-              .then(() => {
-                this.getOnlyData()
-              })
-              .catch(() => {
-                this.handleGoBack()
-              })
-          } else if (data.status === -11) {
-            /* 传参错误 */
-            this.$alert(
-              `[状态码为 ${data.status}] [${data.message}] 传参错误，请重启软件！`,
-              '警告',
-              {
-                type: 'error',
-                showClose: false,
-                confirmButtonText: '关闭软件',
-                callback: () => {
-                  ipcRenderer.send('close') // 关闭整个程序
-                }
-              }
-            )
+          this.pdfData = res[0]
+        })
+        .then(() => {
+          /* 根据不同的类型展示不同图片 */
+          if (this.pdfData.action === '1') {
+            this.showSrc = this.oneSrc
+          } else if (this.pdfData.action === '2') {
+            this.showSrc = this.twoSrc
+          } else if (this.pdfData.action === '3') {
+            this.showSrc = this.threeSrc
           }
+
+          /* 根据不同的评分动态变化显示 */
+          if (this.pdfData.completion < 40) {
+            this.advice = '内核心稳定性差，建议加强静态训练'
+            this.lv = this.fourLv
+            this.textLv = '差'
+            this.colorLv = '#FA5151'
+          } else if (
+            this.pdfData.completion >= 40 &&
+            this.pdfData.completion <= 59
+          ) {
+            this.advice = '内核心稳定性较差，建议加强静态训练'
+            this.lv = this.threeLv
+            this.textLv = '较差'
+            this.colorLv = '#FFC300'
+          } else if (
+            this.pdfData.completion >= 60 &&
+            this.pdfData.completion <= 79
+          ) {
+            this.advice = '内核心稳定性良好，建议加强静态训练'
+            this.lv = this.twoLv
+            this.textLv = '良好'
+            this.colorLv = '#00B578'
+          } else {
+            this.advice = '内核心稳定性优秀，建议加强动态训练'
+            this.lv = this.oneLv
+            this.textLv = '优秀'
+            this.colorLv = '#07B9B9'
+          }
+
+          /* 渲染图形 */
+          this.initChart()
         })
         .catch(err => {
           this.$confirm(
-            `[静态训练-PDF报告环节] ${err}。请确保网络连接正常！`,
-            '网络请求错误',
+            `${err}。获取ID为 [${this.userId}] 的用户数据失败，请重试！`,
+            '提示',
             {
-              type: 'error',
+              type: 'warning',
               center: true,
               showClose: false,
               closeOnClickModal: false,
               closeOnPressEscape: false,
-              confirmButtonText: '刷新页面',
+              confirmButtonText: '重 试',
               cancelButtonText: '返 回'
             }
           )
             .then(() => {
-              this.getOnlyData()
+              this.getTrainData()
             })
             .catch(() => {
               this.handleGoBack()

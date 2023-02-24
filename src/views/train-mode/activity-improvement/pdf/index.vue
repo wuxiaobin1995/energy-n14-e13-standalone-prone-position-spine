@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-12 21:31:50
- * @LastEditTime: 2023-02-07 18:05:14
+ * @LastEditTime: 2023-02-22 17:18:40
  * @Description : 活动度改善训练-导出PDF
 -->
 <template>
@@ -176,7 +176,7 @@ export default {
             }
           )
             .then(() => {
-              this.getTestData()
+              this.getTrainData()
             })
             .catch(() => {
               this.handleGoBack()

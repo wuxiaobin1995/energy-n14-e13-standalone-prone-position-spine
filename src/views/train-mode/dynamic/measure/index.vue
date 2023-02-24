@@ -5,7 +5,7 @@
  * @Description : 动态训练-具体测量
 -->
 <template>
-  <div class="dynamic-measure" v-loading.fullscreen.lock="fullscreenLoading">
+  <div class="dynamic-measure">
     <div class="wrapper">
       <!-- 主区域 -->
       <div class="main">
@@ -93,7 +93,8 @@
 import SerialPort from 'serialport'
 import Readline from '@serialport/parser-readline'
 
-import { ipcRenderer } from 'electron'
+/* 数据库 */
+import { initDB } from '@/db/index.js'
 
 export default {
   name: 'dynamic-measure',
@@ -120,12 +121,12 @@ export default {
       threeSrc: require('@/assets/img/Train/Dynamic/3.gif'),
 
       /* 其他 */
-      fullscreenLoading: false,
       timeClock: null, // 计时器
       time: JSON.parse(this.$route.query.keepTime), // 倒计时
       core: 0, // 光标数值
       depthArray: [], // 数据数组
-      dataId: null // 后端数据库中数据的id，字符串类型
+
+      pdfTime: ''
     }
   },
 
@@ -294,110 +295,55 @@ export default {
           yesArray.push(item)
         }
       }
-      const result = parseFloat(
+      const completion = parseFloat(
         ((yesArray.length / this.depthArray.length) * 100).toFixed(0)
       )
 
-      /* 保存 */
-      const facilityID = window.localStorage.getItem('facilityID')
-      this.fullscreenLoading = true
-      this.$axios
-        .post('/saveTrainRecord_v2', {
-          devices_name: facilityID,
-          user_id: this.$store.state.currentUserInfo.userId,
-          keep_time: this.keepTime,
-          training_target: this.target,
-          completion: result,
-          record_array: JSON.stringify(this.depthArray),
-          type: `dynamic-${this.action}`
+      /* 保存到数据库 */
+      this.pdfTime = this.$moment().format('YYYY-MM-DD HH:mm:ss')
+      const hospital = window.localStorage.getItem('hospital')
+      const db = initDB()
+      db.train_data
+        .add({
+          hospital: hospital,
+          userId: this.$store.state.currentUserInfo.userId,
+          userName: this.$store.state.currentUserInfo.userName,
+          sex: this.$store.state.currentUserInfo.sex,
+          height: this.$store.state.currentUserInfo.height,
+          weight: this.$store.state.currentUserInfo.weight,
+          birthday: this.$store.state.currentUserInfo.birthday,
+
+          pdfTime: this.pdfTime,
+
+          halfScope: this.halfScope,
+          target: this.target,
+          keepTime: this.keepTime,
+          action: this.action,
+          completion: completion,
+          depthArray: this.depthArray,
+          type: '动态训练'
         })
-        .then(res => {
-          const data = res.data
-          if (data.status === 1) {
-            /* 成功 */
-            this.isFinish = true
-            this.time = this.keepTime // 倒计时
-            this.dataId = data.result.train_record_id
-            this.$message({
-              message: `[状态码为 ${data.status}] 数据保存成功`,
-              type: 'success',
-              duration: 3000
-            })
-          } else if (data.status === 0) {
-            /* 失败 */
-            this.$alert(
-              `[状态码为 ${data.status}] 数据保存失败，请点击"返回上一页"按钮，然后重新测试！`,
-              '警告',
-              {
-                type: 'error',
-                showClose: false,
-                confirmButtonText: '返回上一页',
-                callback: () => {
-                  this.handleGoBack()
-                }
-              }
-            )
-          } else if (data.status === -6) {
-            /* 该用户ID不存在 */
-            this.$alert(
-              `[状态码为 ${data.status}] 该用户ID不存在，请重启软件！`,
-              '警告',
-              {
-                type: 'error',
-                showClose: false,
-                confirmButtonText: '关闭软件',
-                callback: () => {
-                  ipcRenderer.send('close') // 关闭整个程序
-                }
-              }
-            )
-          } else if (data.status === -9) {
-            /* 该设备编号不存在 */
-            this.$alert(
-              `[状态码为 ${data.status}] 该设备编号不存在，请重启软件！`,
-              '警告',
-              {
-                type: 'error',
-                showClose: false,
-                confirmButtonText: '关闭软件',
-                callback: () => {
-                  ipcRenderer.send('close') // 关闭整个程序
-                }
-              }
-            )
-          } else if (data.status === -11) {
-            /* 传参错误 */
-            this.$alert(
-              `[状态码为 ${data.status}] [${data.message}] 传参错误，请重启软件！`,
-              '警告',
-              {
-                type: 'error',
-                showClose: false,
-                confirmButtonText: '关闭软件',
-                callback: () => {
-                  ipcRenderer.send('close') // 关闭整个程序
-                }
-              }
-            )
-          }
+        .then(() => {
+          this.$message({
+            message: '数据保存成功',
+            type: 'success',
+            duration: 1500
+          })
         })
-        .catch(err => {
-          this.$alert(
-            `[动态训练环节] ${err}。请确保网络连接正常，点击"返回上一页"按钮，然后重新测试！`,
-            '网络请求错误',
-            {
-              type: 'error',
-              showClose: false,
-              confirmButtonText: '返回上一页',
-              callback: () => {
-                this.handleGoBack()
-              }
+        .then(() => {
+          this.isFinish = true
+          this.time = this.keepTime // 倒计时
+        })
+        .catch(() => {
+          this.$alert(`请点击"返回"按钮，然后重新测试！`, '数据保存失败', {
+            type: 'error',
+            showClose: false,
+            center: true,
+            confirmButtonText: '返回',
+            callback: () => {
+              this.handleGoBack()
             }
-          )
-        })
-        .finally(() => {
-          this.fullscreenLoading = false
-          this.isStart = false
+          })
         })
     },
 
@@ -429,7 +375,8 @@ export default {
       this.$router.push({
         path: '/train-dynamic-pdf',
         query: {
-          dataId: JSON.stringify(this.dataId),
+          userId: JSON.stringify(this.$store.state.currentUserInfo.userId),
+          pdfTime: JSON.stringify(this.pdfTime),
           routerName: JSON.stringify('/train-select/dynamic-set')
         }
       })
