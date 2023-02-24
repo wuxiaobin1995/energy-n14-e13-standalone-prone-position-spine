@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-09 21:42:38
- * @LastEditTime: 2023-02-22 16:56:03
+ * @LastEditTime: 2023-02-24 15:52:57
  * @Description : 静态训练-参数设置
 -->
 <template>

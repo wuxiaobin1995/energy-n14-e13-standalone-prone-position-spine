@@ -1,12 +1,12 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-14 17:35:07
- * @LastEditTime: 2022-12-14 17:38:46
- * @Description : 腹式呼吸训练-导出长期趋势PDF
+ * @LastEditTime: 2023-02-24 17:00:48
+ * @Description : 深感觉训练-导出长期趋势PDF
 -->
 <template>
   <div
-    class="train-abdominal-respiration-secular-trend-pdf"
+    class="train-deep-sensory-secular-trend-pdf"
     v-loading.fullscreen.lock="fullscreenLoading"
   >
     <!-- PDF区域 -->
@@ -14,7 +14,7 @@
       <div class="top">
         <el-image class="logo" :src="logoSrc" fit="scale-down"></el-image>
 
-        <div class="title">腹式呼吸训练-长期趋势报告</div>
+        <div class="title">深感觉训练-长期趋势报告</div>
 
         <div class="divider"></div>
 
@@ -45,15 +45,17 @@
 </template>
 
 <script>
-import { ipcRenderer } from 'electron'
+import { initDB } from '@/db/index.js'
 
 export default {
-  name: 'train-abdominal-respiration-secular-trend-pdf',
+  name: 'train-deep-sensory-secular-trend-pdf',
 
   data() {
     return {
       /* 路由传参 */
+      userId: JSON.parse(this.$route.query.userId),
       routerName: JSON.parse(this.$route.query.routerName),
+      type: JSON.parse(this.$route.query.type),
 
       /* 图形相关变量 */
       myChart: null,
@@ -68,112 +70,48 @@ export default {
       hospital: window.localStorage.getItem('hospital')
         ? window.localStorage.getItem('hospital')
         : '未设置医院',
-      completionArray: [] // 评分数组
+      averageCoreArray: [] // 平均值数组
     }
   },
 
-  mounted() {
-    this.getTypeData()
+  created() {
+    this.getData()
   },
 
   methods: {
     /**
-     * @description: 从后端通过 type 获取全部记录
+     * @description: 根据userId、type复合查询该次的数据
      */
-    getTypeData() {
+    getData() {
       this.fullscreenLoading = true
-      const facilityID = window.localStorage.getItem('facilityID')
-      this.$axios
-        .post('/getTrainRecordByType_v2', {
-          devices_name: facilityID,
-          user_id: this.$store.state.currentUserInfo.userId,
-          type: 'abdominal-respiration'
+      const db = initDB()
+      db.train_data
+        .where({
+          userId: this.userId,
+          type: this.type
         })
+        .toArray()
         .then(res => {
-          const data = res.data
-          if (data.status === 1) {
-            /* 成功 */
-            this.completionArray = []
-            this.xData = []
-            for (let i = 0; i < data.result.length; i++) {
-              const element = data.result[i]
+          this.trainData = res
+        })
+        .then(() => {
+          for (let i = 0; i < this.trainData.length; i++) {
+            const element = this.trainData[i]
 
-              this.completionArray.push(element.completion)
-              this.xData.push(element.create_time)
-            }
-
-            this.initChart()
-          } else if (data.status === 0) {
-            /* 失败 */
-            this.$confirm(
-              `[状态码为 ${data.status}] 获取数据失败，请重试！`,
-              '警告',
-              {
-                type: 'error',
-                center: true,
-                showClose: false,
-                closeOnClickModal: false,
-                closeOnPressEscape: false,
-                confirmButtonText: '重 试',
-                cancelButtonText: '返 回'
-              }
-            )
-              .then(() => {
-                this.getTypeData()
-              })
-              .catch(() => {
-                this.handleGoBack()
-              })
-          } else if (data.status === -6) {
-            /* 该用户ID不存在 */
-            this.$alert(
-              `[状态码为 ${data.status}] 该用户ID不存在，请重启软件！`,
-              '警告',
-              {
-                type: 'error',
-                showClose: false,
-                confirmButtonText: '关闭软件',
-                callback: () => {
-                  ipcRenderer.send('close') // 关闭整个程序
-                }
-              }
-            )
-          } else if (data.status === -9) {
-            /* 该设备编号不存在 */
-            this.$alert(
-              `[状态码为 ${data.status}] 该设备编号不存在，请重启软件！`,
-              '警告',
-              {
-                type: 'error',
-                showClose: false,
-                confirmButtonText: '关闭软件',
-                callback: () => {
-                  ipcRenderer.send('close') // 关闭整个程序
-                }
-              }
-            )
-          } else if (data.status === -11) {
-            /* 传参错误 */
-            this.$alert(
-              `[状态码为 ${data.status}] [${data.message}] 传参错误，请重启软件！`,
-              '警告',
-              {
-                type: 'error',
-                showClose: false,
-                confirmButtonText: '关闭软件',
-                callback: () => {
-                  ipcRenderer.send('close') // 关闭整个程序
-                }
-              }
-            )
+            this.averageCoreArray.push(element.averageCore)
+            this.xData.push(element.pdfTime)
           }
+        })
+        .then(() => {
+          // 绘图
+          this.initChart()
         })
         .catch(err => {
           this.$confirm(
-            `[腹式呼吸训练-长期趋势报告环节] ${err}。请确保网络连接正常！`,
-            '网络请求错误',
+            `${err}。获取ID为 [${this.userId}] 的用户数据失败，请重试！`,
+            '提示',
             {
-              type: 'error',
+              type: 'warning',
               center: true,
               showClose: false,
               closeOnClickModal: false,
@@ -183,7 +121,7 @@ export default {
             }
           )
             .then(() => {
-              this.getTypeData()
+              this.getData()
             })
             .catch(() => {
               this.handleGoBack()
@@ -216,7 +154,7 @@ export default {
         series: [
           {
             name: '训练评分',
-            data: this.completionArray,
+            data: this.averageCoreArray,
             color: 'green',
             type: 'line',
             smooth: false,
@@ -234,7 +172,7 @@ export default {
     handlePdf() {
       this.$htmlToPdf(
         'pdf',
-        `腹式呼吸训练-长期趋势报告 ${this.$moment().format(
+        `深感觉训练-长期趋势报告 ${this.$moment().format(
           'YYYY-MM-DD HH_mm_ss'
         )}`,
         500
@@ -254,7 +192,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.train-abdominal-respiration-secular-trend-pdf {
+.train-deep-sensory-secular-trend-pdf {
   width: 100vw;
   height: 100vh;
   padding: 10px;

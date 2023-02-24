@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-09 16:54:56
- * @LastEditTime: 2023-02-08 14:22:07
+ * @LastEditTime: 2023-02-24 15:15:44
  * @Description : 训练-项目选择
 -->
 <template>

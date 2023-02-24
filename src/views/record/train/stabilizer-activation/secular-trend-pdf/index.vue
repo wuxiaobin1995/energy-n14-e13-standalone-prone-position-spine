@@ -1,12 +1,12 @@
 <!--
  * @Author      : Mr.bin
- * @Date        : 2022-12-14 10:13:00
- * @LastEditTime: 2023-02-24 10:33:33
- * @Description : 骨盆灵活度测试-导出长期趋势PDF
+ * @Date        : 2023-02-24 17:08:22
+ * @LastEditTime: 2023-02-24 17:08:27
+ * @Description : 局部稳定肌激活训练-导出长期趋势PDF
 -->
 <template>
   <div
-    class="test-flexibility-secular-trend-pdf"
+    class="train-stabilizer-activation-secular-trend-pdf"
     v-loading.fullscreen.lock="fullscreenLoading"
   >
     <!-- PDF区域 -->
@@ -14,7 +14,7 @@
       <div class="top">
         <el-image class="logo" :src="logoSrc" fit="scale-down"></el-image>
 
-        <div class="title">骨盆灵活度测试-长期趋势报告</div>
+        <div class="title">局部稳定肌激活训练-长期趋势报告</div>
 
         <div class="divider"></div>
 
@@ -48,7 +48,7 @@
 import { initDB } from '@/db/index.js'
 
 export default {
-  name: 'test-flexibility-secular-trend-pdf',
+  name: 'train-stabilizer-activation-secular-trend-pdf',
 
   data() {
     return {
@@ -70,7 +70,7 @@ export default {
       hospital: window.localStorage.getItem('hospital')
         ? window.localStorage.getItem('hospital')
         : '未设置医院',
-      flexibilityArray: [] // 灵活度数组
+      completionArray: [] // 评分数组
     }
   },
 
@@ -85,20 +85,20 @@ export default {
     getData() {
       this.fullscreenLoading = true
       const db = initDB()
-      db.test_data
+      db.train_data
         .where({
           userId: this.userId,
           type: this.type
         })
         .toArray()
         .then(res => {
-          this.testData = res
+          this.trainData = res
         })
         .then(() => {
-          for (let i = 0; i < this.testData.length; i++) {
-            const element = this.testData[i]
+          for (let i = 0; i < this.trainData.length; i++) {
+            const element = this.trainData[i]
 
-            this.flexibilityArray.push(element.flexibility)
+            this.completionArray.push(element.completion)
             this.xData.push(element.pdfTime)
           }
         })
@@ -153,8 +153,8 @@ export default {
         legend: {},
         series: [
           {
-            name: '骨盆灵活度',
-            data: this.flexibilityArray,
+            name: '训练评分',
+            data: this.completionArray,
             color: 'green',
             type: 'line',
             smooth: false,
@@ -172,7 +172,7 @@ export default {
     handlePdf() {
       this.$htmlToPdf(
         'pdf',
-        `骨盆灵活度测试-长期趋势报告 ${this.$moment().format(
+        `局部稳定肌激活训练-长期趋势报告 ${this.$moment().format(
           'YYYY-MM-DD HH_mm_ss'
         )}`,
         500
@@ -192,7 +192,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.test-flexibility-secular-trend-pdf {
+.train-stabilizer-activation-secular-trend-pdf {
   width: 100vw;
   height: 100vh;
   padding: 10px;

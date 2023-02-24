@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-14 16:49:00
- * @LastEditTime: 2022-12-14 16:49:08
+ * @LastEditTime: 2023-02-24 17:04:08
  * @Description : 动态训练-数据记录
 -->
 <template>
@@ -14,12 +14,29 @@
         content="动态训练"
         @back="handleToHome"
       ></el-page-header>
+      <!-- 日期筛选 -->
+      <el-date-picker
+        class="data-select"
+        v-model="selectDateValue"
+        type="daterange"
+        :picker-options="pickerOptions"
+        range-separator="——"
+        start-placeholder="开始日期"
+        end-placeholder="结束日期"
+        value-format="yyyy-MM-dd HH:mm:ss"
+        :editable="false"
+        :clearable="false"
+        :unlink-panels="true"
+        align="right"
+        @change="changeData"
+      >
+      </el-date-picker>
     </div>
 
     <!-- 表格 -->
     <el-table
       class="table"
-      :data="showData"
+      :data="tableData"
       style="width: 100%"
       height="100%"
       :default-sort="{ prop: 'pdfTime', order: 'descending' }"
@@ -44,7 +61,7 @@
       <!-- 动作类型 -->
       <el-table-column
         align="center"
-        prop="type"
+        prop="action"
         label="动作类型"
         width="160"
         sortable
@@ -94,7 +111,7 @@
 </template>
 
 <script>
-import { ipcRenderer } from 'electron'
+import { initDB } from '@/db/index.js'
 
 export default {
   name: 'train-dynamic-record',
@@ -102,12 +119,85 @@ export default {
   data() {
     return {
       tableLoading: true, // 表格加载动画
-      showData: [] // 表格显示的数据
+      tableData: [], // 表格数据
+      // 日期选择器的筛选值
+      selectDateValue: [
+        this.$moment().format('YYYY-MM-DD 00:00:00'),
+        this.$moment().format('YYYY-MM-DD 23:59:59')
+      ],
+      /* 日期选择器快捷选项 */
+      pickerOptions: {
+        shortcuts: [
+          {
+            text: '今天',
+            onClick(picker) {
+              const start = new Date(new Date().setHours(0, 0, 0))
+              const end = new Date(new Date().setHours(23, 59, 59))
+              picker.$emit('pick', [start, end])
+            }
+          },
+          {
+            text: '昨天',
+            onClick(picker) {
+              const start = new Date(new Date().setHours(0, 0, 0))
+              const end = new Date(new Date().setHours(23, 59, 59))
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 1)
+              end.setTime(end.getTime() - 3600 * 1000 * 24 * 1)
+              picker.$emit('pick', [start, end])
+            }
+          },
+          {
+            text: '最近一周',
+            onClick(picker) {
+              const start = new Date(new Date().setHours(0, 0, 0))
+              const end = new Date(new Date().setHours(23, 59, 59))
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+              picker.$emit('pick', [start, end])
+            }
+          },
+          {
+            text: '最近一个月',
+            onClick(picker) {
+              const start = new Date(new Date().setHours(0, 0, 0))
+              const end = new Date(new Date().setHours(23, 59, 59))
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+              picker.$emit('pick', [start, end])
+            }
+          },
+          {
+            text: '最近三个月',
+            onClick(picker) {
+              const start = new Date(new Date().setHours(0, 0, 0))
+              const end = new Date(new Date().setHours(23, 59, 59))
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
+              picker.$emit('pick', [start, end])
+            }
+          },
+          {
+            text: '最近一年',
+            onClick(picker) {
+              const start = new Date(new Date().setHours(0, 0, 0))
+              const end = new Date(new Date().setHours(23, 59, 59))
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 360)
+              picker.$emit('pick', [start, end])
+            }
+          },
+          {
+            text: '该用户所有数据',
+            onClick(picker) {
+              const start = new Date(new Date().setHours(0, 0, 0))
+              const end = new Date(new Date().setHours(23, 59, 59))
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 36000)
+              picker.$emit('pick', [start, end])
+            }
+          }
+        ]
+      }
     }
   },
 
   created() {
-    this.getTypeData()
+    this.initData()
   },
 
   methods: {
@@ -121,118 +211,79 @@ export default {
     },
 
     /**
-     * @description: 从后端通过 type 获取全部记录
+     * @description: 表格数据初始化
      */
-    getTypeData() {
+    initData() {
+      const db = initDB()
       this.tableLoading = true
-      const facilityID = window.localStorage.getItem('facilityID')
-      this.$axios
-        .post('/getTrainRecordByType_v2', {
-          devices_name: facilityID,
-          user_id: this.$store.state.currentUserInfo.userId,
-          type: 'dynamic'
+      db.train_data
+        .where({
+          userId: this.$store.state.currentUserInfo.userId,
+          type: '动态训练'
         })
+        .toArray()
         .then(res => {
-          const data = res.data
-          if (data.status === 1) {
-            /* 把key名改一下，与后端松耦合 */
-            const newData = []
-            for (let i = 0; i < data.result.length; i++) {
-              const total = {}
-              const element = data.result[i]
+          this.tableData = res
+        })
+        .catch(err => {
+          this.$confirm(`${err}。获取数据失败，请点击刷新按钮重试！`, '提示', {
+            type: 'warning',
+            center: true,
+            showClose: false,
+            closeOnClickModal: false,
+            closeOnPressEscape: false,
+            confirmButtonText: '刷 新',
+            cancelButtonText: '返回首页'
+          })
+            .then(() => {
+              this.handleRefresh()
+            })
+            .catch(() => {
+              this.handleToHome()
+            })
+        })
+        .finally(() => {
+          this.tableLoading = false
+        })
+    },
 
-              total.dataId = element.train_record_id
-              total.pdfTime = element.create_time
-              total.completion = element.completion
-              if (element.type === 'dynamic-1') {
-                total.type = '动作一'
-              } else if (element.type === 'dynamic-2') {
-                total.type = '动作二'
-              } else if (element.type === 'dynamic-3') {
-                total.type = '动作三'
-              }
-
-              newData.push(total)
-            }
-
-            /* 渲染表格数据 */
-            this.showData = newData
-          } else if (data.status === 0) {
-            /* 失败 */
-            this.$confirm(
-              `[状态码为 ${data.status}] 获取数据失败，请重试！`,
-              '警告',
-              {
-                type: 'error',
-                center: true,
-                showClose: false,
-                closeOnClickModal: false,
-                closeOnPressEscape: false,
-                confirmButtonText: '重 试',
-                cancelButtonText: '返回首页'
-              }
-            )
-              .then(() => {
-                this.getTypeData()
-              })
-              .catch(() => {
-                this.handleToHome()
-              })
-          } else if (data.status === -6) {
-            /* 该用户ID不存在 */
-            this.$alert(
-              `[状态码为 ${data.status}] 该用户ID不存在，请重启软件！`,
-              '警告',
-              {
-                type: 'error',
-                showClose: false,
-                confirmButtonText: '关闭软件',
-                callback: () => {
-                  ipcRenderer.send('close') // 关闭整个程序
-                }
-              }
-            )
-          } else if (data.status === -9) {
-            /* 该设备编号不存在 */
-            this.$alert(
-              `[状态码为 ${data.status}] 该设备编号不存在，请重启软件！`,
-              '警告',
-              {
-                type: 'error',
-                showClose: false,
-                confirmButtonText: '关闭软件',
-                callback: () => {
-                  ipcRenderer.send('close') // 关闭整个程序
-                }
-              }
-            )
-          } else if (data.status === -11) {
-            /* 传参错误 */
-            this.$alert(
-              `[状态码为 ${data.status}] [${data.message}] 传参错误，请重启软件！`,
-              '警告',
-              {
-                type: 'error',
-                showClose: false,
-                confirmButtonText: '关闭软件',
-                callback: () => {
-                  ipcRenderer.send('close') // 关闭整个程序
-                }
-              }
-            )
-          }
+    /**
+     * @description: 根据日期选择获取表格数据
+     */
+    getData() {
+      const db = initDB()
+      this.tableLoading = true
+      db.train_data
+        .where(['userId', 'type', 'pdfTime'])
+        .between(
+          [
+            this.$store.state.currentUserInfo.userId,
+            '动态训练',
+            this.selectDateValue[0]
+          ],
+          [
+            this.$store.state.currentUserInfo.userId,
+            '动态训练',
+            this.selectDateValue[1]
+          ],
+          true,
+          true
+        )
+        .toArray()
+        .then(res => {
+          this.tableData = res
         })
         .catch(err => {
           this.$confirm(
-            `[动态训练-数据记录环节] ${err}。请确保网络连接正常！`,
-            '网络请求错误',
+            `${err}。根据日期获取数据失败，请点击刷新按钮重试！`,
+            '提示',
             {
-              type: 'error',
+              type: 'warning',
               center: true,
               showClose: false,
               closeOnClickModal: false,
               closeOnPressEscape: false,
-              confirmButtonText: '刷新页面',
+              confirmButtonText: '刷 新',
               cancelButtonText: '返回首页'
             }
           )
@@ -249,6 +300,15 @@ export default {
     },
 
     /**
+     * @description: 用户确认选定的值时触发
+     * @param {*} value 选择的日期数组
+     */
+    changeData(value) {
+      this.selectDateValue = value
+      this.getData()
+    },
+
+    /**
      * @description: 查看报告
      * @param {*} index
      * @param {*} row
@@ -257,86 +317,50 @@ export default {
       this.$router.push({
         path: '/train-dynamic-pdf',
         query: {
-          dataId: JSON.stringify(row.dataId),
+          userId: JSON.stringify(row.userId),
+          pdfTime: JSON.stringify(row.pdfTime),
           routerName: JSON.stringify('/train-record/dynamic')
         }
       })
     },
 
     /**
-     * @description: 删除报告
+     * @description: 删除按钮
      * @param {*} index
      * @param {*} row
      */
     handleDelete(index, row) {
-      this.$confirm('此操作将永久删除该条数据, 是否继续?', '提示', {
-        type: 'warning',
+      this.$confirm('此操作将"永久删除"该数据, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        showClose: false
+        type: 'warning',
+        center: true
       })
         .then(() => {
-          this.tableLoading = true
-          this.$axios
-            .post('/deleteTrainRecord_v2', {
-              train_record_id: row.dataId
+          const db = initDB()
+          db.train_data
+            .where({
+              userId: row.userId,
+              pdfTime: row.pdfTime,
+              type: row.type
             })
-            .then(res => {
-              const data = res.data
-              if (data.status === 1) {
-                /* 成功 */
-                this.$message({
-                  message: '删除成功',
-                  type: 'success',
-                  duration: 2000
-                })
-                this.getTypeData()
-              } else if (data.status === 0) {
-                /* 失败 */
-                this.$alert(
-                  `[状态码为 ${data.status}] 删除失败，请刷新页面后重试！`,
-                  '警告',
-                  {
-                    type: 'error',
-                    showClose: false,
-                    confirmButtonText: '刷新页面',
-                    callback: () => {
-                      this.handleRefresh()
-                    }
-                  }
-                )
-              } else if (data.status === -11) {
-                /* 传参错误 */
-                this.$alert(
-                  `[状态码为 ${data.status}] [${data.message}] 传参错误，请重启软件！`,
-                  '警告',
-                  {
-                    type: 'error',
-                    showClose: false,
-                    confirmButtonText: '关闭软件',
-                    callback: () => {
-                      ipcRenderer.send('close') // 关闭整个程序
-                    }
-                  }
-                )
-              }
+            .delete()
+            .then(() => {
+              this.$message({
+                message: '删除成功',
+                type: 'success',
+                duration: 2000
+              })
             })
-            .catch(err => {
-              this.$alert(
-                `[动态训练-删除数据环节] ${err}。请确保网络连接正常，刷新页面后重试！`,
-                '网络请求错误',
-                {
-                  type: 'error',
-                  showClose: false,
-                  confirmButtonText: '刷新页面',
-                  callback: () => {
-                    this.handleRefresh()
-                  }
-                }
-              )
+            .then(() => {
+              this.getData()
             })
-            .finally(() => {
-              this.tableLoading = false
+            .catch(() => {
+              this.$message({
+                message: '删除失败',
+                type: 'error',
+                duration: 3000
+              })
             })
         })
         .catch(() => {})
@@ -349,7 +373,9 @@ export default {
       this.$router.push({
         path: '/train-dynamic-secular-trend-pdf',
         query: {
-          routerName: JSON.stringify('/train-record/dynamic')
+          userId: JSON.stringify(this.$store.state.currentUserInfo.userId),
+          routerName: JSON.stringify('/train-record/dynamic'),
+          type: JSON.stringify('动态训练')
         }
       })
     },

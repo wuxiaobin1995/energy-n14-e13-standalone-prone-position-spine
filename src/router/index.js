@@ -1,7 +1,7 @@
 /*
  * @Author      : Mr.bin
  * @Date        : 2021-11-09 09:16:02
- * @LastEditTime: 2023-02-08 14:14:54
+ * @LastEditTime: 2023-02-24 17:16:55
  * @Description : 路由
  */
 import Vue from 'vue'
@@ -171,6 +171,21 @@ const routes = [
           import('@/views/train-mode/activity-improvement/measure'),
         meta: ['活动度改善训练-测量页面']
       },
+      // 局部稳定肌激活训练-具体测量
+      {
+        path: 'stabilizer-activation-measure',
+        name: 'stabilizer-activation-measure',
+        component: () =>
+          import('@/views/train-mode/stabilizer-activation/measure'),
+        meta: ['局部稳定肌激活训练-测量页面']
+      },
+      // 深感觉训练-具体测量
+      {
+        path: 'deep-sensory-measure',
+        name: 'deep-sensory-measure',
+        component: () => import('@/views/train-mode/deep-sensory/measure'),
+        meta: ['深感觉训练-测量页面']
+      },
       // 静态训练-具体测量
       {
         path: 'static-measure',
@@ -219,6 +234,21 @@ const routes = [
             component: () =>
               import('@/views/record/train/activity-improvement'),
             meta: ['活动度改善训练']
+          },
+          // 局部稳定肌激活训练
+          {
+            path: 'stabilizer-activation',
+            name: 'train-stabilizer-activation-record',
+            component: () =>
+              import('@/views/record/train/stabilizer-activation'),
+            meta: ['局部稳定肌激活训练']
+          },
+          // 深感觉训练
+          {
+            path: 'deep-sensory',
+            name: 'train-deep-sensory-record',
+            component: () => import('@/views/record/train/deep-sensory'),
+            meta: ['深感觉训练']
           },
           // 静态训练
           {
@@ -272,6 +302,37 @@ const routes = [
       import('@/views/record/train/activity-improvement/secular-trend-pdf'),
     meta: ['活动度改善训练-导出长期趋势PDF']
   },
+  // 局部稳定肌激活训练-导出PDF
+  {
+    path: '/train-stabilizer-activation-pdf',
+    name: 'train-stabilizer-activation-pdf',
+    component: () => import('@/views/train-mode/stabilizer-activation/pdf'),
+    meta: ['局部稳定肌激活训练-导出PDF']
+  },
+  // 局部稳定肌激活训练-导出长期趋势PDF
+  {
+    path: '/train-stabilizer-activation-secular-trend-pdf',
+    name: 'train-stabilizer-activation-secular-trend-pdf',
+    component: () =>
+      import('@/views/record/train/stabilizer-activation/secular-trend-pdf'),
+    meta: ['局部稳定肌激活训练-导出长期趋势PDF']
+  },
+  // 深感觉训练-导出PDF
+  {
+    path: '/train-deep-sensory-pdf',
+    name: 'train-deep-sensory-pdf',
+    component: () => import('@/views/train-mode/deep-sensory/pdf'),
+    meta: ['深感觉训练-导出PDF']
+  },
+  // 深感觉训练-导出长期趋势PDF
+  {
+    path: '/train-deep-sensory-secular-trend-pdf',
+    name: 'train-deep-sensory-secular-trend-pdf',
+    component: () =>
+      import('@/views/record/train/deep-sensory/secular-trend-pdf'),
+    meta: ['深感觉训练-导出长期趋势PDF']
+  },
+
   // 静态训练-导出PDF
   {
     path: '/train-static-pdf',

@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-09 21:12:48
- * @LastEditTime: 2023-02-07 17:45:16
+ * @LastEditTime: 2023-02-24 15:49:20
  * @Description : 活动度改善训练-参数设置
 -->
 <template>

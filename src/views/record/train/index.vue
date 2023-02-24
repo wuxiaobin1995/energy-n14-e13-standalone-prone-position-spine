@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-14 14:37:48
- * @LastEditTime: 2022-12-14 16:11:53
+ * @LastEditTime: 2023-02-24 15:17:05
  * @Description : 训练-数据记录
 -->
 <template>
@@ -10,31 +10,35 @@
       <div class="btn">
         <el-button
           class="item"
-          type="danger"
-          round
-          plain
-          @click="handleCoreActivation"
-          >内核心激活训练</el-button
-        >
-        <el-button
-          class="item"
           type="warning"
           round
           plain
           @click="handleActivityImprovement"
           >活动度改善训练</el-button
         >
+
+        <el-button
+          class="item"
+          type="danger"
+          round
+          plain
+          @click="handleStabilizerActivation"
+          >局部稳定肌激活</el-button
+        >
+
         <el-button
           class="item"
           type="success"
           round
           plain
-          @click="handleAbdominalRespiration"
-          >腹式呼吸训练</el-button
+          @click="handleDeepSensory"
+          >深感觉训练</el-button
         >
+
         <el-button class="item" type="primary" round plain @click="handleStatic"
           >静态训练</el-button
         >
+
         <el-button class="item" type="info" round plain @click="handleDynamic"
           >动态训练</el-button
         >
@@ -55,13 +59,6 @@ export default {
 
   methods: {
     /**
-     * @description: 内核心激活训练
-     */
-    handleCoreActivation() {
-      this.$router.push({ path: '/train-record/core-activation' })
-    },
-
-    /**
      * @description: 活动度改善训练
      */
     handleActivityImprovement() {
@@ -69,10 +66,17 @@ export default {
     },
 
     /**
-     * @description: 腹式呼吸训练
+     * @description: 局部稳定肌激活训练
      */
-    handleAbdominalRespiration() {
-      this.$router.push({ path: '/train-record/abdominal-respiration' })
+    handleStabilizerActivation() {
+      this.$router.push({ path: '/train-record/stabilizer-activation' })
+    },
+
+    /**
+     * @description: 深感觉训练
+     */
+    handleDeepSensory() {
+      this.$router.push({ path: '/train-record/deep-sensory' })
     },
 
     /**

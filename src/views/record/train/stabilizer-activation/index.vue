@@ -1,17 +1,17 @@
 <!--
  * @Author      : Mr.bin
- * @Date        : 2022-12-14 10:10:35
- * @LastEditTime: 2023-02-24 10:28:38
- * @Description : 骨盆灵活度测试-数据记录
+ * @Date        : 2023-02-24 17:06:48
+ * @LastEditTime: 2023-02-24 17:11:08
+ * @Description : 局部稳定肌激活训练-数据记录
 -->
 <template>
-  <div class="test-flexibility-record">
+  <div class="train-stabilizer-activation-record">
     <!-- 顶部 -->
     <div class="top">
       <!-- 标题 -->
       <el-page-header
         title="返回首页"
-        content="骨盆灵活度测试"
+        content="局部稳定肌激活训练"
         @back="handleToHome"
       ></el-page-header>
       <!-- 日期筛选 -->
@@ -54,29 +54,23 @@
       <el-table-column
         align="center"
         prop="pdfTime"
-        label="测试时间"
+        label="训练时间"
         width="260"
         sortable
       ></el-table-column>
-      <!-- 上限 -->
+      <!-- 训练个数 -->
+      <!-- <el-table-column
+        align="center"
+        prop="num"
+        label="训练个数"
+        width="120"
+        sortable
+      ></el-table-column> -->
+      <!-- 训练评分 -->
       <el-table-column
         align="center"
-        prop="maxDepth"
-        label="上限"
-        width="200"
-      ></el-table-column>
-      <!-- 下限 -->
-      <el-table-column
-        align="center"
-        prop="minDepth"
-        label="下限"
-        width="200"
-      ></el-table-column>
-      <!-- 灵活度 -->
-      <el-table-column
-        align="center"
-        prop="flexibility"
-        label="骨盆灵活度"
+        prop="completion"
+        label="训练评分"
         sortable
       ></el-table-column>
 
@@ -120,7 +114,7 @@
 import { initDB } from '@/db/index.js'
 
 export default {
-  name: 'test-flexibility-record',
+  name: 'train-stabilizer-activation-record',
 
   data() {
     return {
@@ -222,10 +216,10 @@ export default {
     initData() {
       const db = initDB()
       this.tableLoading = true
-      db.test_data
+      db.train_data
         .where({
           userId: this.$store.state.currentUserInfo.userId,
-          type: '骨盆灵活度测试'
+          type: '局部稳定肌激活训练'
         })
         .toArray()
         .then(res => {
@@ -259,17 +253,17 @@ export default {
     getData() {
       const db = initDB()
       this.tableLoading = true
-      db.test_data
+      db.train_data
         .where(['userId', 'type', 'pdfTime'])
         .between(
           [
             this.$store.state.currentUserInfo.userId,
-            '骨盆灵活度测试',
+            '局部稳定肌激活训练',
             this.selectDateValue[0]
           ],
           [
             this.$store.state.currentUserInfo.userId,
-            '骨盆灵活度测试',
+            '局部稳定肌激活训练',
             this.selectDateValue[1]
           ],
           true,
@@ -321,11 +315,11 @@ export default {
      */
     handleToPdf(index, row) {
       this.$router.push({
-        path: '/test-flexibility-pdf',
+        path: '/train-stabilizer-activation-pdf',
         query: {
           userId: JSON.stringify(row.userId),
           pdfTime: JSON.stringify(row.pdfTime),
-          routerName: JSON.stringify('/test-record/flexibility')
+          routerName: JSON.stringify('/train-record/stabilizer-activation')
         }
       })
     },
@@ -344,7 +338,7 @@ export default {
       })
         .then(() => {
           const db = initDB()
-          db.test_data
+          db.train_data
             .where({
               userId: row.userId,
               pdfTime: row.pdfTime,
@@ -377,11 +371,11 @@ export default {
      */
     handleSecularTrend() {
       this.$router.push({
-        path: '/test-flexibility-secular-trend-pdf',
+        path: '/train-stabilizer-activation-secular-trend-pdf',
         query: {
           userId: JSON.stringify(this.$store.state.currentUserInfo.userId),
-          routerName: JSON.stringify('/test-record/flexibility'),
-          type: JSON.stringify('骨盆灵活度测试')
+          routerName: JSON.stringify('/train-record/stabilizer-activation'),
+          type: JSON.stringify('局部稳定肌激活训练')
         }
       })
     },
@@ -393,7 +387,7 @@ export default {
       this.$router.push({
         path: '/refresh',
         query: {
-          routerName: JSON.stringify('/test-record/flexibility'),
+          routerName: JSON.stringify('/train-record/stabilizer-activation'),
           duration: JSON.stringify(300)
         }
       })
@@ -403,7 +397,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.test-flexibility-record {
+.train-stabilizer-activation-record {
   width: 100%;
   height: 90%;
   @include flex(column, stretch, center);

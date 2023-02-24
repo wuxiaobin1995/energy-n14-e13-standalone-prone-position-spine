@@ -1,12 +1,12 @@
 <!--
  * @Author      : Mr.bin
- * @Date        : 2022-05-23 11:48:39
- * @LastEditTime: 2022-06-27 14:49:53
- * @Description : 深感觉测试-PDF报告
+ * @Date        : 2023-02-24 16:36:11
+ * @LastEditTime: 2023-02-24 16:53:12
+ * @Description : 深感觉训练-导出PDF
 -->
 <template>
   <div
-    class="deep-sensory-test-pdf"
+    class="train-deep-sensory-pdf"
     v-loading.fullscreen.lock="fullscreenLoading"
   >
     <!-- PDF区域 -->
@@ -15,12 +15,12 @@
       <div class="up">
         <div>
           <!-- 标题 -->
-          <div class="title">深感觉测试报告</div>
+          <div class="title">深感觉训练报告</div>
           <!-- 基本信息 -->
           <div class="info">
             <div class="info__item">姓名：{{ pdfData.userName }}</div>
             <div class="info__item">性别：{{ pdfData.sex }}</div>
-            <div class="info__item">测试日期：{{ pdfData.pdfTime }}</div>
+            <div class="info__item">训练日期：{{ pdfData.pdfTime }}</div>
           </div>
         </div>
 
@@ -45,7 +45,7 @@
           </div>
           <div class="item">
             <div class="text">平均值</div>
-            <div class="val">{{ averageVal }}</div>
+            <div class="val">{{ pdfData.averageCore }}</div>
           </div>
         </div>
       </div>
@@ -71,7 +71,7 @@
 
     <!-- 按钮组 -->
     <div class="btn">
-      <el-button class="btn__item" type="primary" @click="handlePrint"
+      <el-button class="btn__item" type="primary" @click="handlePdf"
         >保存PDF</el-button
       >
       <el-button class="btn__item" type="success" plain @click="handleGoBack"
@@ -82,16 +82,23 @@
 </template>
 
 <script>
-import { ipcRenderer } from 'electron'
+/* 数据库 */
+import { initDB } from '@/db/index.js'
 
 export default {
-  name: 'deep-sensory-test-pdf',
+  name: 'train-deep-sensory-pdf',
 
   data() {
     return {
+      /* 路由传参 */
+      userId: JSON.parse(this.$route.query.userId),
+      pdfTime: JSON.parse(this.$route.query.pdfTime),
+      routerName: JSON.parse(this.$route.query.routerName),
+
       fullscreenLoading: false,
-      dataId: this.$route.query.dataId, // 字符串类型
+
       logoSrc: require('@/assets/img/Company_Logo/logo_1.png'), // 公司商标
+
       adviceShow: '',
       // 数据
       pdfData: {
@@ -101,113 +108,60 @@ export default {
         target: '',
         oneVal: '',
         twoVal: '',
-        threeVal: ''
-      },
-
-      averageVal: ''
+        threeVal: '',
+        averageVal: ''
+      }
     }
   },
 
   created() {
-    this.$store.dispatch('setIsCollapse', true)
-
-    this.getData()
+    this.getTrainData()
   },
 
   methods: {
     /**
-     * @description: 从后端获取测试数据
+     * @description: 获取对应 [ID、训练时间] 的训练报告源数据，并做相关计算
      */
-    getData() {
+    getTrainData() {
       this.fullscreenLoading = true
-      this.$axios
-        .post('/getOneTestRecord', {
-          test_record_id: this.dataId
+      const db = initDB()
+      db.train_data
+        .where({
+          userId: this.userId,
+          pdfTime: this.pdfTime
         })
+        .toArray()
         .then(res => {
-          // console.log(res)
-          const data = res.data
-          if (data.status === 1) {
-            /* 成功 */
-            this.pdfData.userName = data.result.user_name
-            this.pdfData.sex = data.result.sex === 0 ? '女' : '男'
-            this.pdfData.pdfTime = data.result.create_time
-            this.pdfData.target = data.result.target
-            this.pdfData.oneVal = data.result.oneVal
-            this.pdfData.twoVal = data.result.twoVal
-            this.pdfData.threeVal = data.result.threeVal
-
-            this.averageVal = parseFloat(
-              (
-                (this.pdfData.oneVal +
-                  this.pdfData.twoVal +
-                  this.pdfData.threeVal) /
-                3
-              ).toFixed(1)
-            )
-            const res = Math.abs(this.averageVal - this.pdfData.target)
-            if (res <= 5) {
-              this.adviceShow = '好'
-            } else if (res > 5 && res <= 7.5) {
-              this.adviceShow = '较差'
-            } else if (res > 7.5) {
-              this.adviceShow = '差'
-            } else {
-              this.adviceShow = ''
-            }
-          } else if (data.status === 0) {
-            /* 失败 */
-            this.$confirm(
-              `[状态码为 ${data.status}] 获取数据失败，请重试！`,
-              '警告',
-              {
-                type: 'error',
-                center: true,
-                showClose: false,
-                closeOnClickModal: false,
-                closeOnPressEscape: false,
-                confirmButtonText: '重 试',
-                cancelButtonText: '返 回'
-              }
-            )
-              .then(() => {
-                this.getData()
-              })
-              .catch(() => {
-                this.handleGoBack()
-              })
-          } else if (data.status === -11) {
-            /* 传参错误 */
-            this.$alert(
-              `[状态码为 ${data.status}] [${data.message}] 传参错误，请重启软件！`,
-              '警告',
-              {
-                type: 'error',
-                showClose: false,
-                confirmButtonText: '关闭软件',
-                callback: () => {
-                  ipcRenderer.send('close') // 关闭整个程序
-                }
-              }
-            )
+          this.pdfData = res[0]
+        })
+        .then(() => {
+          const res = Math.abs(this.pdfData.averageCore - this.pdfData.target)
+          if (res <= 5) {
+            this.adviceShow = '好'
+          } else if (res > 5 && res <= 7.5) {
+            this.adviceShow = '较差'
+          } else if (res > 7.5) {
+            this.adviceShow = '差'
+          } else {
+            this.adviceShow = ''
           }
         })
         .catch(err => {
           this.$confirm(
-            `[深感觉测试-PDF报告环节] ${err}。请确保网络连接正常！`,
-            '网络请求错误',
+            `${err}。获取ID为 [${this.userId}] 的用户数据失败，请重试！`,
+            '提示',
             {
-              type: 'error',
+              type: 'warning',
               center: true,
               showClose: false,
               closeOnClickModal: false,
               closeOnPressEscape: false,
-              confirmButtonText: '刷新页面',
+              confirmButtonText: '重 试',
               cancelButtonText: '返 回'
             }
           )
             .then(() => {
-              this.getData()
+              this.getTrainData()
             })
             .catch(() => {
               this.handleGoBack()
@@ -221,20 +175,20 @@ export default {
     /**
      * @description: 保存PDF按钮
      */
-    handlePrint() {
+    handlePdf() {
       this.$htmlToPdf(
         'pdf',
-        `深感觉测试报告 ${this.$moment().format('YYYY-MM-DD HH_mm_ss')}`,
-        530
+        `深感觉训练报告 ${this.$moment().format('YYYY-MM-DD HH_mm_ss')}`,
+        500
       )
     },
 
     /**
-     * @description: 返回按钮
+     * @description: 返回上一页
      */
     handleGoBack() {
       this.$router.push({
-        path: this.$route.query.routerName
+        path: this.routerName
       })
     }
   }
@@ -242,7 +196,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.deep-sensory-test-pdf {
+.train-deep-sensory-pdf {
   width: 100%;
   height: 100%;
   @include flex(column, stretch, stretch);
@@ -258,7 +212,7 @@ export default {
       @include flex(row, space-between, stretch);
       /* 标题 */
       .title {
-        font-size: 34px;
+        font-size: 40px;
         color: green;
       }
       /* 基本信息 */
