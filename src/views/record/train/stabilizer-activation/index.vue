@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-02-24 17:06:48
- * @LastEditTime: 2023-02-24 17:11:08
+ * @LastEditTime: 2023-03-07 16:52:17
  * @Description : 局部稳定肌激活训练-数据记录
 -->
 <template>
