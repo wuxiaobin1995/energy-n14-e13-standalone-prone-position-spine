@@ -14,7 +14,7 @@
         fit="scale-down"
         @click.native="handleToHome"
       ></el-image>
-      <span class="text">卧姿肢体康复评估与训练系统-单机版 v1.0.0</span>
+      <span class="text">卧姿肢体医用康复训练系统-单机版 v1.0.0</span>
     </div>
 
     <!-- 其他 -->
