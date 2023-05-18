@@ -1,8 +1,8 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-02-08 14:17:27
- * @LastEditTime: 2023-02-24 16:01:47
- * @Description : 深感觉训练-参数设置
+ * @LastEditTime: 2023-05-02 16:43:08
+ * @Description : 本体感觉训练-参数设置
 -->
 <template>
   <div class="deep-sensory-set">
@@ -14,12 +14,12 @@
       <!-- 文字说明 -->
       <div class="des">
         <div class="content">
-          <div class="content__item">训练目的：增强腰椎深感觉功能；</div>
+          <div class="content__item">训练目的：增强腰椎深感觉功能</div>
           <div class="content__item">
-            起始位置：请将双脚置于踏板上，随后缓缓躺在软垫上，将圆钮压在腰部中段，对准肚脐的垂直线；
+            起始位置：缓慢躺在软垫上，将双脚置于踏板上，让腰部中段（对准肚脐垂直线的位置）压在圆钮上
           </div>
           <div class="content__item">
-            动作要求：选取任意一点（除末端及中点外），控制滑块移到绿色区域内，重复3～5次，点击“开始训练”，除去视觉反馈，5秒内，凭借本体感觉将光标移动到目标区域内。测试3次取平均值。
+            动作要求：选取任意一点（末端除外），控制滑块移动至绿色区域内，重复3～5次点击“开始”，除去视觉反馈，5秒内，凭借本体感觉控制光标移动至目标区域内
           </div>
         </div>
       </div>
@@ -99,7 +99,7 @@ export default {
     return {
       /* 语音相关 */
       audioOpen: this.$store.state.voiceSwitch,
-      audioSrc: path.join(__static, `narrate/mandarin/深感觉训练.mp3`),
+      audioSrc: path.join(__static, `narrate/mandarin/本体感觉训练.mp3`),
 
       /* 串口相关变量 */
       usbPort: null,

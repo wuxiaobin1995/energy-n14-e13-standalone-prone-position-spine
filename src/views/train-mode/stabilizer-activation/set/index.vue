@@ -1,8 +1,8 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-02-08 14:17:27
- * @LastEditTime: 2023-03-07 17:50:52
- * @Description : 局部稳定肌激活训练-参数设置
+ * @LastEditTime: 2023-05-02 17:05:19
+ * @Description : 内核心激活训练-参数设置
 -->
 <template>
   <div class="stabilizer-activation-set">
@@ -11,7 +11,7 @@
 
     <div class="des">
       <div class="item">
-        动作要求：通过测试模式确定活动范围后，训练者控制脊柱一格一格（5刻度为一格）的移动并保持一定时间，通过小幅度且缓慢的脊柱活动激活局部的稳定肌
+        训练方式：通过测试模式确定活动范围后，训练者控制脊柱一格一格的移动并保持一定时间（5刻度为一格）通过小幅度且缓慢的脊柱活动，来激活局部的稳定肌
       </div>
       <div class="item">提示：从低点开始预备</div>
     </div>
@@ -56,7 +56,7 @@ export default {
 
       /* 语音相关 */
       audioOpen: this.$store.state.voiceSwitch,
-      audioSrc: path.join(__static, `narrate/mandarin/局部稳定肌激活训练.mp3`),
+      audioSrc: path.join(__static, `narrate/mandarin/内核心激活训练.mp3`),
 
       /* 图形相关变量 */
       myChart: null,

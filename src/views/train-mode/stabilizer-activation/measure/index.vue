@@ -2,12 +2,12 @@
  * @Author      : Mr.bin
  * @Date        : 2023-02-08 14:17:27
  * @LastEditTime: 2023-03-08 09:00:44
- * @Description : 局部稳定肌激活训练-具体测量
+ * @Description : 内核心激活训练-具体测量
 -->
 <template>
   <div class="stabilizer-activation-measure">
     <div class="wrapper">
-      <div class="title">局部稳定肌激活训练</div>
+      <div class="title">内核心激活训练</div>
       <div>提示：开始有5秒预备时间，请从低位开始预备</div>
 
       <div class="content">
@@ -371,7 +371,7 @@ export default {
           bgArray: this.bgArray,
           targetUp: this.targetUp,
           targetDown: this.targetDown,
-          type: '局部稳定肌激活训练'
+          type: '内核心激活训练'
         })
         .then(() => {
           this.$message({

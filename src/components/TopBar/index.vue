@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-02-07 14:24:28
- * @LastEditTime: 2023-02-07 14:30:00
+ * @LastEditTime: 2023-05-18 11:19:53
  * @Description : 顶部栏
 -->
 <template>
@@ -14,7 +14,7 @@
         fit="scale-down"
         @click.native="handleToHome"
       ></el-image>
-      <span class="text">卧姿肢体医用康复训练系统-单机版 v1.0.0</span>
+      <span class="text">卧姿肢体康复评估与训练系统</span>
     </div>
 
     <!-- 其他 -->

@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-06-24 09:29:49
- * @LastEditTime: 2023-02-07 15:45:50
+ * @LastEditTime: 2023-05-17 16:17:41
  * @Description : 用户
 -->
 <template>
@@ -32,13 +32,29 @@
         >
           <template slot="prepend">搜索</template>
         </el-autocomplete>
-        <!-- 导出Excel按钮 -->
+        <!-- 导出用户信息 -->
         <el-button
-          :loading="exportExcelLoading"
+          :loading="userExcelLoading"
           icon="el-icon-download"
           type="warning"
-          @click="handleExportExcel"
-          >导出 Excel</el-button
+          @click="handleUserExcel"
+          >导出用户信息</el-button
+        >
+        <!-- 导出所有测试数据 -->
+        <el-button
+          :loading="testExcelLoading"
+          icon="el-icon-download"
+          type="success"
+          @click="handleTestExcel"
+          >导出测试 Excel</el-button
+        >
+        <!-- 导出所有训练数据 -->
+        <el-button
+          :loading="trainExcelLoading"
+          icon="el-icon-download"
+          type="success"
+          @click="handleTrainExcel"
+          >导出训练 Excel</el-button
         >
       </div>
 
@@ -49,7 +65,7 @@
         style="width: 100%"
         height="auto"
         :default-sort="{ prop: 'userId', order: 'descending' }"
-        :stripe="true"
+        :stripe="false"
         :border="false"
         v-loading="loading"
         element-loading-text="拼命加载中"
@@ -76,13 +92,18 @@
           </template>
         </el-table-column>
 
-        <!-- ID -->
+        <!-- NO -->
+        <el-table-column
+          align="center"
+          type="index"
+          width="50"
+        ></el-table-column>
+        <!-- 用户ID -->
         <el-table-column
           align="center"
           prop="userId"
-          label="ID"
-          width="200"
-          sortable
+          label="用户ID"
+          width="180"
         ></el-table-column>
         <!-- 姓名 -->
         <el-table-column
@@ -96,7 +117,7 @@
           align="center"
           prop="sex"
           label="性别"
-          width="100"
+          width="80"
           sortable
         ></el-table-column>
         <!-- 最后登录时间 -->
@@ -174,8 +195,12 @@ export default {
   data() {
     return {
       searchText: '', // 搜索框内容
+
       loading: false, // 加载动画
-      exportExcelLoading: false, // 导出Excel加载动画
+
+      userExcelLoading: false, // 导出用户 Excel加载动画
+      testExcelLoading: false, // 导出测试 Excel加载动画
+      trainExcelLoading: false, // 导出训练 Excel加载动画
 
       allUserData: [], // user表的所有用户数据
       showData: [] // 表格显示的数据
@@ -318,6 +343,11 @@ export default {
                   remarks: '',
                   lastLoginTime: ''
                 })
+
+                this.$store.dispatch('setBothFlexibility', {
+                  maxDepth: null,
+                  minDepth: null
+                })
               }
             })
             .then(() => {
@@ -360,6 +390,13 @@ export default {
           })
         })
         .finally(() => {
+          if (this.$store.state.currentUserInfo.userId !== row.userId) {
+            this.$store.dispatch('setBothFlexibility', {
+              maxDepth: null,
+              minDepth: null
+            })
+          }
+
           this.$store
             .dispatch('changeCurrentUserInfo', {
               userId: row.userId,
@@ -378,6 +415,7 @@ export default {
                 duration: 4000
               })
             })
+
             .then(() => {
               this.handleToHome()
             })
@@ -394,11 +432,11 @@ export default {
     },
 
     /**
-     * @description: 导出Excel按钮
+     * @description: 导出用户 Excel按钮
      */
-    handleExportExcel() {
+    handleUserExcel() {
       if (this.allUserData.length) {
-        this.exportExcelLoading = true
+        this.userExcelLoading = true
         // 此处使用懒加载的方式
         import('@/utils/Export2Excel.js')
           .then(excel => {
@@ -441,7 +479,7 @@ export default {
             })
           })
           .finally(() => {
-            this.exportExcelLoading = false
+            this.userExcelLoading = false
           })
       } else {
         this.$message({
@@ -451,6 +489,21 @@ export default {
         })
       }
     },
+
+    /**
+     * @description: 导出测试 Excel按钮
+     */
+    handleTestExcel() {
+      console.log('导出测试 Excel按钮')
+    },
+
+    /**
+     * @description: 导出训练 Excel按钮
+     */
+    handleTrainExcel() {
+      console.log('导出训练 Excel按钮')
+    },
+
     /**
      * @description: 数据格式化，将 [{},{},...] => [[],[],...]
      * @param {Array} filterVal key键

@@ -1,8 +1,8 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-02-08 14:17:27
- * @LastEditTime: 2023-03-08 09:10:52
- * @Description : 局部稳定肌激活训练-导出PDF
+ * @LastEditTime: 2023-05-02 17:03:52
+ * @Description : 内核心激活训练-导出PDF
 -->
 <template>
   <div
@@ -14,7 +14,7 @@
       <div class="top">
         <el-image class="logo" :src="logoSrc" fit="scale-down"></el-image>
 
-        <div class="title">局部稳定肌激活训练报告</div>
+        <div class="title">内核心激活训练报告</div>
 
         <div class="divider"></div>
 
@@ -241,7 +241,7 @@ export default {
     handlePdf() {
       this.$htmlToPdf(
         'pdf',
-        `局部稳定肌激活训练报告 ${this.$moment().format(
+        `内核心激活训练报告 ${this.$moment().format(
           'YYYY-MM-DD HH_mm_ss'
         )}`,
         500

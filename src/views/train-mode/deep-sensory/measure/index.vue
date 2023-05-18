@@ -2,7 +2,7 @@
  * @Author      : Mr.bin
  * @Date        : 2023-02-24 16:08:17
  * @LastEditTime: 2023-02-24 16:50:30
- * @Description : 深感觉训练-具体测量
+ * @Description : 本体感觉训练-具体测量
 -->
 <template>
   <div class="deep-sensory-measure">
@@ -10,7 +10,7 @@
       <!-- 主区域 -->
       <div class="main">
         <div class="left">
-          <div class="title">深感觉训练</div>
+          <div class="title">本体感觉训练</div>
           <div class="content">
             <div v-show="timeShow" class="time-bg">
               <div class="time-rd-f">
@@ -314,7 +314,7 @@ export default {
           threeVal: this.threeVal,
           averageCore: this.averageCore,
 
-          type: '深感觉训练'
+          type: '本体感觉训练'
         })
         .then(() => {
           this.$message({

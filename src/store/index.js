@@ -1,32 +1,17 @@
 /*
  * @Author      : Mr.bin
  * @Date        : 2021-11-09 09:16:02
- * @LastEditTime: 2023-02-07 15:25:15
+ * @LastEditTime: 2023-05-02 15:48:34
  * @Description : vuex
  */
 import Vue from 'vue'
 import Vuex from 'vuex'
-// import createPersistedState from 'vuex-persistedstate'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-  // plugins: [
-  //   createPersistedState({
-  //     key: 'vuex-persistedstate', // 自定义Storage中的Key名，默认是vuex
-  //     storage: window.sessionStorage, // 使用sessionStorage来固化数据
-  //     reducer(val) {
-  //       return {
-  //         aaa: val.aaa,
-  //         bbb: val.bbb,
-  //         ccc: val.ccc
-  //       }
-  //     }
-  //   })
-  // ],
-
   state: {
-    // 当前选择的用户及其信息
+    /* 当前选择的用户及其信息 */
     currentUserInfo: {
       userId: '', // 唯一id
       userName: '', // 姓名
@@ -49,7 +34,7 @@ export default new Vuex.Store({
   },
 
   mutations: {
-    // 当前选择的用户及其信息
+    /* 当前选择的用户及其信息 */
     CHANGE_CURRENTUSERINFO(state, currentUserInfo) {
       state.currentUserInfo = currentUserInfo
     },
@@ -66,7 +51,7 @@ export default new Vuex.Store({
   },
 
   actions: {
-    // 当前选择的用户及其信息
+    /* 当前选择的用户及其信息 */
     changeCurrentUserInfo({ commit }, currentUserInfo) {
       return new Promise((resolve, reject) => {
         commit('CHANGE_CURRENTUSERINFO', currentUserInfo)

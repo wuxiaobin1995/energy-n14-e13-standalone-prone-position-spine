@@ -2,7 +2,7 @@
  * @Author      : Mr.bin
  * @Date        : 2022-12-09 21:46:16
  * @LastEditTime: 2022-12-12 15:39:50
- * @Description : 动态训练-参数设置
+ * @Description : 动态稳定训练-参数设置
 -->
 <template>
   <div class="dynamic-set">
@@ -11,11 +11,9 @@
 
     <!-- 文字说明 -->
     <div class="des">
+      <div class="item">训练目的：增强腰椎稳定性</div>
       <div class="item">
-        训练目的：收紧腹部内核心力量，通过增加腹部肌肉包裹性提高腰椎稳定度，改善产后体态问题，从而达到塑形瘦身、体态调整目的
-      </div>
-      <div class="item">
-        动作要求：首先将光标移动到绿色区域内，随后腰腹部持续收紧使光标不晃动，上下肢做指定的运动，过程中将肩部和臀部紧贴软垫，直至训练结束
+        动作要求：控制光标移动到绿色区域内，持续收紧腰腹部使光标不晃动，过程中肩部和臀部紧贴软垫，直至训练结束
       </div>
     </div>
 
@@ -107,7 +105,7 @@ export default {
     return {
       /* 语音相关 */
       audioOpen: this.$store.state.voiceSwitch,
-      audioSrc: path.join(__static, `narrate/mandarin/动态训练.mp3`),
+      audioSrc: path.join(__static, `narrate/mandarin/动态稳定训练.mp3`),
 
       /* 串口相关变量 */
       usbPort: null,

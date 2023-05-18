@@ -10,7 +10,7 @@
       <el-page-header
         class="page"
         title="返回首页"
-        content="开发者"
+        content="开发者（单机版）"
         @back="handleToHome"
       ></el-page-header>
 

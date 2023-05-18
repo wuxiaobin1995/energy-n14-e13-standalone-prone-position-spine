@@ -2,7 +2,7 @@
  * @Author      : Mr.bin
  * @Date        : 2022-12-12 21:31:50
  * @LastEditTime: 2023-02-22 17:18:40
- * @Description : 活动度改善训练-导出PDF
+ * @Description : 活动度训练-导出PDF
 -->
 <template>
   <div
@@ -14,7 +14,7 @@
       <div class="top">
         <el-image class="logo" :src="logoSrc" fit="scale-down"></el-image>
 
-        <div class="title">活动度改善训练报告</div>
+        <div class="title">活动度训练报告</div>
 
         <div class="divider"></div>
 
@@ -269,7 +269,7 @@ export default {
     handlePdf() {
       this.$htmlToPdf(
         'pdf',
-        `活动度改善训练报告 ${this.$moment().format('YYYY-MM-DD HH_mm_ss')}`,
+        `活动度训练报告 ${this.$moment().format('YYYY-MM-DD HH_mm_ss')}`,
         500
       )
     },

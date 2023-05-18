@@ -2,7 +2,7 @@
  * @Author      : Mr.bin
  * @Date        : 2022-12-09 21:12:48
  * @LastEditTime: 2023-02-24 15:49:20
- * @Description : 活动度改善训练-参数设置
+ * @Description : 活动度训练-参数设置
 -->
 <template>
   <div class="activity-improvement-set">
@@ -12,7 +12,7 @@
     <div class="des">
       <div class="item">训练目的：改善骨盆灵活度</div>
       <div class="item">
-        动作要求：吸气同时控制腰腹部缓慢向上抬至最高，上抬的过程中保持肩部和臀部紧贴软垫，随后呼气同时控制腰腹部缓慢向下压至最低，重复至训练结束
+        动作要求：吸气同时控制腰腹部，缓慢上抬至最高，上抬的过程中保持肩部和臀部紧贴软垫，随后呼气同时控制腰腹部缓慢向下压至最低，重复至训练结束
       </div>
       <div class="item">提示：从低点开始预备</div>
     </div>
@@ -68,7 +68,7 @@ export default {
 
       /* 语音相关 */
       audioOpen: this.$store.state.voiceSwitch,
-      audioSrc: path.join(__static, `narrate/mandarin/活动度改善训练.mp3`),
+      audioSrc: path.join(__static, `narrate/mandarin/活动度训练.mp3`),
 
       /* 图形相关变量 */
       myChart: null,

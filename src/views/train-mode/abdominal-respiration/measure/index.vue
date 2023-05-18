@@ -1,25 +1,29 @@
 <!--
  * @Author      : Mr.bin
- * @Date        : 2022-12-12 17:42:55
- * @LastEditTime: 2023-02-08 09:52:49
- * @Description : 活动度训练-具体测量
+ * @Date        : 2023-05-17 09:32:54
+ * @LastEditTime: 2023-05-17 11:58:29
+ * @Description : 腹式呼吸训练-具体测量
 -->
 <template>
-  <div class="activity-improvement-measure">
+  <div class="abdominal-respiration-measure">
     <!-- 语音播放 -->
     <audio ref="audio" controls="controls" hidden :src="audioSrc" />
 
     <div class="wrapper">
-      <div class="title">活动度训练</div>
-      <div>提示：开始有5秒预备时间，请从低位开始预备</div>
+      <div class="title">腹式呼吸训练</div>
+      <div>提示：开始有5秒预备时间，请从中间位开始预备</div>
 
       <div class="content">
         <div class="chart">
           <div id="chart" :style="{ width: '100%', height: '100%' }"></div>
         </div>
         <div class="num">
-          <div class="text">剩余训练个数</div>
-          <div class="value">{{ residueNum }}</div>
+          <div class="text">训练次数</div>
+          <div class="value">{{ residueNum }}/{{ num }}</div>
+        </div>
+        <div class="num">
+          <div class="text">训练组数</div>
+          <div class="value">{{ residueGroups }}/{{ groups }}</div>
         </div>
       </div>
 
@@ -74,21 +78,27 @@ import Readline from '@serialport/parser-readline'
 import { initDB } from '@/db/index.js'
 
 export default {
-  name: 'activity-improvement-measure',
+  name: 'abdominal-respiration-measure',
 
   data() {
     return {
+      targetUp: this.$store.state.bothFlexibility.maxDepth,
+      targetDown: this.$store.state.bothFlexibility.minDepth,
+
       /* 路由传参 */
-      targetUp: JSON.parse(this.$route.query.targetUp),
-      targetDown: JSON.parse(this.$route.query.targetDown),
-      num: JSON.parse(this.$route.query.num),
-      intervalTime: JSON.parse(this.$route.query.intervalTime),
+      midpoint: JSON.parse(this.$route.query.midpoint), // 灵活度中点
+      target: JSON.parse(this.$route.query.target), // 训练目标
+      num: JSON.parse(this.$route.query.num), // 训练次数
+      groups: JSON.parse(this.$route.query.groups), // 训练组数
+      groupRestTime: JSON.parse(this.$route.query.groupRestTime), // 组间休息时间
+      keepTime: JSON.parse(this.$route.query.keepTime), // 保持时间
+      restTime: JSON.parse(this.$route.query.restTime), // 休息时间
 
       /* 语音相关 */
       audioOpen: this.$store.state.voiceSwitch,
-      audioSrc: path.join(__static, `narrate/mandarin/上凸.mp3`),
-      audioUpSrc: path.join(__static, `narrate/mandarin/上凸.mp3`),
-      audioDownSrc: path.join(__static, `narrate/mandarin/下压.mp3`),
+      audioSrc: path.join(__static, `narrate/mandarin/鼻吸气.mp3`),
+      audioInSrc: path.join(__static, `narrate/mandarin/鼻吸气.mp3`),
+      audioOutSrc: path.join(__static, `narrate/mandarin/嘴呼气.mp3`),
 
       /* 串口相关变量 */
       usbPort: null,
@@ -107,11 +117,12 @@ export default {
       isDelayed: true, // 是否要延时预备
 
       /* 其他 */
-      residueNum: JSON.parse(this.$route.query.num), // 剩余个数
-      residueNumArray: [], // 用于显示剩余个数的数组
+      residueNum: JSON.parse(this.$route.query.num), // 实时次数
+      residueGroups: JSON.parse(this.$route.query.groups), // 实时组数
+
+      residueNumArray: [], // 用于显示剩余次数的数组
       depthShowArray: [], // 展示数据数组
       depthArray: [], // 完整数据数组
-      pdfTime: '',
 
       standardArray: [], // 基础参考曲线
       bgArray: [] // 参考曲线，暂定5个一组
@@ -122,7 +133,9 @@ export default {
     this.initSerialPort()
   },
   mounted() {
-    this.initChart()
+    this.countChart().then(() => {
+      this.initChart()
+    })
   },
   beforeDestroy() {
     // 关闭串口
@@ -187,13 +200,13 @@ export default {
               const depth = parseInt(data)
               /* 只允许正整数和0，且[0, 100] */
               if (/^-?[0-9]\d*$/.test(depth) && depth >= 0 && depth <= 100) {
+                /* 判断是否暂停 */
                 if (this.isPause === false) {
-                  // 延时预备5秒，让用户有个时间调整
+                  /* 延时预备5秒，让用户有个时间调整 */
                   if (this.isDelayed === true) {
                     this.depthShowArray.push(depth)
                     this.option.series[0].data = this.depthShowArray
                     this.myChart.setOption(this.option)
-
                     if (this.depthShowArray.length >= 50) {
                       this.$message({
                         message: '正式开始！',
@@ -202,9 +215,9 @@ export default {
                       })
                       this.depthShowArray = []
                       this.isDelayed = false
-                      /* 正式开始，先放一次上凸语音 */
+                      // 先放一次鼻吸气语音，让用户的腰部在高位开始
                       if (this.audioOpen === true) {
-                        this.audioSrc = this.audioUpSrc
+                        this.audioSrc = this.audioInSrc
                         setTimeout(() => {
                           this.$refs.audio.currentTime = 0
                           this.$refs.audio.play()
@@ -213,21 +226,17 @@ export default {
                     }
                   }
 
-                  // 预备结束，正式测量
+                  /* 预备结束，正式开始测量 */
                   if (this.isDelayed === false) {
                     this.depthArray.push(depth)
                     this.depthShowArray.push(depth)
                     this.residueNumArray.push(depth)
 
-                    if (
-                      this.depthShowArray.length ===
-                      this.intervalTime * 20 * 5
-                    ) {
+                    if (this.depthShowArray.length === this.bgArray.length) {
                       this.depthShowArray = []
                     }
                     if (
-                      this.residueNumArray.length ===
-                      this.intervalTime * 20
+                      this.residueNumArray.length === this.standardArray.length
                     ) {
                       this.residueNumArray = []
                       this.residueNum -= 1
@@ -237,18 +246,18 @@ export default {
                     if (this.audioOpen === true) {
                       if (
                         this.residueNumArray.length ===
-                        this.intervalTime * 20 - 4
+                        this.restTime * 10 - 6
                       ) {
-                        this.audioSrc = this.audioUpSrc
+                        this.audioSrc = this.audioOutSrc
                         setTimeout(() => {
                           this.$refs.audio.currentTime = 0
                           this.$refs.audio.play()
                         }, 100)
                       } else if (
                         this.residueNumArray.length ===
-                        this.intervalTime * 10 - 4
+                        this.standardArray.length - 16
                       ) {
-                        this.audioSrc = this.audioDownSrc
+                        this.audioSrc = this.audioInSrc
                         setTimeout(() => {
                           this.$refs.audio.currentTime = 0
                           this.$refs.audio.play()
@@ -263,7 +272,7 @@ export default {
                     // 结束
                     if (
                       this.depthArray.length ===
-                      this.num * this.intervalTime * 20
+                      this.num * this.standardArray.length
                     ) {
                       this.saveData()
                     }
@@ -301,37 +310,66 @@ export default {
     },
 
     /**
+     * @description: 计算图形所需参数逻辑函数
+     */
+    countChart() {
+      return new Promise((resolve, reject) => {
+        const midpoint = this.midpoint // 中点
+        const target = this.target // 目标
+        const restTime = this.restTime // 休息时间
+        const keepTime = this.keepTime // 保持时间
+
+        const restTimeArray = []
+        for (let i = 0; i < restTime * 10 + 1; i++) {
+          restTimeArray.push(midpoint)
+        }
+
+        const interval = parseFloat(((midpoint - target) / 10).toFixed(3)) // 间隔值
+
+        const downArray = []
+        let downSum = midpoint
+        for (let i = 0; i < 9; i++) {
+          downSum = downSum - interval
+          downArray.push(downSum)
+        }
+
+        const keepTimeArray = []
+        for (let i = 0; i < keepTime * 10 + 1; i++) {
+          keepTimeArray.push(target)
+        }
+
+        const upArray = []
+        let upSum = target
+        for (let i = 0; i < 9; i++) {
+          upSum = upSum + interval
+          upArray.push(upSum)
+        }
+
+        this.standardArray = restTimeArray.concat(
+          downArray,
+          keepTimeArray,
+          upArray
+        )
+
+        this.bgArray = []
+        for (let i = 0; i < 5; i++) {
+          this.bgArray.push(...this.standardArray)
+        }
+
+        /* x轴 */
+        this.xData = []
+        for (let i = 0; i < this.bgArray.length; i++) {
+          this.xData.push(parseFloat((i * 0.1).toFixed(1)))
+        }
+
+        resolve()
+      })
+    },
+
+    /**
      * @description: 初始化echarts图形
      */
     initChart() {
-      /* x轴 */
-      for (let i = 0; i < this.intervalTime * 20 * 5; i++) {
-        this.xData.push(parseFloat((i * 0.1).toFixed(1)))
-      }
-
-      /* 绘制参考曲线逻辑 */
-      const targetUp = this.targetUp
-      const targetDown = this.targetDown
-      const intervalTime = this.intervalTime
-      const interval = parseFloat(
-        ((targetUp - targetDown) / (intervalTime * 10)).toFixed(3)
-      ) // 间隔值
-      this.standardArray.push(targetDown)
-      let sum = targetDown
-      for (let i = 0; i < intervalTime * 10 - 1; i++) {
-        sum = sum + interval
-        this.standardArray.push(sum)
-      }
-      sum = targetUp
-      for (let i = 0; i < intervalTime * 10; i++) {
-        this.standardArray.push(sum)
-        sum = sum - interval
-      }
-      for (let i = 0; i < 5; i++) {
-        this.bgArray.push(...this.standardArray)
-      }
-      this.bgArray.push(targetDown)
-
       this.myChart = this.$echarts.init(document.getElementById('chart'))
       this.option = {
         xAxis: {
@@ -345,13 +383,13 @@ export default {
           splitLine: {
             show: false // 隐藏背景网格线
           },
-          min: targetDown - 10 >= 0 ? targetDown - 10 : 0,
-          max: targetUp + 10 <= 100 ? targetUp + 10 : 100
+          max: this.midpoint + 10,
+          min: this.target - 10 >= 0 ? this.target - 10 : 0
         },
         legend: {},
         series: [
           {
-            name: '运动轨迹',
+            name: '轨迹',
             data: [],
             color: 'red',
             type: 'line',
@@ -359,7 +397,7 @@ export default {
             showSymbol: false
           },
           {
-            name: `参考曲线(${targetDown}~${targetUp})`,
+            name: `参考曲线(${this.target}~${this.midpoint})`,
             data: this.bgArray,
             color: 'rgba(0, 255, 0, 0.5)',
             type: 'line',
@@ -396,58 +434,33 @@ export default {
         const item = this.depthArray[i]
         const contrast = contrastArray[i]
         const differenceVal = Math.abs(item - contrast)
-        if (differenceVal >= 0 && differenceVal <= 10) {
+        if (differenceVal >= 0 && differenceVal <= 5) {
           yesArray.push(differenceVal)
         }
       }
-      const completion = parseFloat(
+      const result = parseFloat(
         ((yesArray.length / this.depthArray.length) * 100).toFixed(0)
       )
 
-      /* 保存到数据库 */
-      this.pdfTime = this.$moment().format('YYYY-MM-DD HH:mm:ss')
-      const hospital = window.localStorage.getItem('hospital')
-      const db = initDB()
-      db.train_data
-        .add({
-          hospital: hospital,
-          userId: this.$store.state.currentUserInfo.userId,
-          userName: this.$store.state.currentUserInfo.userName,
-          sex: this.$store.state.currentUserInfo.sex,
-          height: this.$store.state.currentUserInfo.height,
-          weight: this.$store.state.currentUserInfo.weight,
-          birthday: this.$store.state.currentUserInfo.birthday,
-
-          pdfTime: this.pdfTime,
-          num: this.num,
-          intervalTime: this.intervalTime,
-          completion: completion,
-          depthArray: this.depthArray,
-          targetUp: this.targetUp,
-          targetDown: this.targetDown,
-          type: '活动度训练'
+      /* 保存 */
+      this.$axios
+        .post('/saveTrainRecord_v2', {
+          devices_name: facilityID,
+          user_id: this.$store.state.currentUserInfo.userId,
+          number_target: this.num,
+          completion: result,
+          record_array: JSON.stringify(this.depthArray),
+          upper_limit: this.targetUp,
+          lower_limit: this.targetDown,
+          midpoint: this.midpoint,
+          press_down: this.target,
+          keep_time: this.keepTime,
+          rest_time: this.restTime,
+          type: 'abdominal-respiration'
         })
-        .then(() => {
-          this.$message({
-            message: '数据保存成功',
-            type: 'success',
-            duration: 1500
-          })
-        })
-        .then(() => {
+        .then(res => {
           this.isFinished = true
           this.residueNum = this.num
-        })
-        .catch(() => {
-          this.$alert(`请点击"返回"按钮，然后重新测试！`, '数据保存失败', {
-            type: 'error',
-            showClose: false,
-            center: true,
-            confirmButtonText: '返回',
-            callback: () => {
-              this.handleGoBack()
-            }
-          })
         })
     },
 
@@ -490,21 +503,19 @@ export default {
      */
     handleToPdf() {
       this.$router.push({
-        path: '/train-activity-improvement-pdf',
+        path: '/train-abdominal-respiration-pdf',
         query: {
-          userId: JSON.stringify(this.$store.state.currentUserInfo.userId),
-          pdfTime: JSON.stringify(this.pdfTime),
-          routerName: JSON.stringify('/train-select/activity-improvement-set')
+          routerName: JSON.stringify('/train-select/abdominal-respiration-set')
         }
       })
     },
 
     /**
-     * @description: 返回上一页按钮
+     * @description: 返回上一页
      */
     handleGoBack() {
       this.$router.push({
-        path: '/train-select/activity-improvement-set'
+        path: '/train-select/abdominal-respiration-set'
       })
     }
   }
@@ -512,7 +523,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.activity-improvement-measure {
+.abdominal-respiration-measure {
   width: 100%;
   height: 100%;
   @include flex(row, center, center);

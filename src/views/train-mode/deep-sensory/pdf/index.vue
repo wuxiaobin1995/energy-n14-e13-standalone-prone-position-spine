@@ -1,8 +1,8 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-02-24 16:36:11
- * @LastEditTime: 2023-02-24 16:53:12
- * @Description : 深感觉训练-导出PDF
+ * @LastEditTime: 2023-05-02 17:04:30
+ * @Description : 本体感觉训练-导出PDF
 -->
 <template>
   <div
@@ -15,7 +15,7 @@
       <div class="up">
         <div>
           <!-- 标题 -->
-          <div class="title">深感觉训练报告</div>
+          <div class="title">本体感觉训练报告</div>
           <!-- 基本信息 -->
           <div class="info">
             <div class="info__item">姓名：{{ pdfData.userName }}</div>
@@ -178,7 +178,7 @@ export default {
     handlePdf() {
       this.$htmlToPdf(
         'pdf',
-        `深感觉训练报告 ${this.$moment().format('YYYY-MM-DD HH_mm_ss')}`,
+        `本体感觉训练报告 ${this.$moment().format('YYYY-MM-DD HH_mm_ss')}`,
         500
       )
     },

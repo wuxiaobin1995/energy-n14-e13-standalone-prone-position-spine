@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-08 14:37:53
- * @LastEditTime: 2022-12-15 10:07:24
+ * @LastEditTime: 2023-05-17 09:27:30
  * @Description : 骨盆灵活度测试-动作展示
 -->
 <template>
@@ -28,10 +28,7 @@
       </div>
 
       <div class="show">
-        <div class="text">动作展示</div>
-        <div class="gif">
-          <el-image class="item" :src="showImg" fit="scale-down"></el-image>
-        </div>
+        <el-image class="item" :src="showImg" fit="scale-down"></el-image>
       </div>
 
       <div class="btn">
@@ -138,18 +135,10 @@ export default {
 
     .show {
       flex: 1;
-      @include flex(row, stretch, center);
-      .text {
-        width: 25%;
-        @include flex(row, center, center);
-        font-size: 26px;
-        font-weight: 700;
-      }
-      .gif {
-        flex: 1;
-        .item {
-          width: 70%;
-        }
+      @include flex(row, center, center);
+      .item {
+        transform: scale(1.5);
+        border: 1px solid black;
       }
     }
 

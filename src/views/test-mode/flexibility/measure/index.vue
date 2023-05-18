@@ -1,8 +1,8 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-08 16:13:32
- * @LastEditTime: 2023-02-07 17:55:31
- * @Description : 骨盆灵活度测试-测量页面
+ * @LastEditTime: 2023-05-17 10:52:49
+ * @Description : 骨盆灵活度测试-具体测量
 -->
 <template>
   <div class="test-flexibility-measure">
@@ -65,7 +65,9 @@
 
         <div class="result">
           <div>灵活度：{{ flexibility ? flexibility : '待测量' }}</div>
-          <div>备注：到达时间自动结束</div>
+          <div :style="{ 'margin-top': '20px', color: 'green' }">
+            推荐值：30~40
+          </div>
         </div>
       </div>
     </div>
