@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-05-02 16:28:38
- * @LastEditTime: 2023-05-17 10:49:01
+ * @LastEditTime: 2023-05-19 17:41:21
  * @Description : 腹式呼吸训练-参数设置
 -->
 <template>
@@ -20,9 +20,12 @@
     </div>
 
     <div class="content">
+      <!-- 图形 -->
       <div class="chart">
         <div id="chart" :style="{ width: '100%', height: '100%' }"></div>
       </div>
+
+      <!-- 配置项 -->
       <div class="set">
         <!-- 训练目标 -->
         <div class="item">
@@ -124,16 +127,16 @@ export default {
       xData: [], // x轴
 
       /* 其他 */
-      targetUp: this.$store.state.bothFlexibility.maxDepth,
-      targetDown: this.$store.state.bothFlexibility.minDepth,
-
+      targetUp: this.$store.state.bothFlexibility.maxDepth, // 上限
+      targetDown: this.$store.state.bothFlexibility.minDepth, // 下限
       target: this.$store.state.bothFlexibility.minDepth + 5, // 训练目标
       num: 5, // 训练次数，5~20
       groups: 3, // 训练组数，2~5
-      groupRestTime: 5, // 组间休息时间(s)，5~60
-      keepTime: 2, // 保持时间(s)，1~3
-      restTime: 2, // 休息时间(s)，1~3
+      groupRestTime: 10, // 组间休息时间(s)，5~60
+      keepTime: 3, // 保持时间(s)，1~3
+      restTime: 3, // 休息时间(s)，1~3
 
+      /* 参考曲线相关 */
       standardArray: [], // 基础参考曲线
       bgArray: [] // 参考曲线，暂定5个一组
     }
@@ -166,8 +169,8 @@ export default {
     countChart() {
       return new Promise((resolve, reject) => {
         /* 绘制参考曲线逻辑 */
-        const midpoint = this.midpoint // 中点
-        const target = this.target // 目标
+        const midpoint = this.midpoint // 灵活度中点
+        const target = this.target // 训练目标
         const restTime = this.restTime // 休息时间
         const keepTime = this.keepTime // 保持时间
 
@@ -235,14 +238,13 @@ export default {
           splitLine: {
             show: false // 隐藏背景网格线
           },
-          max: this.midpoint + 10,
-          min: this.targetDown - 10 >= 0 ? this.targetDown - 10 : 0
+          min: this.target - 10 >= 0 ? this.target - 10 : 0,
+          max: this.midpoint + 10
         },
         legend: {},
-        // tooltip: {},
         series: [
           {
-            name: '参考曲线',
+            name: `参考曲线`,
             data: this.bgArray,
             color: 'green',
             type: 'line',
@@ -293,6 +295,8 @@ export default {
       this.$router.push({
         path: '/abdominal-respiration-measure',
         query: {
+          targetUp: JSON.stringify(this.targetUp), // 上限
+          targetDown: JSON.stringify(this.targetDown), // 下限
           midpoint: JSON.stringify(this.midpoint), // 灵活度中点
           target: JSON.stringify(this.target), // 训练目标
           num: JSON.stringify(this.num), // 训练次数，5~20

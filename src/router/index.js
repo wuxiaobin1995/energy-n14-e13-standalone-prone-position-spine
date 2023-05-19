@@ -303,6 +303,14 @@ const routes = [
   },
 
   /* 训练报告 */
+  // 腹式呼吸训练-导出PDF
+  {
+    path: '/train-abdominal-respiration-pdf',
+    name: 'train-abdominal-respiration-pdf',
+    component: () => import('@/views/train-mode/abdominal-respiration/pdf'),
+    meta: ['腹式呼吸训练-导出PDF']
+  },
+
   // 活动度训练-导出PDF
   {
     path: '/train-activity-improvement-pdf',
@@ -318,6 +326,7 @@ const routes = [
       import('@/views/record/train/activity-improvement/secular-trend-pdf'),
     meta: ['活动度训练-导出长期趋势PDF']
   },
+
   // 内核心激活训练-导出PDF
   {
     path: '/train-stabilizer-activation-pdf',
@@ -333,6 +342,7 @@ const routes = [
       import('@/views/record/train/stabilizer-activation/secular-trend-pdf'),
     meta: ['内核心激活训练-导出长期趋势PDF']
   },
+
   // 本体感觉训练-导出PDF
   {
     path: '/train-deep-sensory-pdf',
@@ -363,6 +373,7 @@ const routes = [
     component: () => import('@/views/record/train/static/secular-trend-pdf'),
     meta: ['静态稳定训练-导出长期趋势PDF']
   },
+
   // 动态稳定训练-导出PDF
   {
     path: '/train-dynamic-pdf',

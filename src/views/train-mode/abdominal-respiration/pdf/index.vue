@@ -1,12 +1,12 @@
 <!--
  * @Author      : Mr.bin
- * @Date        : 2022-12-12 21:31:50
- * @LastEditTime: 2023-05-19 16:45:23
- * @Description : 活动度训练-导出PDF
+ * @Date        : 2023-05-19 16:29:06
+ * @LastEditTime: 2023-05-19 18:00:10
+ * @Description : 腹式呼吸训练-导出PDF
 -->
 <template>
   <div
-    class="train-activity-improvement-pdf"
+    class="train-abdominal-respiration-pdf"
     v-loading.fullscreen.lock="fullscreenLoading"
   >
     <!-- PDF区域 -->
@@ -14,12 +14,12 @@
       <div class="top">
         <el-image class="logo" :src="logoSrc" fit="scale-down"></el-image>
 
-        <div class="title">活动度训练报告</div>
+        <div class="title">腹式呼吸训练-综合报告</div>
 
         <div class="divider"></div>
 
         <div class="info">
-          <div class="item">{{ hospital }}</div>
+          <div class="item">{{ pdfData.hospital }}</div>
           <div class="item">姓名：{{ pdfData.userName }}</div>
           <div class="item">性别：{{ pdfData.sex }}</div>
           <div class="item">训练日期：{{ pdfData.pdfTime }}</div>
@@ -37,9 +37,14 @@
           <el-image :src="lv" fit="scale-down"></el-image>
           <div class="val">
             <div class="title" :style="{ color: colorLv }">{{ textLv }}</div>
-            <div class="num">训练个数：{{ pdfData.num }}</div>
-            <div class="completion">训练评分：{{ pdfData.completion }}</div>
-            <div class="advice">{{ advice }}</div>
+            <div class="item">综合训练评分：{{ pdfData.completion }}分</div>
+            <div class="item">训练目标：{{ pdfData.target }}</div>
+            <div class="item">训练次数：{{ pdfData.num }}</div>
+            <div class="item">训练组数：{{ pdfData.groups }}</div>
+            <div class="item">保持时长：{{ pdfData.keepTime }}秒</div>
+            <div class="item">休息时长：{{ pdfData.restTime }}秒</div>
+            <div class="item">组间休息时长：{{ pdfData.groupRestTime }}秒</div>
+            <div class="item">{{ advice }}</div>
           </div>
         </div>
       </div>
@@ -62,7 +67,7 @@
 import { initDB } from '@/db/index.js'
 
 export default {
-  name: 'train-activity-improvement-pdf',
+  name: 'train-abdominal-respiration-pdf',
 
   data() {
     return {
@@ -76,8 +81,11 @@ export default {
       option: {},
       xData: [], // 横坐标数组
 
-      fullscreenLoading: false,
+      /* 参考曲线相关 */
+      standardArray: [], // 基础参考曲线
+      fullArray: [], // 完整参考曲线
 
+      fullscreenLoading: false,
       logoSrc: require('@/assets/img/Company_Logo/logo_1.png'), // 公司商标
       lv: require('@/assets/img/Train/PDF/优秀.png'),
       oneLv: require('@/assets/img/Train/PDF/优秀.png'), // 优秀
@@ -89,22 +97,26 @@ export default {
       advice: '', // 建议
 
       pdfData: {
+        hospital: '',
         userName: '',
         sex: '',
-        pdfTime: '',
-        completion: '', // 完成度
-        num: '', // 训练个数
-        intervalTime: '', // 间隔时间
+
         targetUp: '', // 上限
         targetDown: '', // 下限
-        depthArray: [] // 数据数组
-      },
-      hospital: window.localStorage.getItem('hospital')
-        ? window.localStorage.getItem('hospital')
-        : '未设置医院',
 
-      standardArray: [], // 基础参考曲线
-      fullArray: [] // 完整参考曲线
+        midpoint: '', // 灵活度中点
+        target: '', // 训练目标
+        num: '', // 训练次数
+        groups: '', // 训练组数
+        groupRestTime: '', // 组间休息时间
+        keepTime: '', // 保持时间
+        restTime: '', // 休息时间
+
+        allDepthArray: [], // 多组完整数据数组
+        comprehensiveArray: [], // 综合曲线轨迹
+        completion: '', // 完成度
+        pdfTime: ''
+      }
     }
   },
 
@@ -131,7 +143,7 @@ export default {
         .then(() => {
           /* 根据不同的评分动态变化显示 */
           if (this.pdfData.completion < 40) {
-            this.advice = '腰椎灵活性差，建议加强活动度训练'
+            this.advice = '腹式呼吸差，建议加强腹式呼气训练'
             this.lv = this.fourLv
             this.textLv = '差'
             this.colorLv = '#FA5151'
@@ -139,7 +151,7 @@ export default {
             this.pdfData.completion >= 40 &&
             this.pdfData.completion <= 59
           ) {
-            this.advice = '腰椎灵活性较差，建议加强活动度训练'
+            this.advice = '腹式呼吸较差，建议加强腹式呼气训练'
             this.lv = this.threeLv
             this.textLv = '较差'
             this.colorLv = '#FFC300'
@@ -147,19 +159,20 @@ export default {
             this.pdfData.completion >= 60 &&
             this.pdfData.completion <= 79
           ) {
-            this.advice = '腰椎灵活性良好，建议加强活动度训练'
+            this.advice = '腹式呼吸良好，建议加强腹式呼气训练'
             this.lv = this.twoLv
             this.textLv = '良好'
             this.colorLv = '#00B578'
           } else {
-            this.advice = '腰椎灵活性优秀，建议加强静态训练'
+            this.advice = '腹式呼气优秀，建议加强静态训练'
             this.lv = this.oneLv
             this.textLv = '优秀'
             this.colorLv = '#07B9B9'
           }
 
-          /* 渲染图形 */
-          this.initChart()
+          this.countChart().then(() => {
+            this.initChart()
+          })
         })
         .catch(err => {
           this.$confirm(
@@ -188,41 +201,66 @@ export default {
     },
 
     /**
+     * @description: 计算图形所需参数逻辑函数
+     */
+    countChart() {
+      return new Promise((resolve, reject) => {
+        const midpoint = this.pdfData.midpoint // 灵活度中点
+        const target = this.pdfData.target // 训练目标
+        const restTime = this.pdfData.restTime // 休息时间
+        const keepTime = this.pdfData.keepTime // 保持时间
+
+        const restTimeArray = []
+        for (let i = 0; i < restTime * 10 + 1; i++) {
+          restTimeArray.push(midpoint)
+        }
+
+        const interval = parseFloat(((midpoint - target) / 10).toFixed(3)) // 间隔值
+
+        const downArray = []
+        let downSum = midpoint
+        for (let i = 0; i < 9; i++) {
+          downSum = downSum - interval
+          downArray.push(downSum)
+        }
+
+        const keepTimeArray = []
+        for (let i = 0; i < keepTime * 10 + 1; i++) {
+          keepTimeArray.push(target)
+        }
+
+        const upArray = []
+        let upSum = target
+        for (let i = 0; i < 9; i++) {
+          upSum = upSum + interval
+          upArray.push(upSum)
+        }
+
+        this.standardArray = restTimeArray.concat(
+          downArray,
+          keepTimeArray,
+          upArray
+        )
+
+        this.fullArray = []
+        for (let i = 0; i < this.pdfData.num; i++) {
+          this.fullArray.push(...this.standardArray)
+        }
+
+        /* x轴 */
+        this.xData = []
+        for (let i = 0; i < this.fullArray.length; i++) {
+          this.xData.push(parseFloat((i * 0.1).toFixed(1)))
+        }
+
+        resolve()
+      })
+    },
+
+    /**
      * @description: 初始化echarts图形
      */
     initChart() {
-      /* x轴 */
-      for (
-        let i = 0;
-        i < this.pdfData.num * this.pdfData.intervalTime * 20;
-        i++
-      ) {
-        this.xData.push(parseFloat((i * 0.1).toFixed(1)))
-      }
-
-      /* 绘制参考曲线逻辑 */
-      const targetUp = this.pdfData.targetUp
-      const targetDown = this.pdfData.targetDown
-      const intervalTime = this.pdfData.intervalTime
-      const interval = parseFloat(
-        ((targetUp - targetDown) / (intervalTime * 10)).toFixed(3)
-      ) // 间隔值
-      this.standardArray.push(targetDown)
-      let sum = targetDown
-      for (let i = 0; i < intervalTime * 10 - 1; i++) {
-        sum = sum + interval
-        this.standardArray.push(sum)
-      }
-      sum = targetUp
-      for (let i = 0; i < intervalTime * 10; i++) {
-        this.standardArray.push(sum)
-        sum = sum - interval
-      }
-      for (let i = 0; i < this.pdfData.num; i++) {
-        this.fullArray.push(...this.standardArray)
-      }
-      this.fullArray.push(targetDown)
-
       this.myChart = this.$echarts.init(document.getElementById('chart'))
       this.option = {
         xAxis: {
@@ -236,21 +274,21 @@ export default {
           splitLine: {
             show: false // 隐藏背景网格线
           },
-          min: targetDown - 10 >= 0 ? targetDown - 10 : 0,
-          max: targetUp + 10 <= 100 ? targetUp + 10 : 100
+          min: this.pdfData.target - 10 >= 0 ? this.pdfData.target - 10 : 0,
+          max: this.pdfData.midpoint + 10
         },
         legend: {},
         series: [
           {
-            name: '运动轨迹',
-            data: this.pdfData.depthArray,
+            name: '综合轨迹',
+            data: this.pdfData.comprehensiveArray,
             color: 'red',
             type: 'line',
             smooth: true,
             showSymbol: false
           },
           {
-            name: `参考曲线(${targetDown}~${targetUp})`,
+            name: `参考曲线(${this.pdfData.target}~${this.pdfData.midpoint})`,
             data: this.fullArray,
             color: 'rgba(0, 255, 0, 0.5)',
             type: 'line',
@@ -269,7 +307,7 @@ export default {
     handlePdf() {
       this.$htmlToPdf(
         'pdf',
-        `活动度训练报告 ${this.$moment().format('YYYY-MM-DD HH_mm_ss')}`,
+        `腹式呼吸训练-综合报告 ${this.$moment().format('YYYY-MM-DD HH_mm_ss')}`,
         500
       )
     },
@@ -287,7 +325,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.train-activity-improvement-pdf {
+.train-abdominal-respiration-pdf {
   width: 100vw;
   height: 100vh;
   padding: 10px;
@@ -344,13 +382,7 @@ export default {
             font-size: 46px;
             margin-bottom: 30px;
           }
-          .num {
-            margin-bottom: 3px;
-          }
-          .completion {
-            margin-bottom: 3px;
-          }
-          .advice {
+          .item {
             margin-bottom: 3px;
           }
         }

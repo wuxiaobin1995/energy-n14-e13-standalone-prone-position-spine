@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-05-17 09:32:54
- * @LastEditTime: 2023-05-17 11:58:29
+ * @LastEditTime: 2023-05-19 17:58:37
  * @Description : 腹式呼吸训练-具体测量
 -->
 <template>
@@ -13,20 +13,27 @@
       <div class="title">腹式呼吸训练</div>
       <div>提示：开始有5秒预备时间，请从中间位开始预备</div>
 
+      <!-- 主内容区 -->
       <div class="content">
+        <!-- 图形 -->
         <div class="chart">
           <div id="chart" :style="{ width: '100%', height: '100%' }"></div>
         </div>
+
+        <!-- 实时次数和组数 -->
         <div class="num">
-          <div class="text">训练次数</div>
-          <div class="value">{{ residueNum }}/{{ num }}</div>
-        </div>
-        <div class="num">
-          <div class="text">训练组数</div>
-          <div class="value">{{ residueGroups }}/{{ groups }}</div>
+          <div class="item">
+            <div class="text">训练次数</div>
+            <div class="value">{{ nowNum }}/{{ num }}</div>
+          </div>
+          <div class="item">
+            <div class="text">训练组数</div>
+            <div class="value">{{ nowGroups }}/{{ groups }}</div>
+          </div>
         </div>
       </div>
 
+      <!-- 按钮组 -->
       <div class="btn">
         <el-button
           class="item"
@@ -62,6 +69,25 @@
           >返 回</el-button
         >
       </div>
+
+      <!-- 休息倒计时弹窗 -->
+      <el-dialog
+        title="休 息 倒 计 时"
+        :visible.sync="restDialogVisible"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        :show-close="false"
+        top="30vh"
+        width="20%"
+        center
+      >
+        <div class="rest-dialog">
+          <div class="item">{{ nowGroupRestTime }}</div>
+        </div>
+        <span slot="footer">
+          <el-button type="primary" @click="handleSkip">跳 过</el-button>
+        </span>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -82,10 +108,9 @@ export default {
 
   data() {
     return {
-      targetUp: this.$store.state.bothFlexibility.maxDepth,
-      targetDown: this.$store.state.bothFlexibility.minDepth,
-
       /* 路由传参 */
+      targetUp: JSON.parse(this.$route.query.targetUp), // 上限
+      targetDown: JSON.parse(this.$route.query.targetDown), // 下限
       midpoint: JSON.parse(this.$route.query.midpoint), // 灵活度中点
       target: JSON.parse(this.$route.query.target), // 训练目标
       num: JSON.parse(this.$route.query.num), // 训练次数
@@ -110,22 +135,29 @@ export default {
       option: {},
       xData: [], // 横坐标数组
 
+      /* 参考曲线相关 */
+      standardArray: [], // 基础参考曲线
+      bgArray: [], // 参考曲线，暂定5个一组
+
       /* 控制相关 */
-      isStart: false, // 是否开始
-      isPause: false, // 是否暂停
-      isFinished: false, // 是否完成该次训练
+      isStart: false, // 是否开始训练
+      isPause: false, // 是否暂停训练
+      isFinished: false, // 是否完成该训练
       isDelayed: true, // 是否要延时预备
+      isRest: false, // 是否处于休息状态
 
       /* 其他 */
-      residueNum: JSON.parse(this.$route.query.num), // 实时次数
-      residueGroups: JSON.parse(this.$route.query.groups), // 实时组数
+      nowNum: 0, // 实时次数
+      nowGroups: 0, // 实时组数
+      restDialogVisible: false, // 休息倒计时弹窗
+      restTimeClock: null, // 休息计时器
+      nowGroupRestTime: JSON.parse(this.$route.query.groupRestTime), // 实时休息时间倒计时
 
-      residueNumArray: [], // 用于显示剩余次数的数组
-      depthShowArray: [], // 展示数据数组
-      depthArray: [], // 完整数据数组
-
-      standardArray: [], // 基础参考曲线
-      bgArray: [] // 参考曲线，暂定5个一组
+      nowNumArray: [], // 用于计算剩余次数的数组
+      depthShowArray: [], // 实时展示曲线轨迹数组
+      depthArray: [], // 一组完整数据数组
+      allDepthArray: [], // 多组完整数据数组
+      pdfTime: ''
     }
   },
 
@@ -138,6 +170,10 @@ export default {
     })
   },
   beforeDestroy() {
+    // 清除计时器
+    if (this.restTimeClock) {
+      clearInterval(this.restTimeClock)
+    }
     // 关闭串口
     if (this.usbPort) {
       if (this.usbPort.isOpen) {
@@ -227,34 +263,29 @@ export default {
                   }
 
                   /* 预备结束，正式开始测量 */
-                  if (this.isDelayed === false) {
+                  if (this.isDelayed === false && this.isRest === false) {
                     this.depthArray.push(depth)
                     this.depthShowArray.push(depth)
-                    this.residueNumArray.push(depth)
+                    this.nowNumArray.push(depth)
 
                     if (this.depthShowArray.length === this.bgArray.length) {
                       this.depthShowArray = []
                     }
-                    if (
-                      this.residueNumArray.length === this.standardArray.length
-                    ) {
-                      this.residueNumArray = []
-                      this.residueNum -= 1
+                    if (this.nowNumArray.length === this.standardArray.length) {
+                      this.nowNumArray = []
+                      this.nowNum += 1
                     }
 
                     /* 语音播放 */
                     if (this.audioOpen === true) {
-                      if (
-                        this.residueNumArray.length ===
-                        this.restTime * 10 - 6
-                      ) {
+                      if (this.nowNumArray.length === this.restTime * 10 - 6) {
                         this.audioSrc = this.audioOutSrc
                         setTimeout(() => {
                           this.$refs.audio.currentTime = 0
                           this.$refs.audio.play()
                         }, 100)
                       } else if (
-                        this.residueNumArray.length ===
+                        this.nowNumArray.length ===
                         this.standardArray.length - 16
                       ) {
                         this.audioSrc = this.audioInSrc
@@ -269,11 +300,26 @@ export default {
                     this.option.series[0].data = this.depthShowArray
                     this.myChart.setOption(this.option)
 
-                    // 结束
+                    // 结束一组训练
                     if (
                       this.depthArray.length ===
                       this.num * this.standardArray.length
                     ) {
+                      this.nowGroups += 1 // 实时组数+1
+                      this.allDepthArray.push(this.depthArray) // 数组累加
+
+                      this.depthArray = []
+                      this.depthShowArray = []
+                      this.nowNumArray = []
+
+                      // 休息弹窗
+                      if (this.nowGroups < this.groups) {
+                        this.onRestDialog()
+                      }
+                    }
+
+                    /* 所有组完成，保存数据 */
+                    if (this.nowGroups >= this.groups) {
                       this.saveData()
                     }
                   }
@@ -314,8 +360,8 @@ export default {
      */
     countChart() {
       return new Promise((resolve, reject) => {
-        const midpoint = this.midpoint // 中点
-        const target = this.target // 目标
+        const midpoint = this.midpoint // 灵活度中点
+        const target = this.target // 训练目标
         const restTime = this.restTime // 休息时间
         const keepTime = this.keepTime // 保持时间
 
@@ -383,13 +429,13 @@ export default {
           splitLine: {
             show: false // 隐藏背景网格线
           },
-          max: this.midpoint + 10,
-          min: this.target - 10 >= 0 ? this.target - 10 : 0
+          min: this.target - 10 >= 0 ? this.target - 10 : 0,
+          max: this.midpoint + 10
         },
         legend: {},
         series: [
           {
-            name: '轨迹',
+            name: '单组轨迹',
             data: [],
             color: 'red',
             type: 'line',
@@ -411,6 +457,46 @@ export default {
     },
 
     /**
+     * @description: 休息倒计时弹窗函数
+     */
+    onRestDialog() {
+      // 进入休息状态，标志位置true
+      this.isRest = true
+
+      // 清一下实时次数
+      this.nowNum = 0
+
+      // 开启弹窗
+      this.restDialogVisible = true
+
+      // 初始化倒计时长
+      this.nowGroupRestTime = this.groupRestTime
+
+      // 开始倒计时
+      this.restTimeClock = setInterval(() => {
+        this.nowGroupRestTime -= 1
+        if (this.nowGroupRestTime === 0) {
+          this.handleSkip()
+        }
+      }, 1000)
+    },
+    /**
+     * @description: 跳过休息按钮
+     */
+    handleSkip() {
+      // 休息结束，标志位置false
+      this.isRest = false
+
+      // 清除计时器
+      if (this.restTimeClock) {
+        clearInterval(this.restTimeClock)
+      }
+
+      // 关闭弹窗
+      this.restDialogVisible = false
+    },
+
+    /**
      * @description: 保存数据逻辑函数
      */
     saveData() {
@@ -420,9 +506,28 @@ export default {
         }
       }
 
-      this.isStart = false
       this.isPause = false
       this.isDelayed = true
+      this.isRest = false
+
+      /* 计算综合曲线轨迹 */
+      const allDepthArrayDelayering = [] // 数组扁平化
+      for (let i = 0; i < this.allDepthArray.length; i++) {
+        allDepthArrayDelayering.push(...this.allDepthArray[i])
+      }
+      // console.log(this.allDepthArray)
+      // console.log(allDepthArrayDelayering)
+      const itemArrLen = this.allDepthArray[0].length // 单个元素数组的元素数量
+      let comprehensiveArray = []
+      let sum = 0
+      for (let i = 0; i < this.allDepthArray[0].length; i++) {
+        for (let j = 0; j < this.groups; j++) {
+          sum += allDepthArrayDelayering[itemArrLen * j + i]
+        }
+        comprehensiveArray.push(parseInt(sum / this.groups))
+        sum = 0
+      }
+      // console.log(comprehensiveArray)
 
       /* 计算完成度 */
       const contrastArray = []
@@ -430,37 +535,69 @@ export default {
         contrastArray.push(...this.standardArray)
       }
       const yesArray = []
-      for (let i = 0; i < this.depthArray.length; i++) {
-        const item = this.depthArray[i]
+      for (let i = 0; i < comprehensiveArray.length; i++) {
+        const item = comprehensiveArray[i]
         const contrast = contrastArray[i]
         const differenceVal = Math.abs(item - contrast)
         if (differenceVal >= 0 && differenceVal <= 5) {
           yesArray.push(differenceVal)
         }
       }
-      const result = parseFloat(
-        ((yesArray.length / this.depthArray.length) * 100).toFixed(0)
+      const completion = parseFloat(
+        ((yesArray.length / comprehensiveArray.length) * 100).toFixed(0)
       )
 
-      /* 保存 */
-      this.$axios
-        .post('/saveTrainRecord_v2', {
-          devices_name: facilityID,
-          user_id: this.$store.state.currentUserInfo.userId,
-          number_target: this.num,
-          completion: result,
-          record_array: JSON.stringify(this.depthArray),
-          upper_limit: this.targetUp,
-          lower_limit: this.targetDown,
-          midpoint: this.midpoint,
-          press_down: this.target,
-          keep_time: this.keepTime,
-          rest_time: this.restTime,
-          type: 'abdominal-respiration'
+      /* 保存到数据库 */
+      this.pdfTime = this.$moment().format('YYYY-MM-DD HH:mm:ss')
+      const hospital = window.localStorage.getItem('hospital')
+      const db = initDB()
+      db.train_data
+        .add({
+          hospital: hospital,
+          userId: this.$store.state.currentUserInfo.userId,
+          userName: this.$store.state.currentUserInfo.userName,
+          sex: this.$store.state.currentUserInfo.sex,
+          height: this.$store.state.currentUserInfo.height,
+          weight: this.$store.state.currentUserInfo.weight,
+          birthday: this.$store.state.currentUserInfo.birthday,
+
+          targetUp: this.targetUp, // 上限
+          targetDown: this.targetDown, // 下限
+          midpoint: this.midpoint, // 灵活度中点
+          target: this.target, // 训练目标
+          num: this.num, // 训练次数
+          groups: this.groups, // 训练组数
+          groupRestTime: this.groupRestTime, // 组间休息时间
+          keepTime: this.keepTime, // 保持时间
+          restTime: this.restTime, // 休息时间
+
+          allDepthArray: this.allDepthArray, // 多组完整数据数组
+          comprehensiveArray: comprehensiveArray, // 综合曲线轨迹
+          completion: completion, // 完成度
+          pdfTime: this.pdfTime,
+
+          type: '腹式呼吸训练'
         })
-        .then(res => {
+        .then(() => {
+          this.$message({
+            message: '数据保存成功，可以查看报告！',
+            type: 'success',
+            duration: 1500
+          })
+        })
+        .then(() => {
           this.isFinished = true
-          this.residueNum = this.num
+        })
+        .catch(() => {
+          this.$alert(`请点击"返回"按钮，然后重新测试！`, '数据保存失败', {
+            type: 'error',
+            showClose: false,
+            center: true,
+            confirmButtonText: '返回',
+            callback: () => {
+              this.handleGoBack()
+            }
+          })
         })
     },
 
@@ -472,10 +609,15 @@ export default {
       this.isPause = false
       this.isFinished = false
       this.isDelayed = true
-      this.residueNumArray = [] // 用于显示剩余个数的数组
-      this.depthShowArray = [] // 展示数据数组
-      this.depthArray = [] // 完整数据数组
-      this.residueNum = this.num
+      this.isRest = false
+
+      this.nowNumArray = [] // 用于计算剩余次数的数组
+      this.depthShowArray = [] // 实时展示曲线轨迹数组
+      this.depthArray = [] // 一组完整数据数组
+      this.allDepthArray = [] // 多组完整数据数组
+
+      this.nowNum = 0
+      this.nowGroups = 0
 
       if (this.usbPort) {
         if (!this.usbPort.isOpen) {
@@ -505,6 +647,8 @@ export default {
       this.$router.push({
         path: '/train-abdominal-respiration-pdf',
         query: {
+          userId: JSON.stringify(this.$store.state.currentUserInfo.userId),
+          pdfTime: JSON.stringify(this.pdfTime),
           routerName: JSON.stringify('/train-select/abdominal-respiration-set')
         }
       })
@@ -549,18 +693,23 @@ export default {
         flex: 1;
       }
       .num {
-        font-size: 24px;
-        @include flex(column, center, center);
-        .text {
-          margin-bottom: 16px;
-        }
-        .value {
-          @include flex(row, center, center);
-          padding: 4px 0;
-          border: 1px solid black;
-          border-radius: 5px;
-          width: 100px;
-          background-color: rgb(216, 216, 216);
+        @include flex(column, center, stretch);
+        padding: 0 20px;
+        .item {
+          font-size: 24px;
+          @include flex(column, center, center);
+          margin: 30px 0;
+          .text {
+            margin-bottom: 12px;
+          }
+          .value {
+            @include flex(row, center, center);
+            padding: 4px 0;
+            border: 1px solid black;
+            border-radius: 5px;
+            width: 100px;
+            background-color: rgb(216, 216, 216);
+          }
         }
       }
     }
@@ -570,6 +719,15 @@ export default {
       .item {
         font-size: 28px;
         margin: 0 40px;
+      }
+    }
+
+    .rest-dialog {
+      @include flex(column, center, center);
+      .item {
+        font-size: 90px;
+        font-weight: 700;
+        color: green;
       }
     }
   }
