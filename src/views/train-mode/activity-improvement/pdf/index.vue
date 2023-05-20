@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-12 21:31:50
- * @LastEditTime: 2023-05-19 16:45:23
+ * @LastEditTime: 2023-05-20 11:59:00
  * @Description : 活动度训练-导出PDF
 -->
 <template>
@@ -14,12 +14,12 @@
       <div class="top">
         <el-image class="logo" :src="logoSrc" fit="scale-down"></el-image>
 
-        <div class="title">活动度训练报告</div>
+        <div class="title">活动度训练-综合报告</div>
 
         <div class="divider"></div>
 
         <div class="info">
-          <div class="item">{{ hospital }}</div>
+          <div class="item">{{ pdfData.hospital }}</div>
           <div class="item">姓名：{{ pdfData.userName }}</div>
           <div class="item">性别：{{ pdfData.sex }}</div>
           <div class="item">训练日期：{{ pdfData.pdfTime }}</div>
@@ -37,9 +37,12 @@
           <el-image :src="lv" fit="scale-down"></el-image>
           <div class="val">
             <div class="title" :style="{ color: colorLv }">{{ textLv }}</div>
-            <div class="num">训练个数：{{ pdfData.num }}</div>
-            <div class="completion">训练评分：{{ pdfData.completion }}</div>
-            <div class="advice">{{ advice }}</div>
+            <div class="item">综合训练评分：{{ pdfData.completion }}分</div>
+            <div class="item">训练次数：{{ pdfData.num }}</div>
+            <div class="item">训练组数：{{ pdfData.groups }}</div>
+            <div class="item">间隔时长：{{ pdfData.intervalTime }}</div>
+            <div class="item">组间休息时长：{{ pdfData.groupRestTime }}秒</div>
+            <div class="item">{{ advice }}</div>
           </div>
         </div>
       </div>
@@ -76,8 +79,11 @@ export default {
       option: {},
       xData: [], // 横坐标数组
 
-      fullscreenLoading: false,
+      /* 参考曲线相关 */
+      standardArray: [], // 基础参考曲线
+      fullArray: [], // 完整参考曲线
 
+      fullscreenLoading: false,
       logoSrc: require('@/assets/img/Company_Logo/logo_1.png'), // 公司商标
       lv: require('@/assets/img/Train/PDF/优秀.png'),
       oneLv: require('@/assets/img/Train/PDF/优秀.png'), // 优秀
@@ -89,22 +95,23 @@ export default {
       advice: '', // 建议
 
       pdfData: {
+        hospital: '',
         userName: '',
         sex: '',
-        pdfTime: '',
-        completion: '', // 完成度
-        num: '', // 训练个数
-        intervalTime: '', // 间隔时间
+
         targetUp: '', // 上限
         targetDown: '', // 下限
-        depthArray: [] // 数据数组
-      },
-      hospital: window.localStorage.getItem('hospital')
-        ? window.localStorage.getItem('hospital')
-        : '未设置医院',
 
-      standardArray: [], // 基础参考曲线
-      fullArray: [] // 完整参考曲线
+        num: '', // 训练次数
+        groups: '', // 训练组数
+        intervalTime: '', // 间隔时间
+        groupRestTime: '', // 组间休息时长
+
+        allDepthArray: [], // 多组完整数据数组
+        comprehensiveArray: [], // 综合曲线轨迹
+        completion: '', // 完成度
+        pdfTime: ''
+      }
     }
   },
 
@@ -159,7 +166,9 @@ export default {
           }
 
           /* 渲染图形 */
-          this.initChart()
+          this.countChart().then(() => {
+            this.initChart()
+          })
         })
         .catch(err => {
           this.$confirm(
@@ -188,41 +197,48 @@ export default {
     },
 
     /**
+     * @description: 计算图形所需参数逻辑函数
+     */
+    countChart() {
+      return new Promise((resolve, reject) => {
+        const targetUp = this.pdfData.targetUp // 上限
+        const targetDown = this.pdfData.targetDown // 下限
+        const intervalTime = this.pdfData.intervalTime // 间隔时长
+
+        const interval = parseFloat(
+          ((targetUp - targetDown) / (intervalTime * 10)).toFixed(3)
+        ) // 间隔值
+
+        this.standardArray.push(targetDown)
+        let sum = targetDown
+        for (let i = 0; i < intervalTime * 10 - 1; i++) {
+          sum = sum + interval
+          this.standardArray.push(sum)
+        }
+        sum = targetUp
+        for (let i = 0; i < intervalTime * 10; i++) {
+          this.standardArray.push(sum)
+          sum = sum - interval
+        }
+        for (let i = 0; i < this.pdfData.num; i++) {
+          this.fullArray.push(...this.standardArray)
+        }
+        this.fullArray.push(targetDown)
+
+        /* x轴 */
+        this.xData = []
+        for (let i = 0; i < this.fullArray.length; i++) {
+          this.xData.push(parseFloat((i * 0.1).toFixed(1)))
+        }
+
+        resolve()
+      })
+    },
+
+    /**
      * @description: 初始化echarts图形
      */
     initChart() {
-      /* x轴 */
-      for (
-        let i = 0;
-        i < this.pdfData.num * this.pdfData.intervalTime * 20;
-        i++
-      ) {
-        this.xData.push(parseFloat((i * 0.1).toFixed(1)))
-      }
-
-      /* 绘制参考曲线逻辑 */
-      const targetUp = this.pdfData.targetUp
-      const targetDown = this.pdfData.targetDown
-      const intervalTime = this.pdfData.intervalTime
-      const interval = parseFloat(
-        ((targetUp - targetDown) / (intervalTime * 10)).toFixed(3)
-      ) // 间隔值
-      this.standardArray.push(targetDown)
-      let sum = targetDown
-      for (let i = 0; i < intervalTime * 10 - 1; i++) {
-        sum = sum + interval
-        this.standardArray.push(sum)
-      }
-      sum = targetUp
-      for (let i = 0; i < intervalTime * 10; i++) {
-        this.standardArray.push(sum)
-        sum = sum - interval
-      }
-      for (let i = 0; i < this.pdfData.num; i++) {
-        this.fullArray.push(...this.standardArray)
-      }
-      this.fullArray.push(targetDown)
-
       this.myChart = this.$echarts.init(document.getElementById('chart'))
       this.option = {
         xAxis: {
@@ -236,21 +252,25 @@ export default {
           splitLine: {
             show: false // 隐藏背景网格线
           },
-          min: targetDown - 10 >= 0 ? targetDown - 10 : 0,
-          max: targetUp + 10 <= 100 ? targetUp + 10 : 100
+          min:
+            this.pdfData.targetDown - 10 >= 0
+              ? this.pdfData.targetDown - 10
+              : 0,
+          max:
+            this.pdfData.targetUp + 10 <= 100 ? this.pdfData.targetUp + 10 : 100
         },
         legend: {},
         series: [
           {
             name: '运动轨迹',
-            data: this.pdfData.depthArray,
+            data: this.pdfData.comprehensiveArray,
             color: 'red',
             type: 'line',
             smooth: true,
             showSymbol: false
           },
           {
-            name: `参考曲线(${targetDown}~${targetUp})`,
+            name: `参考曲线(${this.pdfData.targetDown}~${this.pdfData.targetUp})`,
             data: this.fullArray,
             color: 'rgba(0, 255, 0, 0.5)',
             type: 'line',
@@ -269,7 +289,7 @@ export default {
     handlePdf() {
       this.$htmlToPdf(
         'pdf',
-        `活动度训练报告 ${this.$moment().format('YYYY-MM-DD HH_mm_ss')}`,
+        `活动度训练-综合报告 ${this.$moment().format('YYYY-MM-DD HH_mm_ss')}`,
         500
       )
     },
@@ -344,13 +364,7 @@ export default {
             font-size: 46px;
             margin-bottom: 30px;
           }
-          .num {
-            margin-bottom: 3px;
-          }
-          .completion {
-            margin-bottom: 3px;
-          }
-          .advice {
+          .item {
             margin-bottom: 3px;
           }
         }

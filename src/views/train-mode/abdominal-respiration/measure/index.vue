@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-05-17 09:32:54
- * @LastEditTime: 2023-05-19 17:58:37
+ * @LastEditTime: 2023-05-20 11:49:28
  * @Description : 腹式呼吸训练-具体测量
 -->
 <template>
@@ -115,9 +115,9 @@ export default {
       target: JSON.parse(this.$route.query.target), // 训练目标
       num: JSON.parse(this.$route.query.num), // 训练次数
       groups: JSON.parse(this.$route.query.groups), // 训练组数
-      groupRestTime: JSON.parse(this.$route.query.groupRestTime), // 组间休息时间
-      keepTime: JSON.parse(this.$route.query.keepTime), // 保持时间
-      restTime: JSON.parse(this.$route.query.restTime), // 休息时间
+      groupRestTime: JSON.parse(this.$route.query.groupRestTime), // 组间休息时长
+      keepTime: JSON.parse(this.$route.query.keepTime), // 保持时长
+      restTime: JSON.parse(this.$route.query.restTime), // 休息时长
 
       /* 语音相关 */
       audioOpen: this.$store.state.voiceSwitch,
@@ -362,8 +362,8 @@ export default {
       return new Promise((resolve, reject) => {
         const midpoint = this.midpoint // 灵活度中点
         const target = this.target // 训练目标
-        const restTime = this.restTime // 休息时间
-        const keepTime = this.keepTime // 保持时间
+        const restTime = this.restTime // 休息时长
+        const keepTime = this.keepTime // 保持时长
 
         const restTimeArray = []
         for (let i = 0; i < restTime * 10 + 1; i++) {
@@ -567,9 +567,9 @@ export default {
           target: this.target, // 训练目标
           num: this.num, // 训练次数
           groups: this.groups, // 训练组数
-          groupRestTime: this.groupRestTime, // 组间休息时间
-          keepTime: this.keepTime, // 保持时间
-          restTime: this.restTime, // 休息时间
+          groupRestTime: this.groupRestTime, // 组间休息时长
+          keepTime: this.keepTime, // 保持时长
+          restTime: this.restTime, // 休息时长
 
           allDepthArray: this.allDepthArray, // 多组完整数据数组
           comprehensiveArray: comprehensiveArray, // 综合曲线轨迹

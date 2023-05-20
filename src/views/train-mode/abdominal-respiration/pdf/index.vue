@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-05-19 16:29:06
- * @LastEditTime: 2023-05-19 18:00:10
+ * @LastEditTime: 2023-05-20 12:01:54
  * @Description : 腹式呼吸训练-导出PDF
 -->
 <template>
@@ -108,9 +108,9 @@ export default {
         target: '', // 训练目标
         num: '', // 训练次数
         groups: '', // 训练组数
-        groupRestTime: '', // 组间休息时间
-        keepTime: '', // 保持时间
-        restTime: '', // 休息时间
+        groupRestTime: '', // 组间休息时长
+        keepTime: '', // 保持时长
+        restTime: '', // 休息时长
 
         allDepthArray: [], // 多组完整数据数组
         comprehensiveArray: [], // 综合曲线轨迹
@@ -170,6 +170,7 @@ export default {
             this.colorLv = '#07B9B9'
           }
 
+          /* 渲染图形 */
           this.countChart().then(() => {
             this.initChart()
           })
@@ -207,8 +208,8 @@ export default {
       return new Promise((resolve, reject) => {
         const midpoint = this.pdfData.midpoint // 灵活度中点
         const target = this.pdfData.target // 训练目标
-        const restTime = this.pdfData.restTime // 休息时间
-        const keepTime = this.pdfData.keepTime // 保持时间
+        const restTime = this.pdfData.restTime // 休息时长
+        const keepTime = this.pdfData.keepTime // 保持时长
 
         const restTimeArray = []
         for (let i = 0; i < restTime * 10 + 1; i++) {

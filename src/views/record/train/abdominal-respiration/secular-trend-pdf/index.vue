@@ -1,12 +1,12 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-14 17:35:07
- * @LastEditTime: 2023-02-24 14:55:45
- * @Description : 活动度训练-导出长期趋势PDF
+ * @LastEditTime: 2023-05-20 10:47:54
+ * @Description : 腹式呼吸训练-导出长期趋势PDF
 -->
 <template>
   <div
-    class="train-activity-improvement-secular-trend-pdf"
+    class="train-abdominal-respiration-secular-trend-pdf"
     v-loading.fullscreen.lock="fullscreenLoading"
   >
     <!-- PDF区域 -->
@@ -14,7 +14,7 @@
       <div class="top">
         <el-image class="logo" :src="logoSrc" fit="scale-down"></el-image>
 
-        <div class="title">活动度训练-长期趋势报告</div>
+        <div class="title">腹式呼吸训练-长期趋势报告</div>
 
         <div class="divider"></div>
 
@@ -49,7 +49,7 @@
 import { initDB } from '@/db/index.js'
 
 export default {
-  name: 'train-activity-improvement-secular-trend-pdf',
+  name: 'train-abdominal-respiration-secular-trend-pdf',
 
   data() {
     return {
@@ -176,7 +176,7 @@ export default {
     handlePdf() {
       this.$htmlToPdf(
         'pdf',
-        `活动度训练-长期趋势报告 ${this.$moment().format(
+        `腹式呼吸训练-长期趋势报告 ${this.$moment().format(
           'YYYY-MM-DD HH_mm_ss'
         )}`,
         500
@@ -196,7 +196,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.train-activity-improvement-secular-trend-pdf {
+.train-abdominal-respiration-secular-trend-pdf {
   width: 100vw;
   height: 100vh;
   padding: 10px;

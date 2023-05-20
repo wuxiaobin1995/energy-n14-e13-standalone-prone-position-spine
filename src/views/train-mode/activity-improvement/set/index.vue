@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-09 21:12:48
- * @LastEditTime: 2023-02-24 15:49:20
+ * @LastEditTime: 2023-05-20 11:17:34
  * @Description : 活动度训练-参数设置
 -->
 <template>
@@ -18,30 +18,55 @@
     </div>
 
     <div class="content">
+      <!-- 示意图 -->
       <div class="img">
         <el-image class="item" :src="imgSrc" fit="scale-down"></el-image>
       </div>
+
+      <!-- 配置项 -->
       <div class="set">
-        <!-- 训练个数 -->
-        <div class="set__one">
-          <span class="text">训练个数</span>
+        <!-- 训练次数 -->
+        <div class="item">
+          <span class="text">训练次数</span>
           <el-input-number
             v-model="num"
             :precision="0"
             :step="1"
-            :min="1"
-            :max="30"
+            :min="5"
+            :max="20"
           ></el-input-number>
         </div>
-        <!-- 间隔时间 -->
-        <div class="set__two">
-          <span class="text">间隔时间</span>
+        <!-- 训练组数 -->
+        <div class="item">
+          <span class="text">训练组数</span>
+          <el-input-number
+            v-model="groups"
+            :precision="0"
+            :step="1"
+            :min="2"
+            :max="5"
+          ></el-input-number>
+        </div>
+        <!-- 间隔时长 -->
+        <div class="item">
+          <span class="text">间隔时长</span>
           <el-input-number
             v-model="intervalTime"
             :precision="0"
             :step="1"
             :min="3"
             :max="10"
+          ></el-input-number>
+        </div>
+        <!-- 组间休息时长 -->
+        <div class="item">
+          <span class="text">组间休息时长</span>
+          <el-input-number
+            v-model="groupRestTime"
+            :precision="0"
+            :step="1"
+            :min="5"
+            :max="60"
           ></el-input-number>
         </div>
       </div>
@@ -70,15 +95,13 @@ export default {
       audioOpen: this.$store.state.voiceSwitch,
       audioSrc: path.join(__static, `narrate/mandarin/活动度训练.mp3`),
 
-      /* 图形相关变量 */
-      myChart: null,
-      option: {},
-
       /* 其他 */
-      targetUp: this.$store.state.bothFlexibility.maxDepth, // 训练目标上限
-      targetDown: this.$store.state.bothFlexibility.minDepth, // 训练目标下限
-      num: 5, // 训练个数（1~30）
-      intervalTime: 5 // 间隔时间（秒）（3~10）
+      targetUp: this.$store.state.bothFlexibility.maxDepth, // 上限
+      targetDown: this.$store.state.bothFlexibility.minDepth, // 下限
+      num: 5, // 训练次数，5~20
+      groups: 3, // 训练组数，2~5
+      intervalTime: 5, // 间隔时长(s)，3~10
+      groupRestTime: 10 // 组间休息时长(s)，5~60
     }
   },
 
@@ -99,10 +122,12 @@ export default {
       this.$router.push({
         path: '/activity-improvement-measure',
         query: {
-          targetUp: JSON.stringify(this.targetUp),
-          targetDown: JSON.stringify(this.targetDown),
-          num: JSON.stringify(this.num),
-          intervalTime: JSON.stringify(this.intervalTime)
+          targetUp: JSON.stringify(this.targetUp), // 上限
+          targetDown: JSON.stringify(this.targetDown), // 下限
+          num: JSON.stringify(this.num), // 训练次数
+          groups: JSON.stringify(this.groups), // 训练组数
+          intervalTime: JSON.stringify(this.intervalTime), // 间隔时长
+          groupRestTime: JSON.stringify(this.groupRestTime) // 组间休息时长
         }
       })
     }
@@ -129,25 +154,20 @@ export default {
     @include flex(row, space-between, stretch);
     .img {
       flex: 1;
-      @include flex(row, flex-end, center);
+      @include flex(row, center, center);
       .item {
         width: 90%;
       }
     }
     .set {
       width: 35%;
-      @include flex(column, center, center);
-      .set__one {
+      padding-left: 30px;
+      @include flex(column, center, flex-start);
+      .item {
+        margin-bottom: 40px;
         .text {
-          font-size: 22px;
           margin-right: 10px;
-        }
-      }
-      .set__two {
-        margin-top: 50px;
-        .text {
           font-size: 22px;
-          margin-right: 10px;
         }
       }
     }

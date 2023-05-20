@@ -1,7 +1,7 @@
 /*
  * @Author      : Mr.bin
  * @Date        : 2021-11-09 09:16:02
- * @LastEditTime: 2023-05-02 17:16:24
+ * @LastEditTime: 2023-05-20 10:35:04
  * @Description : 路由
  */
 import Vue from 'vue'
@@ -241,8 +241,16 @@ const routes = [
         name: 'train-record',
         component: () => import('@/views/record/train'),
         meta: ['训练-数据记录'],
-        redirect: '/train-record/activity-improvement',
+        redirect: '/train-record/abdominal-respiration',
         children: [
+          // 腹式呼吸训练
+          {
+            path: 'abdominal-respiration',
+            name: 'train-abdominal-respiration-record',
+            component: () =>
+              import('@/views/record/train/abdominal-respiration'),
+            meta: ['腹式呼吸训练']
+          },
           // 活动度训练
           {
             path: 'activity-improvement',
@@ -309,6 +317,14 @@ const routes = [
     name: 'train-abdominal-respiration-pdf',
     component: () => import('@/views/train-mode/abdominal-respiration/pdf'),
     meta: ['腹式呼吸训练-导出PDF']
+  },
+  // 腹式呼吸训练-导出长期趋势PDF
+  {
+    path: '/train-abdominal-respiration-secular-trend-pdf',
+    name: 'train-abdominal-respiration-secular-trend-pdf',
+    component: () =>
+      import('@/views/record/train/abdominal-respiration/secular-trend-pdf'),
+    meta: ['腹式呼吸训练-导出长期趋势PDF']
   },
 
   // 活动度训练-导出PDF

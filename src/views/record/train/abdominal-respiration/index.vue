@@ -1,17 +1,17 @@
 <!--
  * @Author      : Mr.bin
- * @Date        : 2022-12-14 16:08:43
- * @LastEditTime: 2023-02-24 11:57:00
- * @Description : 活动度训练-数据记录
+ * @Date        : 2023-05-20 10:25:24
+ * @LastEditTime: 2023-05-20 10:43:38
+ * @Description : 腹式呼吸训练-数据记录
 -->
 <template>
-  <div class="train-activity-improvement-record">
+  <div class="train-abdominal-respiration-record">
     <!-- 顶部 -->
     <div class="top">
       <!-- 标题 -->
       <el-page-header
         title="返回首页"
-        content="活动度训练"
+        content="腹式呼吸训练"
         @back="handleToHome"
       ></el-page-header>
       <!-- 日期筛选 -->
@@ -57,6 +57,13 @@
         label="训练时间"
         width="260"
         sortable
+      ></el-table-column>
+      <!-- 训练目标 -->
+      <el-table-column
+        align="center"
+        prop="target"
+        label="训练目标"
+        width="80"
       ></el-table-column>
       <!-- 训练次数 -->
       <el-table-column
@@ -120,7 +127,7 @@
 import { initDB } from '@/db/index.js'
 
 export default {
-  name: 'train-activity-improvement-record',
+  name: 'train-abdominal-respiration-record',
 
   data() {
     return {
@@ -225,7 +232,7 @@ export default {
       db.train_data
         .where({
           userId: this.$store.state.currentUserInfo.userId,
-          type: '活动度训练'
+          type: '腹式呼吸训练'
         })
         .toArray()
         .then(res => {
@@ -264,12 +271,12 @@ export default {
         .between(
           [
             this.$store.state.currentUserInfo.userId,
-            '活动度训练',
+            '腹式呼吸训练',
             this.selectDateValue[0]
           ],
           [
             this.$store.state.currentUserInfo.userId,
-            '活动度训练',
+            '腹式呼吸训练',
             this.selectDateValue[1]
           ],
           true,
@@ -321,11 +328,11 @@ export default {
      */
     handleToPdf(index, row) {
       this.$router.push({
-        path: '/train-activity-improvement-pdf',
+        path: '/train-abdominal-respiration-pdf',
         query: {
           userId: JSON.stringify(row.userId),
           pdfTime: JSON.stringify(row.pdfTime),
-          routerName: JSON.stringify('/train-record/activity-improvement')
+          routerName: JSON.stringify('/train-record/abdominal-respiration')
         }
       })
     },
@@ -377,11 +384,11 @@ export default {
      */
     handleSecularTrend() {
       this.$router.push({
-        path: '/train-activity-improvement-secular-trend-pdf',
+        path: '/train-abdominal-respiration-secular-trend-pdf',
         query: {
           userId: JSON.stringify(this.$store.state.currentUserInfo.userId),
-          routerName: JSON.stringify('/train-record/activity-improvement'),
-          type: JSON.stringify('活动度训练')
+          routerName: JSON.stringify('/train-record/abdominal-respiration'),
+          type: JSON.stringify('腹式呼吸训练')
         }
       })
     },
@@ -393,7 +400,7 @@ export default {
       this.$router.push({
         path: '/refresh',
         query: {
-          routerName: JSON.stringify('/train-record/activity-improvement'),
+          routerName: JSON.stringify('/train-record/abdominal-respiration'),
           duration: JSON.stringify(300)
         }
       })
@@ -403,7 +410,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.train-activity-improvement-record {
+.train-abdominal-respiration-record {
   width: 100%;
   height: 90%;
   @include flex(column, stretch, center);

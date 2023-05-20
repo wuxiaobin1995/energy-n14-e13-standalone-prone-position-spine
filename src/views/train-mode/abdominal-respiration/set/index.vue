@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-05-02 16:28:38
- * @LastEditTime: 2023-05-19 17:41:21
+ * @LastEditTime: 2023-05-20 11:23:08
  * @Description : 腹式呼吸训练-参数设置
 -->
 <template>
@@ -61,9 +61,9 @@
             :max="5"
           ></el-input-number>
         </div>
-        <!-- 组间休息时间 -->
+        <!-- 组间休息时长 -->
         <div class="item">
-          <span class="text">组间休息时间</span>
+          <span class="text">组间休息时长</span>
           <el-input-number
             v-model="groupRestTime"
             :precision="0"
@@ -75,7 +75,7 @@
         </div>
         <!-- 保持时间 -->
         <div class="item">
-          <span class="text">保持时间</span>
+          <span class="text">保持时长</span>
           <el-input-number
             v-model="keepTime"
             :precision="0"
@@ -87,7 +87,7 @@
         </div>
         <!-- 休息时间 -->
         <div class="item">
-          <span class="text">休息时间</span>
+          <span class="text">休息时长</span>
           <el-input-number
             v-model="restTime"
             :precision="0"
@@ -132,9 +132,9 @@ export default {
       target: this.$store.state.bothFlexibility.minDepth + 5, // 训练目标
       num: 5, // 训练次数，5~20
       groups: 3, // 训练组数，2~5
-      groupRestTime: 10, // 组间休息时间(s)，5~60
-      keepTime: 3, // 保持时间(s)，1~3
-      restTime: 3, // 休息时间(s)，1~3
+      groupRestTime: 10, // 组间休息时长(s)，5~60
+      keepTime: 3, // 保持时长(s)，1~3
+      restTime: 3, // 休息时长(s)，1~3
 
       /* 参考曲线相关 */
       standardArray: [], // 基础参考曲线
@@ -171,8 +171,8 @@ export default {
         /* 绘制参考曲线逻辑 */
         const midpoint = this.midpoint // 灵活度中点
         const target = this.target // 训练目标
-        const restTime = this.restTime // 休息时间
-        const keepTime = this.keepTime // 保持时间
+        const restTime = this.restTime // 休息时长
+        const keepTime = this.keepTime // 保持时长
 
         const restTimeArray = []
         for (let i = 0; i < restTime * 10 + 1; i++) {
@@ -299,11 +299,11 @@ export default {
           targetDown: JSON.stringify(this.targetDown), // 下限
           midpoint: JSON.stringify(this.midpoint), // 灵活度中点
           target: JSON.stringify(this.target), // 训练目标
-          num: JSON.stringify(this.num), // 训练次数，5~20
-          groups: JSON.stringify(this.groups), // 训练组数，2~5
-          groupRestTime: JSON.stringify(this.groupRestTime), // 组间休息时间(s)，5~60
-          keepTime: JSON.stringify(this.keepTime), // 保持时间(s)，1~3
-          restTime: JSON.stringify(this.restTime) // 休息时间(s)，1~3
+          num: JSON.stringify(this.num), // 训练次数
+          groups: JSON.stringify(this.groups), // 训练组数
+          groupRestTime: JSON.stringify(this.groupRestTime), // 组间休息时长
+          keepTime: JSON.stringify(this.keepTime), // 保持时长
+          restTime: JSON.stringify(this.restTime) // 休息时长
         }
       })
     }
@@ -333,7 +333,7 @@ export default {
     }
     .set {
       width: 35%;
-      margin-left: 30px;
+      padding-left: 30px;
       @include flex(column, stretch, flex-start);
       .item {
         margin-bottom: 40px;

@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-14 14:37:48
- * @LastEditTime: 2023-02-24 15:17:05
+ * @LastEditTime: 2023-05-20 10:34:42
  * @Description : 训练-数据记录
 -->
 <template>
@@ -10,11 +10,20 @@
       <div class="btn">
         <el-button
           class="item"
+          type="primary"
+          round
+          plain
+          @click="handleAbdominalRespiration"
+          >腹式呼吸训练</el-button
+        >
+
+        <el-button
+          class="item"
           type="warning"
           round
           plain
           @click="handleActivityImprovement"
-          >活动度改善训练</el-button
+          >活动度训练</el-button
         >
 
         <el-button
@@ -59,7 +68,14 @@ export default {
 
   methods: {
     /**
-     * @description: 活动度改善训练
+     * @description: 腹式呼吸训练
+     */
+    handleAbdominalRespiration() {
+      this.$router.push({ path: '/train-record/abdominal-respiration' })
+    },
+
+    /**
+     * @description: 活动度训练
      */
     handleActivityImprovement() {
       this.$router.push({ path: '/train-record/activity-improvement' })
