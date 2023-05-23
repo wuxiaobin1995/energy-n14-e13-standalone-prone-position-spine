@@ -96,7 +96,7 @@
       <!-- 训练评分 -->
       <el-table-column
         align="center"
-        prop="averageCompletion"
+        prop="completion"
         label="训练评分"
       ></el-table-column>
 

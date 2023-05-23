@@ -432,7 +432,7 @@ export default {
       for (let i = 0; i < this.completionResultArray.length; i++) {
         sum += this.completionResultArray[i]
       }
-      const averageCompletion = parseInt(
+      const completion = parseInt(
         sum / this.completionResultArray.length
       )
 
@@ -458,7 +458,7 @@ export default {
           action: this.action, // 动作
 
           completionResultArray: this.completionResultArray, // 多组的完成度数组
-          averageCompletion: averageCompletion, // 平均完成度
+          completion: completion, // 平均完成度
           pdfTime: this.pdfTime,
 
           type: '动态稳定训练'

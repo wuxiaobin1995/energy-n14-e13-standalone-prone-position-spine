@@ -102,7 +102,7 @@ export default {
           for (let i = 0; i < this.trainData.length; i++) {
             const element = this.trainData[i]
 
-            this.completionArray.push(element.averageCompletion)
+            this.completionArray.push(element.completion)
             this.xData.push(element.pdfTime)
           }
         })

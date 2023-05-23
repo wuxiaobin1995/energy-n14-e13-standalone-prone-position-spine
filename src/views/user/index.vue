@@ -162,11 +162,7 @@
           @click="handleAddUser"
           >添加用户</el-button
         >
-        <el-button
-          class="item"
-          type="success"
-          icon="el-icon-download"
-          @click="handleDataOutput"
+        <el-button class="item" type="success" @click="handleDataOutput"
           >导出数据</el-button
         >
         <el-button class="item" type="info" @click="handleRefresh"

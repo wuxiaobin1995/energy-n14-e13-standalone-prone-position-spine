@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-05-23 15:58:13
- * @LastEditTime: 2023-05-23 16:24:15
+ * @LastEditTime: 2023-05-23 17:42:22
  * @Description : 导出所选用户的数据（测试、训练）
 -->
 <template>
@@ -25,12 +25,14 @@
         height="auto"
         :default-sort="{ prop: 'userId', order: 'descending' }"
         :stripe="false"
-        :border="false"
+        :border="true"
         v-loading="loading"
         element-loading-text="拼命加载中"
         element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.8)"
+        @selection-change="handleSelectionChange"
       >
+        <el-table-column type="selection" width="55"> </el-table-column>
         <!-- 姓名 -->
         <el-table-column
           align="center"
@@ -50,8 +52,13 @@
           align="center"
           prop="sex"
           label="性别"
-          width="80"
-          sortable
+          width="100"
+        ></el-table-column>
+        <!-- 出生日期 -->
+        <el-table-column
+          align="center"
+          prop="birthday"
+          label="出生日期"
         ></el-table-column>
       </el-table>
 
@@ -59,17 +66,17 @@
       <div class="btn">
         <el-button
           class="item"
-          type="success"
+          type="primary"
           icon="el-icon-download"
           @click="handleTestOutput"
-          >导出测试数据</el-button
+          >导出-测试-数据</el-button
         >
         <el-button
           class="item"
-          type="success"
+          type="primary"
           icon="el-icon-download"
           @click="handleTrainOutput"
-          >导出训练数据</el-button
+          >导出-训练-数据</el-button
         >
         <el-button class="item" type="info" @click="handleRefresh"
           >刷 新</el-button
@@ -87,13 +94,16 @@ export default {
 
   data() {
     return {
-      loading: false, // 表格加载动画
-      testLoading: false, // 导出测试 Excel加载动画
-      trainLoading: false, // 导出训练 Excel加载动画
+      loading: false, // 加载动画
 
       allUserData: [], // user表的所有用户数据
       allTestData: [], // test_data表的所有数据
-      allTrainData: [] // train_data表的所有数据
+      allTrainData: [], // train_data表的所有数据
+
+      outputTestData: [], // 最终导出的测试数据
+      outputTrainData: [], // 最终导出的训练数据
+
+      userSelection: [] // 所选择的用户数组，多选
     }
   },
 
@@ -109,6 +119,14 @@ export default {
       this.$router.push({
         path: '/user'
       })
+    },
+
+    /**
+     * @description: 当选择项发生变化时会触发该事件
+     * @param {Array} val 多选数组
+     */
+    handleSelectionChange(val) {
+      this.userSelection = val
     },
 
     /**
@@ -154,7 +172,69 @@ export default {
         .toArray()
         .then(res => {
           this.allTestData = res
-          console.log(this.allTestData)
+        })
+        .then(() => {
+          /* 筛选对应用户 */
+          const userIdArray = []
+          for (let i = 0; i < this.userSelection.length; i++) {
+            const item = this.userSelection[i]
+            userIdArray.push(item.userId)
+          }
+
+          this.outputTestData = []
+          for (let i = 0; i < this.allTestData.length; i++) {
+            const item = this.allTestData[i]
+            if (userIdArray.includes(item.userId)) {
+              this.outputTestData.push(item)
+            }
+          }
+        })
+        .then(() => {
+          // 此处使用懒加载的方式
+          import('@/utils/Export2Excel.js')
+            .then(excel => {
+              const excelTitle = {
+                userId: 'ID',
+                userName: '姓名',
+                sex: '性别',
+                height: '身高(cm)',
+                weight: '体重(kg)',
+                birthday: '出生日期',
+                type: '测试项目',
+                hospital: '医院',
+                maxDepth: '上限',
+                minDepth: '下限',
+                flexibility: '灵活度',
+                pdfTime: '测试时间'
+              }
+              const tHeader = Object.values(excelTitle)
+              // 会根据key键的顺序、属性值等动态变化
+              const filterVal = Object.keys(excelTitle)
+              const exportData = this.formatJson(filterVal, this.outputTestData)
+              excel.export_json_to_excel({
+                header: tHeader, // 表头 必填
+                data: exportData, // 具体数据 必填
+                filename:
+                  '卧姿肢体康复评估与训练系统-单机版-用户测试数据 ' +
+                  this.$moment().format('YYYY-MM-DD HH_mm_ss'), // 导出文件名，非必填
+                autoWidth: true, // 自适应列宽，非必填
+                bookType: 'xlsx' // 导出格式，非必填
+              })
+            })
+            .then(() => {
+              this.$message({
+                message: '导出Excel成功',
+                type: 'success',
+                duration: 3000
+              })
+            })
+            .catch(err => {
+              this.$message({
+                message: `导出Excel失败：${err}`,
+                type: 'error',
+                duration: 5000
+              })
+            })
         })
         .catch(() => {
           this.$confirm(
@@ -188,11 +268,74 @@ export default {
     getTrainData() {
       this.loading = true
       const db = initDB()
-      db.test_data
+      db.train_data
         .toArray()
         .then(res => {
           this.allTrainData = res
-          console.log(this.allTrainData)
+        })
+        .then(() => {
+          /* 筛选对应用户 */
+          const userIdArray = []
+          for (let i = 0; i < this.userSelection.length; i++) {
+            const item = this.userSelection[i]
+            userIdArray.push(item.userId)
+          }
+
+          this.outputTrainData = []
+          for (let i = 0; i < this.allTrainData.length; i++) {
+            const item = this.allTrainData[i]
+            if (userIdArray.includes(item.userId)) {
+              this.outputTrainData.push(item)
+            }
+          }
+        })
+        .then(() => {
+          // 此处使用懒加载的方式
+          import('@/utils/Export2Excel.js')
+            .then(excel => {
+              const excelTitle = {
+                userId: 'ID',
+                userName: '姓名',
+                sex: '性别',
+                height: '身高(cm)',
+                weight: '体重(kg)',
+                birthday: '出生日期',
+                type: '训练项目',
+                hospital: '医院',
+                completion: '完成度%',
+                pdfTime: '训练时间'
+              }
+              const tHeader = Object.values(excelTitle)
+              // 会根据key键的顺序、属性值等动态变化
+              const filterVal = Object.keys(excelTitle)
+              const exportData = this.formatJson(
+                filterVal,
+                this.outputTrainData
+              )
+              excel.export_json_to_excel({
+                header: tHeader, // 表头 必填
+                data: exportData, // 具体数据 必填
+                filename:
+                  '卧姿肢体康复评估与训练系统-单机版-用户训练数据 ' +
+                  this.$moment().format('YYYY-MM-DD HH_mm_ss'), // 导出文件名，非必填
+                autoWidth: true, // 自适应列宽，非必填
+                bookType: 'xlsx' // 导出格式，非必填
+              })
+            })
+            .then(() => {
+              this.$message({
+                message: '导出Excel成功',
+                type: 'success',
+                duration: 3000
+              })
+            })
+            .catch(err => {
+              this.$message({
+                message: `导出Excel失败：${err}`,
+                type: 'error',
+                duration: 5000
+              })
+            })
         })
         .catch(() => {
           this.$confirm(
@@ -223,68 +366,29 @@ export default {
     /**
      * @description: 导出测试数据
      */
-    handleTestOutput() {},
+    handleTestOutput() {
+      if (this.userSelection.length) {
+        this.getTestData()
+      } else {
+        this.$message({
+          message: '提示：请选择用户！',
+          type: 'error',
+          duration: 1500
+        })
+      }
+    },
 
     /**
      * @description: 导出训练数据
      */
-    handleTrainOutput() {},
-
-    /**
-     * @description: 导出用户 Excel按钮
-     */
-    handleUserExcel() {
-      if (this.allUserData.length) {
-        this.userExcelLoading = true
-        // 此处使用懒加载的方式
-        import('@/utils/Export2Excel.js')
-          .then(excel => {
-            const excelTitle = {
-              userId: 'ID',
-              userName: '姓名',
-              sex: '性别',
-              height: '身高(cm)',
-              weight: '体重(kg)',
-              birthday: '出生日期',
-              lastLoginTime: '最后登录时间',
-              remarks: '备注'
-            }
-            const tHeader = Object.values(excelTitle)
-            // 会根据key键的顺序、属性值等动态变化
-            const filterVal = Object.keys(excelTitle)
-            const exportData = this.formatJson(filterVal, this.allUserData)
-            excel.export_json_to_excel({
-              header: tHeader, // 表头 必填
-              data: exportData, // 具体数据 必填
-              filename:
-                '卧姿肢体康复评估与训练系统-单机版-所有用户信息 ' +
-                this.$moment().format('YYYY-MM-DD HH_mm_ss'), // 导出文件名，非必填
-              autoWidth: true, // 自适应列宽，非必填
-              bookType: 'xlsx' // 导出格式，非必填
-            })
-          })
-          .then(() => {
-            this.$message({
-              message: '导出Excel成功',
-              type: 'success',
-              duration: 3000
-            })
-          })
-          .catch(err => {
-            this.$message({
-              message: `导出Excel失败：${err}`,
-              type: 'error',
-              duration: 5000
-            })
-          })
-          .finally(() => {
-            this.userExcelLoading = false
-          })
+    handleTrainOutput() {
+      if (this.userSelection.length) {
+        this.getTrainData()
       } else {
         this.$message({
-          message: '表格数据不能为空！',
+          message: '提示：请选择用户！',
           type: 'error',
-          duration: 3000
+          duration: 1500
         })
       }
     },
@@ -326,8 +430,8 @@ export default {
   @include flex(row, center, center);
 
   .wrapper {
-    width: 96%;
-    height: 96%;
+    width: 86%;
+    height: 92%;
     border-radius: 34px;
     background-color: #ffffff;
     box-shadow: 0 0 10px #929292;

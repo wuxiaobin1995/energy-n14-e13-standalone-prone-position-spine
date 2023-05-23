@@ -53,7 +53,7 @@
           </div>
           <div class="item">
             <div class="text">训练评分：</div>
-            <div class="val">{{ pdfData.averageCompletion }}</div>
+            <div class="val">{{ pdfData.completion }}</div>
           </div>
         </div>
 
@@ -127,7 +127,7 @@ export default {
         groupRestTime: '', // 组间休息时长
         action: '', // 动作
 
-        averageCompletion: '', // 平均完成度
+        completion: '', // 平均完成度
         completionResultArray: [], // 多组的完成度数组
         pdfTime: '',
 

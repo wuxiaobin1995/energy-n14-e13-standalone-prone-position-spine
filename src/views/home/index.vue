@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2021-11-09 11:55:02
- * @LastEditTime: 2023-05-02 10:58:06
+ * @LastEditTime: 2023-05-23 17:40:50
  * @Description : 首页
 -->
 <template>
@@ -220,6 +220,11 @@ export default {
             this.$store.state.bothFlexibility.maxDepth !== null &&
             this.$store.state.bothFlexibility.minDepth !== null
           ) {
+            this.$message({
+              message: '正在开发中......',
+              type: 'warning',
+              duration: 2000
+            })
             // this.$router.push({
             //   path: ''
             // })
