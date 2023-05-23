@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-02-24 16:08:17
- * @LastEditTime: 2023-02-24 16:50:30
+ * @LastEditTime: 2023-05-23 15:05:10
  * @Description : 本体感觉训练-具体测量
 -->
 <template>
@@ -9,21 +9,27 @@
     <div class="wrapper">
       <!-- 主区域 -->
       <div class="main">
+        <!-- left区域 -->
         <div class="left">
           <div class="title">本体感觉训练</div>
+          <dir class="info">
+            倒计时5秒，取结束时刻的值，休息{{
+              groupRestTime
+            }}秒后，自动进行下一组训练。
+          </dir>
           <div class="content">
-            <div v-show="timeShow" class="time-bg">
+            <div class="time-bg">
               <div class="time-rd-f">
                 <div class="time-rd-c">
-                  <div class="time-text">{{ this.time }}</div>
+                  <div class="time-text">{{ time }}</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 图形区 -->
-        <div v-show="chartShow" class="chart">
+        <!-- 图形区（默认不显示） -->
+        <div v-show="false" class="chart">
           <div class="chart__bg" :style="bgColorObj"></div>
           <el-slider
             class="chart__core"
@@ -36,30 +42,23 @@
           ></el-slider>
         </div>
 
+        <!-- right区域 -->
         <div class="right">
-          <!-- <div class="text">
-            <div>训练范围</div>
-            <div class="val">{{ halfScope * 2 }}</div>
-          </div> -->
+          <div class="text">
+            <div>目标范围</div>
+            <div class="val">{{ scope }}</div>
+          </div>
           <div class="text">
             <div>训练目标</div>
             <div class="val">{{ target }}</div>
           </div>
           <div class="text">
-            <div>第一次值</div>
-            <div class="val active">{{ oneVal }}</div>
+            <div>训练组数</div>
+            <div class="val">{{ nowGroups }}/{{ groups }}</div>
           </div>
           <div class="text">
-            <div>第二次值</div>
-            <div class="val active">{{ twoVal }}</div>
-          </div>
-          <div class="text">
-            <div>第三次值</div>
-            <div class="val active">{{ threeVal }}</div>
-          </div>
-          <div class="text">
-            <div>平均值</div>
-            <div class="val active">{{ averageCore }}</div>
+            <div>当组测量值</div>
+            <div class="val active">{{ coreResult }}</div>
           </div>
         </div>
       </div>
@@ -67,23 +66,35 @@
       <!-- 按钮组 -->
       <div class="btn">
         <el-button
-          class="btn__item"
-          type="primary"
-          :disabled="!isRestart"
-          @click="handleRestart"
-          >重新测试</el-button
-        >
-        <el-button
-          class="btn__item"
+          class="item"
           type="success"
           :disabled="!isFinished"
           @click="handleToPdf"
           >查看报告</el-button
         >
-        <el-button class="btn__item" type="info" plain @click="handleGoBack"
-          >返回</el-button
+        <el-button class="item" type="info" plain @click="handleGoBack"
+          >返 回</el-button
         >
       </div>
+
+      <!-- 休息倒计时弹窗 -->
+      <el-dialog
+        title="休 息 倒 计 时"
+        :visible.sync="restDialogVisible"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        :show-close="false"
+        top="30vh"
+        width="20%"
+        center
+      >
+        <div class="rest-dialog">
+          <div class="item">{{ nowGroupRestTime }}</div>
+        </div>
+        <span slot="footer">
+          <el-button type="primary" @click="handleSkip">跳 过</el-button>
+        </span>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -102,8 +113,10 @@ export default {
   data() {
     return {
       /* 路由传参 */
-      halfScope: JSON.parse(this.$route.query.halfScope),
-      target: JSON.parse(this.$route.query.target),
+      scope: JSON.parse(this.$route.query.scope), // 目标范围
+      target: JSON.parse(this.$route.query.target), // 训练目标
+      groups: JSON.parse(this.$route.query.groups), // 训练组数
+      groupRestTime: JSON.parse(this.$route.query.groupRestTime), // 组间休息时长
 
       /* 串口相关变量 */
       usbPort: null,
@@ -111,20 +124,21 @@ export default {
       scmBaudRate: 115200, // 默认波特率115200
 
       /* 控制相关 */
-      timeShow: true,
-      chartShow: false,
-      isRestart: false,
-      isFinished: false, // 是否完成该次测试
+      isFinished: false, // 是否完成该训练
+      isRest: false, // 是否处于休息状态
 
       /* 其他 */
-      timeClock: null, // 计时器
-      time: 15, // 倒计时，默认15秒，做3次
-      core: 0, // 光标数值
+      nowGroups: 0, // 实时组数
 
-      oneVal: null,
-      twoVal: null,
-      threeVal: null,
-      averageCore: null, // 平均值
+      trainTimeClock: null, // 训练计时器
+      time: 5, // 实时训练倒计时，默认5秒
+      restDialogVisible: false, // 休息倒计时弹窗
+      restTimeClock: null, // 休息计时器
+      nowGroupRestTime: JSON.parse(this.$route.query.groupRestTime), // 实时休息时间倒计时
+
+      core: 0, // 光标实时数值
+      coreResult: null, // 每组的测量结果值
+      coreResultArray: [], // 多组的结果值数组
 
       pdfTime: ''
     }
@@ -133,12 +147,15 @@ export default {
   created() {
     this.updateBg()
     this.initSerialPort()
-    this.setTimeClock()
   },
   beforeDestroy() {
-    // 清除计时器
-    if (this.timeClock) {
-      clearInterval(this.timeClock)
+    // 清除训练计时器
+    if (this.trainTimeClock) {
+      clearInterval(this.trainTimeClock)
+    }
+    // 清除休息计时器
+    if (this.restTimeClock) {
+      clearInterval(this.restTimeClock)
     }
     // 关闭串口
     if (this.usbPort) {
@@ -176,7 +193,9 @@ export default {
               autoOpen: true // 是否自动开启串口
             })
             /* 调用 this.usbPort.open() 成功时触发（开启串口成功） */
-            this.usbPort.on('open', () => {})
+            this.usbPort.on('open', () => {
+              this.setTrainTimeClock() // 开始训练
+            })
             /* 调用 this.usbPort.open() 失败时触发（开启串口失败） */
             this.usbPort.on('error', () => {
               this.$alert(`请重新连接USB线！`, '串口开启失败', {
@@ -193,9 +212,12 @@ export default {
             this.parser = this.usbPort.pipe(new Readline({ delimiter: '\n' }))
             this.parser.on('data', data => {
               const depth = parseInt(data)
+
               /* 只允许正整数和0，且[0, 100] */
               if (/^-?[0-9]\d*$/.test(depth) && depth >= 0 && depth <= 100) {
-                this.core = depth
+                if (this.isRest === false) {
+                  this.core = depth
+                }
               }
             })
           } else {
@@ -228,11 +250,11 @@ export default {
     },
 
     /**
-     * @description: 更新绿色块逻辑函数
+     * @description: 绿色块逻辑函数
      */
     updateBg() {
       const newTarget = this.target
-      const newHalfScope = this.halfScope
+      const newHalfScope = parseFloat((this.scope / 2).toFixed(1))
       this.bgColorObj = {
         'background-image': `linear-gradient(
           to top,
@@ -247,29 +269,69 @@ export default {
     },
 
     /**
-     * @description: 定时器逻辑函数
+     * @description: 休息倒计时弹窗函数
      */
-    setTimeClock() {
-      this.timeClock = setInterval(() => {
-        this.time -= 1
-        if (this.time === 10) {
-          this.oneVal = this.core ? this.core : 0
-        } else if (this.time === 5) {
-          this.twoVal = this.core ? this.core : 0
-        } else if (this.time === 0) {
-          this.threeVal = this.core ? this.core : 0
-        }
+    onRestDialog() {
+      // 清除训练计时器
+      if (this.trainTimeClock) {
+        clearInterval(this.trainTimeClock)
+      }
 
-        if (
-          this.oneVal !== null &&
-          this.twoVal !== null &&
-          this.threeVal !== null
-        ) {
-          this.averageCore = parseInt(
-            ((this.oneVal + this.twoVal + this.threeVal) / 3).toFixed(0)
-          )
-          this.core = this.averageCore
-          this.saveData()
+      // 进入休息状态，标志位置true
+      this.isRest = true
+
+      // 开启弹窗
+      this.restDialogVisible = true
+
+      // 初始化倒计时长
+      this.nowGroupRestTime = this.groupRestTime
+
+      // 开始休息计时器倒计时
+      this.restTimeClock = setInterval(() => {
+        this.nowGroupRestTime -= 1
+        if (this.nowGroupRestTime === 0) {
+          this.handleSkip()
+        }
+      }, 1000)
+    },
+    /**
+     * @description: 跳过休息按钮
+     */
+    handleSkip() {
+      // 休息结束，标志位置false
+      this.isRest = false
+
+      // 清除休息计时器
+      if (this.restTimeClock) {
+        clearInterval(this.restTimeClock)
+      }
+
+      // 重新启动训练计时器
+      this.coreResult = null
+      this.time = 5
+      this.setTrainTimeClock()
+
+      // 关闭弹窗
+      this.restDialogVisible = false
+    },
+
+    /**
+     * @description: 训练定时器函数
+     */
+    setTrainTimeClock() {
+      this.trainTimeClock = setInterval(() => {
+        this.time -= 1
+        if (this.time === 0) {
+          this.nowGroups += 1
+          this.coreResult = this.core
+          this.coreResultArray.push(this.coreResult)
+
+          if (this.nowGroups < this.groups) {
+            this.onRestDialog()
+          }
+          if (this.nowGroups === this.groups) {
+            this.saveData()
+          }
         }
       }, 1000)
     },
@@ -278,19 +340,32 @@ export default {
      * @description: 保存数据逻辑函数
      */
     saveData() {
-      if (this.timeClock) {
-        clearInterval(this.timeClock)
+      // 清除训练计时器
+      if (this.trainTimeClock) {
+        clearInterval(this.trainTimeClock)
       }
+      // 清除休息计时器
+      if (this.restTimeClock) {
+        clearInterval(this.restTimeClock)
+      }
+      // 关闭串口
       if (this.usbPort) {
         if (this.usbPort.isOpen) {
           this.usbPort.close()
         }
       }
-      this.timeShow = false
-      this.chartShow = true
-      this.isRestart = true
 
-      /* 保存 */
+      /* 计算完成度和平均值 */
+      let sum = 0
+      for (let i = 0; i < this.coreResultArray.length; i++) {
+        sum += this.coreResultArray[i]
+      }
+      const average = parseInt(sum / this.coreResultArray.length)
+      const completion = parseInt(
+        (1 - Math.abs(average - this.target) / this.target) * 100
+      )
+
+      /* 保存到数据库 */
       this.pdfTime = this.$moment().format('YYYY-MM-DD HH:mm:ss')
       const hospital = window.localStorage.getItem('hospital')
       const db = initDB()
@@ -304,15 +379,15 @@ export default {
           weight: this.$store.state.currentUserInfo.weight,
           birthday: this.$store.state.currentUserInfo.birthday,
 
+          scope: this.scope, // 目标范围
+          target: this.target, // 训练目标
+          groups: this.groups, // 训练组数
+          groupRestTime: this.groupRestTime, // 组间休息时长
+
+          coreResultArray: this.coreResultArray, // 多组的结果值数组
+          average: average, // 平均值
+          completion: completion, // 完成度
           pdfTime: this.pdfTime,
-
-          halfScope: this.halfScope,
-          target: this.target,
-
-          oneVal: this.oneVal,
-          twoVal: this.twoVal,
-          threeVal: this.threeVal,
-          averageCore: this.averageCore,
 
           type: '本体感觉训练'
         })
@@ -337,30 +412,6 @@ export default {
             }
           })
         })
-    },
-
-    /**
-     * @description: 重新测试按钮
-     */
-    handleRestart() {
-      this.isRestart = false
-      this.isFinished = false
-      this.timeClock = null // 计时器
-      this.time = 15
-      this.timeShow = true
-      this.chartShow = false
-      this.oneVal = null
-      this.twoVal = null
-      this.threeVal = null
-      this.averageCore = null
-
-      if (this.usbPort) {
-        if (!this.usbPort.isOpen) {
-          this.usbPort.open()
-
-          this.setTimeClock()
-        }
-      }
     },
 
     /**
@@ -412,7 +463,9 @@ export default {
         .title {
           color: green;
           font-size: 34px;
-          margin-bottom: 15vh;
+        }
+        .info {
+          margin-bottom: 12vh;
         }
         .content {
           @include flex(row, center, center);
@@ -480,7 +533,7 @@ export default {
 
       .right {
         .text {
-          padding-right: 50px;
+          padding-right: 150px;
           font-size: 28px;
           margin: 60px 0;
           @include flex(row, space-between, center);
@@ -502,9 +555,18 @@ export default {
     /* 按钮组 */
     .btn {
       @include flex(row, center, center);
-      .btn__item {
+      .item {
         font-size: 26px;
         margin: 0 40px;
+      }
+    }
+
+    .rest-dialog {
+      @include flex(column, center, center);
+      .item {
+        font-size: 90px;
+        font-weight: 700;
+        color: green;
       }
     }
   }

@@ -1,8 +1,8 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-02-24 16:55:23
- * @LastEditTime: 2023-02-24 17:05:10
- * @Description : 深感觉训练-数据记录
+ * @LastEditTime: 2023-05-22 17:25:36
+ * @Description : 本体感觉训练-数据记录
 -->
 <template>
   <div class="train-deep-sensory-record">
@@ -11,7 +11,7 @@
       <!-- 标题 -->
       <el-page-header
         title="返回首页"
-        content="深感觉训练"
+        content="本体感觉训练"
         @back="handleToHome"
       ></el-page-header>
       <!-- 日期筛选 -->
@@ -50,7 +50,7 @@
     >
       <!-- No -->
       <el-table-column align="center" type="index" width="50"></el-table-column>
-      <!-- 测试时间 -->
+      <!-- 训练时间 -->
       <el-table-column
         align="center"
         prop="pdfTime"
@@ -58,40 +58,32 @@
         width="260"
         sortable
       ></el-table-column>
-      <!-- 目标值 -->
+      <!-- 训练目标 -->
       <el-table-column
         align="center"
         prop="target"
-        label="目标值"
-        width="120"
-      ></el-table-column>
-      <!-- 第一次 -->
-      <el-table-column
-        align="center"
-        prop="oneVal"
-        label="第一次值"
-        width="120"
-      ></el-table-column>
-      <!-- 第二次 -->
-      <el-table-column
-        align="center"
-        prop="twoVal"
-        label="第二次值"
-        width="120"
-      ></el-table-column>
-      <!-- 第三次 -->
-      <el-table-column
-        align="center"
-        prop="threeVal"
-        label="第三次值"
+        label="训练目标"
         width="120"
       ></el-table-column>
       <!-- 训练平均值 -->
       <el-table-column
         align="center"
-        prop="averageCore"
+        prop="average"
         label="训练平均值"
-        sortable
+        width="120"
+      ></el-table-column>
+      <!-- 训练组数 -->
+      <el-table-column
+        align="center"
+        prop="groups"
+        label="训练组数"
+        width="100"
+      ></el-table-column>
+      <!-- 完成度 -->
+      <el-table-column
+        align="center"
+        prop="completion"
+        label="完成度%"
       ></el-table-column>
 
       <!-- 查看报告按钮 -->
@@ -239,7 +231,7 @@ export default {
       db.train_data
         .where({
           userId: this.$store.state.currentUserInfo.userId,
-          type: '深感觉训练'
+          type: '本体感觉训练'
         })
         .toArray()
         .then(res => {
@@ -278,12 +270,12 @@ export default {
         .between(
           [
             this.$store.state.currentUserInfo.userId,
-            '深感觉训练',
+            '本体感觉训练',
             this.selectDateValue[0]
           ],
           [
             this.$store.state.currentUserInfo.userId,
-            '深感觉训练',
+            '本体感觉训练',
             this.selectDateValue[1]
           ],
           true,
@@ -395,7 +387,7 @@ export default {
         query: {
           userId: JSON.stringify(this.$store.state.currentUserInfo.userId),
           routerName: JSON.stringify('/train-record/deep-sensory'),
-          type: JSON.stringify('深感觉训练')
+          type: JSON.stringify('本体感觉训练')
         }
       })
     },

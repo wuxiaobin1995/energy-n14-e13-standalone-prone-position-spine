@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-12 21:31:50
- * @LastEditTime: 2023-05-20 11:59:00
+ * @LastEditTime: 2023-05-22 17:18:22
  * @Description : 活动度训练-导出PDF
 -->
 <template>
@@ -40,7 +40,7 @@
             <div class="item">综合训练评分：{{ pdfData.completion }}分</div>
             <div class="item">训练次数：{{ pdfData.num }}</div>
             <div class="item">训练组数：{{ pdfData.groups }}</div>
-            <div class="item">间隔时长：{{ pdfData.intervalTime }}</div>
+            <div class="item">间隔时长：{{ pdfData.intervalTime }}秒</div>
             <div class="item">组间休息时长：{{ pdfData.groupRestTime }}秒</div>
             <div class="item">{{ advice }}</div>
           </div>
@@ -262,7 +262,7 @@ export default {
         legend: {},
         series: [
           {
-            name: '运动轨迹',
+            name: '综合运动轨迹',
             data: this.pdfData.comprehensiveArray,
             color: 'red',
             type: 'line',

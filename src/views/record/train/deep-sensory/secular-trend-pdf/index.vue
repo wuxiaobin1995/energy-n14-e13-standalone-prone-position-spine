@@ -1,8 +1,8 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-14 17:35:07
- * @LastEditTime: 2023-02-24 17:00:48
- * @Description : 深感觉训练-导出长期趋势PDF
+ * @LastEditTime: 2023-05-23 15:14:26
+ * @Description : 本体感觉训练-导出长期趋势PDF
 -->
 <template>
   <div
@@ -14,7 +14,7 @@
       <div class="top">
         <el-image class="logo" :src="logoSrc" fit="scale-down"></el-image>
 
-        <div class="title">深感觉训练-长期趋势报告</div>
+        <div class="title">本体感觉训练-长期趋势报告</div>
 
         <div class="divider"></div>
 
@@ -22,6 +22,7 @@
           <div class="item">{{ hospital }}</div>
           <div class="item">姓名：{{ userName }}</div>
           <div class="item">性别：{{ sex }}</div>
+          <div class="item">出生日期：{{ birthday }}</div>
         </div>
 
         <div class="divider"></div>
@@ -65,12 +66,15 @@ export default {
       /* 其他 */
       fullscreenLoading: false,
       logoSrc: require('@/assets/img/Company_Logo/logo_1.png'), // 公司商标
-      userName: this.$store.state.currentUserInfo.userName,
-      sex: this.$store.state.currentUserInfo.sex,
+
       hospital: window.localStorage.getItem('hospital')
         ? window.localStorage.getItem('hospital')
         : '未设置医院',
-      averageCoreArray: [] // 平均值数组
+      userName: this.$store.state.currentUserInfo.userName,
+      sex: this.$store.state.currentUserInfo.sex,
+      birthday: this.$store.state.currentUserInfo.birthday,
+
+      completionArray: [] // 完成度数组
     }
   },
 
@@ -98,7 +102,7 @@ export default {
           for (let i = 0; i < this.trainData.length; i++) {
             const element = this.trainData[i]
 
-            this.averageCoreArray.push(element.averageCore)
+            this.completionArray.push(element.completion)
             this.xData.push(element.pdfTime)
           }
         })
@@ -153,8 +157,8 @@ export default {
         legend: {},
         series: [
           {
-            name: '训练评分',
-            data: this.averageCoreArray,
+            name: '完成度',
+            data: this.completionArray,
             color: 'green',
             type: 'line',
             smooth: false,
@@ -172,7 +176,7 @@ export default {
     handlePdf() {
       this.$htmlToPdf(
         'pdf',
-        `深感觉训练-长期趋势报告 ${this.$moment().format(
+        `本体感觉训练-长期趋势报告 ${this.$moment().format(
           'YYYY-MM-DD HH_mm_ss'
         )}`,
         500

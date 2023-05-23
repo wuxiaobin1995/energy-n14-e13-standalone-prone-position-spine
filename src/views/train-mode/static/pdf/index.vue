@@ -1,8 +1,8 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-12 21:31:50
- * @LastEditTime: 2023-02-24 16:41:28
- * @Description : 静态训练-导出PDF
+ * @LastEditTime: 2023-05-23 15:36:28
+ * @Description : 静态稳定训练-导出PDF
 -->
 <template>
   <div class="train-static-pdf" v-loading.fullscreen.lock="fullscreenLoading">
@@ -11,12 +11,12 @@
       <div class="top">
         <el-image class="logo" :src="logoSrc" fit="scale-down"></el-image>
 
-        <div class="title">静态训练报告</div>
+        <div class="title">静态稳定训练-综合报告</div>
 
         <div class="divider"></div>
 
         <div class="info">
-          <div class="item">{{ hospital }}</div>
+          <div class="item">{{ pdfData.hospital }}</div>
           <div class="item">姓名：{{ pdfData.userName }}</div>
           <div class="item">性别：{{ pdfData.sex }}</div>
           <div class="item">训练日期：{{ pdfData.pdfTime }}</div>
@@ -26,22 +26,57 @@
       </div>
 
       <div class="main">
-        <div class="chart">
-          <div id="chart" :style="{ width: '100%', height: '100%' }"></div>
+        <div class="left">
+          <div class="item">
+            <div class="text">训练目标：</div>
+            <div class="val">{{ pdfData.target }}</div>
+          </div>
+          <div class="item">
+            <div class="text">目标范围：</div>
+            <div class="val">{{ pdfData.scope }}</div>
+          </div>
+          <div class="item">
+            <div class="text">训练时长：</div>
+            <div class="val">{{ pdfData.keepTime }}s</div>
+          </div>
+          <div class="item">
+            <div class="text">组间休息时长：</div>
+            <div class="val">{{ pdfData.groupRestTime }}s</div>
+          </div>
+          <div class="item">
+            <div class="text">训练组数：</div>
+            <div class="val">{{ pdfData.groups }}</div>
+          </div>
+          <div class="item">
+            <div class="text">动作：</div>
+            <div class="val">{{ pdfData.action }}</div>
+          </div>
+          <div class="item">
+            <div class="text">训练评分：</div>
+            <div class="val">{{ pdfData.averageCompletion }}</div>
+          </div>
         </div>
 
-        <div class="other">
-          <div class="action">所选动作</div>
-          <el-image class="show-img" :src="showSrc" fit="scale-down"></el-image>
-          <div class="bottom">
-            <el-image :src="lv" fit="scale-down"></el-image>
-            <div class="val">
-              <div class="title" :style="{ color: colorLv }">{{ textLv }}</div>
-              <div class="keep-time">保持时间：{{ pdfData.keepTime }}</div>
-              <div class="completion">训练评分：{{ pdfData.completion }}</div>
-              <div class="advice">{{ advice }}</div>
-            </div>
-          </div>
+        <div class="center">
+          <table border="1" class="table">
+            <tr :style="{ height: '40px' }" bgcolor="#E7E6E6" align="center">
+              <th>训练组数</th>
+              <th>训练完成度%</th>
+            </tr>
+            <tr
+              :style="{ height: '30px' }"
+              align="center"
+              v-for="(item, index) in pdfData.completionResultArray"
+              :key="index"
+            >
+              <td>{{ index + 1 }}</td>
+              <td>{{ item }}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="right">
+          <el-image :src="showSrc" fit="scale-down"></el-image>
         </div>
       </div>
     </div>
@@ -72,13 +107,7 @@ export default {
       pdfTime: JSON.parse(this.$route.query.pdfTime),
       routerName: JSON.parse(this.$route.query.routerName),
 
-      /* 图形相关变量 */
-      myChart: null,
-      option: {},
-      xData: [], // 横坐标数组
-
       fullscreenLoading: false,
-
       logoSrc: require('@/assets/img/Company_Logo/logo_1.png'), // 公司商标
 
       showSrc: require('@/assets/img/Train/Static/1.png'),
@@ -86,28 +115,24 @@ export default {
       twoSrc: require('@/assets/img/Train/Static/2.png'),
       threeSrc: require('@/assets/img/Train/Static/3.png'),
 
-      lv: require('@/assets/img/Train/PDF/优秀.png'),
-      oneLv: require('@/assets/img/Train/PDF/优秀.png'), // 优秀
-      twoLv: require('@/assets/img/Train/PDF/良好.png'), // 良好
-      threeLv: require('@/assets/img/Train/PDF/较差.png'), // 较差
-      fourLv: require('@/assets/img/Train/PDF/差.png'), // 差
-      textLv: '',
-      colorLv: '#000000',
-      advice: '', // 建议
-
       pdfData: {
+        hospital: '',
         userName: '',
         sex: '',
-        pdfTime: '',
-        completion: '', // 完成度
-        keepTime: '', // 保持时间
+
         target: '', // 训练目标
-        type: '', // 训练类型
+        scope: '', // 目标范围
+        keepTime: '', // 训练时长
+        groups: '', // 训练组数
+        groupRestTime: '', // 组间休息时长
+        action: '', // 动作
+
+        averageCompletion: '', // 平均完成度
+        completionResultArray: [], // 多组的完成度数组
+        pdfTime: '',
+
         depthArray: [] // 数据数组
-      },
-      hospital: window.localStorage.getItem('hospital')
-        ? window.localStorage.getItem('hospital')
-        : '未设置医院'
+      }
     }
   },
 
@@ -140,38 +165,6 @@ export default {
           } else if (this.pdfData.action === '3') {
             this.showSrc = this.threeSrc
           }
-
-          /* 根据不同的评分动态变化显示 */
-          if (this.pdfData.completion < 40) {
-            this.advice = '内核心稳定性差，建议加强静态训练'
-            this.lv = this.fourLv
-            this.textLv = '差'
-            this.colorLv = '#FA5151'
-          } else if (
-            this.pdfData.completion >= 40 &&
-            this.pdfData.completion <= 59
-          ) {
-            this.advice = '内核心稳定性较差，建议加强静态训练'
-            this.lv = this.threeLv
-            this.textLv = '较差'
-            this.colorLv = '#FFC300'
-          } else if (
-            this.pdfData.completion >= 60 &&
-            this.pdfData.completion <= 79
-          ) {
-            this.advice = '内核心稳定性良好，建议加强静态训练'
-            this.lv = this.twoLv
-            this.textLv = '良好'
-            this.colorLv = '#00B578'
-          } else {
-            this.advice = '内核心稳定性优秀，建议加强动态训练'
-            this.lv = this.oneLv
-            this.textLv = '优秀'
-            this.colorLv = '#07B9B9'
-          }
-
-          /* 渲染图形 */
-          this.initChart()
         })
         .catch(err => {
           this.$confirm(
@@ -200,79 +193,12 @@ export default {
     },
 
     /**
-     * @description: 初始化echarts图形
-     */
-    initChart() {
-      /* x轴 */
-      for (let i = 0; i < this.pdfData.depthArray.length; i++) {
-        this.xData.push(parseFloat((i * 0.1).toFixed(1)))
-      }
-
-      /* 绘制参考曲线逻辑 */
-      const up = this.pdfData.target + 2.5
-      const down = this.pdfData.target - 2.5
-      const upArray = []
-      for (let i = 0; i < this.pdfData.depthArray.length; i++) {
-        upArray.push(up)
-      }
-      const downArray = []
-      for (let i = 0; i < this.pdfData.depthArray.length; i++) {
-        downArray.push(down)
-      }
-
-      this.myChart = this.$echarts.init(document.getElementById('chart'))
-      this.option = {
-        xAxis: {
-          type: 'category',
-          name: '秒',
-          data: this.xData,
-          boundaryGap: false // 从0点开始
-        },
-        yAxis: {
-          type: 'value',
-          splitLine: {
-            show: false // 隐藏背景网格线
-          }
-        },
-        legend: {},
-        series: [
-          {
-            name: '运动轨迹',
-            data: this.pdfData.depthArray,
-            color: 'red',
-            type: 'line',
-            smooth: true,
-            showSymbol: false
-          },
-          {
-            name: `目标上限(${up})`,
-            data: upArray,
-            color: 'rgba(0, 255, 0, 0.5)',
-            type: 'line',
-            smooth: false,
-            showSymbol: false
-          },
-          {
-            name: `目标下限(${down})`,
-            data: downArray,
-            color: 'rgba(0, 255, 0, 0.5)',
-            type: 'line',
-            smooth: false,
-            showSymbol: false
-          }
-        ],
-        animation: false
-      }
-      this.myChart.setOption(this.option)
-    },
-
-    /**
      * @description: 保存PDF
      */
     handlePdf() {
       this.$htmlToPdf(
         'pdf',
-        `静态训练报告 ${this.$moment().format('YYYY-MM-DD HH_mm_ss')}`,
+        `静态稳定训练-综合报告 ${this.$moment().format('YYYY-MM-DD HH_mm_ss')}`,
         500
       )
     },
@@ -329,47 +255,33 @@ export default {
     }
 
     .main {
-      margin-top: 15px;
       flex: 1;
-      @include flex(row, space-between, stretch);
-      .chart {
-        flex: 1;
-      }
-      .other {
-        @include flex(column, center, center);
-        .action {
-          font-weight: 700;
-          font-size: 22px;
-          margin-bottom: 5px;
-        }
-        .show-img {
-          width: 300px;
-          margin-bottom: 35px;
-        }
-        .bottom {
-          @include flex(row, space-between, center);
-          width: 360px;
-          margin-right: 20px;
-
-          .val {
-            width: 240px;
-            font-size: 20px;
+      @include flex(row, space-around, center);
+      .left {
+        @include flex(column, stretch, stretch);
+        .item {
+          @include flex(row, flex-start, center);
+          margin-bottom: 25px;
+          .text {
+            font-size: 28px;
             font-weight: 700;
-            .title {
-              font-size: 46px;
-              margin-bottom: 30px;
-            }
-            .keep-time {
-              margin-bottom: 3px;
-            }
-            .completion {
-              margin-bottom: 3px;
-            }
-            .advice {
-              margin-bottom: 3px;
-            }
+          }
+          .val {
+            font-size: 28px;
           }
         }
+      }
+
+      .center {
+        .table {
+          width: 350px;
+          font-size: 22px;
+        }
+      }
+
+      .right {
+        width: 26%;
+        @include flex(row, center, center);
       }
     }
   }

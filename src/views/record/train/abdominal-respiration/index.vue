@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-05-20 10:25:24
- * @LastEditTime: 2023-05-20 10:43:38
+ * @LastEditTime: 2023-05-22 10:14:15
  * @Description : 腹式呼吸训练-数据记录
 -->
 <template>
@@ -50,7 +50,7 @@
     >
       <!-- No -->
       <el-table-column align="center" type="index" width="50"></el-table-column>
-      <!-- 测试时间 -->
+      <!-- 训练时间 -->
       <el-table-column
         align="center"
         prop="pdfTime"

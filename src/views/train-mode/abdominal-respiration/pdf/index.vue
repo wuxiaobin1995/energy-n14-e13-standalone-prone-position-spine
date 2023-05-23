@@ -281,7 +281,7 @@ export default {
         legend: {},
         series: [
           {
-            name: '综合轨迹',
+            name: '综合运动轨迹',
             data: this.pdfData.comprehensiveArray,
             color: 'red',
             type: 'line',

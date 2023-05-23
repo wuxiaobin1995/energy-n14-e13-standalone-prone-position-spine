@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-02-08 14:17:27
- * @LastEditTime: 2023-05-02 16:43:08
+ * @LastEditTime: 2023-05-23 14:55:51
  * @Description : 本体感觉训练-参数设置
 -->
 <template>
@@ -11,16 +11,25 @@
 
     <!-- 主区域 -->
     <div class="main">
-      <!-- 文字说明 -->
+      <!-- 文字说明和图示 -->
       <div class="des">
         <div class="content">
-          <div class="content__item">训练目的：增强腰椎深感觉功能</div>
-          <div class="content__item">
+          <div class="item">训练目的：增强腰椎深感觉功能</div>
+          <div class="item">
             起始位置：缓慢躺在软垫上，将双脚置于踏板上，让腰部中段（对准肚脐垂直线的位置）压在圆钮上
           </div>
-          <div class="content__item">
+          <div class="item">
             动作要求：选取任意一点（末端除外），控制滑块移动至绿色区域内，重复3～5次点击“开始”，除去视觉反馈，5秒内，凭借本体感觉控制光标移动至目标区域内
           </div>
+        </div>
+
+        <div class="img">
+          <el-image :src="imgSrc" fit="scale-down"></el-image>
+        </div>
+        <div class="amplify-btn">
+          <el-button class="item" type="success" @click="handleAmplify"
+            >放 大</el-button
+          >
         </div>
       </div>
 
@@ -38,14 +47,14 @@
         ></el-slider>
       </div>
 
-      <!-- 参数设置 -->
+      <!-- 配置项 -->
       <div class="set">
-        <!-- 训练范围 -->
-        <div class="set__one">
-          <span class="text">训练范围</span>
+        <!-- 目标范围 -->
+        <div class="item">
+          <span class="text">目标范围</span>
           <el-select
             v-model="scope"
-            placeholder="训练范围"
+            placeholder="目标范围"
             @change="handleChangeScope"
           >
             <el-option
@@ -56,9 +65,8 @@
             </el-option>
           </el-select>
         </div>
-
         <!-- 训练目标 -->
-        <div class="set__two">
+        <div class="item">
           <span class="text">训练目标</span>
           <el-input-number
             v-model="target"
@@ -69,6 +77,28 @@
             @change="handleChangeTarget"
           ></el-input-number>
         </div>
+        <!-- 训练组数 -->
+        <div class="item">
+          <span class="text">训练组数</span>
+          <el-input-number
+            v-model="groups"
+            :precision="0"
+            :step="1"
+            :min="2"
+            :max="10"
+          ></el-input-number>
+        </div>
+        <!-- 组间休息时长 -->
+        <div class="item">
+          <span class="text">组间休息时长</span>
+          <el-input-number
+            v-model="groupRestTime"
+            :precision="0"
+            :step="1"
+            :min="5"
+            :max="60"
+          ></el-input-number>
+        </div>
       </div>
     </div>
 
@@ -77,10 +107,22 @@
       <el-button class="item" type="primary" @click="handleStart"
         >开始训练</el-button
       >
-      <el-button class="item" type="info" plain @click="handleRefresh"
+      <el-button class="item" type="info" @click="handleRefresh"
         >刷新页面</el-button
       >
     </div>
+
+    <!-- 图示放大弹窗 -->
+    <el-dialog
+      title="图 示"
+      :visible.sync="imgDialogVisible"
+      width="30%"
+      center
+    >
+      <div class="img-dialog">
+        <el-image :src="imgSrc" fit="scale-down"></el-image>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -97,6 +139,8 @@ export default {
 
   data() {
     return {
+      imgSrc: require('@/assets/img/Test/Flexibility/骨盆灵活度测试-动作展示.gif'),
+
       /* 语音相关 */
       audioOpen: this.$store.state.voiceSwitch,
       audioSrc: path.join(__static, `narrate/mandarin/本体感觉训练.mp3`),
@@ -106,20 +150,9 @@ export default {
       parser: null,
       scmBaudRate: 115200, // 默认波特率115200
 
+      imgDialogVisible: false, // 图示弹窗
+
       /* 其他 */
-      // 光标数值
-      core: 0,
-      // 训练范围-下拉框（目前写死只能是5）
-      scope: 5,
-      options: [
-        {
-          value: 5
-        },
-        {
-          value: 10
-        }
-      ],
-      // 训练目标-计数器，默认取上下限的中间值
       target: parseInt(
         (this.$store.state.bothFlexibility.maxDepth +
           this.$store.state.bothFlexibility.minDepth) /
@@ -130,7 +163,20 @@ export default {
               this.$store.state.bothFlexibility.minDepth) /
               2
           )
-        : 50
+        : 50, // 训练目标（默认取上下限的中间值），0~100
+      scope: 5, // 目标范围（5、10），指绿色区域的宽度
+      options: [
+        {
+          value: 5
+        },
+        {
+          value: 10
+        }
+      ],
+      groups: 5, // 训练组数，2~10
+      groupRestTime: 10, // 组间休息时长(s)，5~60
+
+      core: 0 // 光标实时数值
     }
   },
 
@@ -158,6 +204,22 @@ export default {
   },
 
   methods: {
+    /**
+     * @description: 返回首页
+     */
+    handleToHome() {
+      this.$router.push({
+        path: '/home'
+      })
+    },
+
+    /**
+     * @description: 图示放大
+     */
+    handleAmplify() {
+      this.imgDialogVisible = true
+    },
+
     /**
      * @description: 初始化串口对象
      */
@@ -205,15 +267,14 @@ export default {
                   this.handleRefresh()
                 })
                 .catch(() => {
-                  this.$router.push({
-                    path: '/home'
-                  })
+                  this.handleToHome()
                 })
             })
 
             this.parser = this.usbPort.pipe(new Readline({ delimiter: '\n' }))
             this.parser.on('data', data => {
               const depth = parseInt(data)
+
               /* 只允许正整数和0，且[0, 100] */
               if (/^-?[0-9]\d*$/.test(depth) && depth >= 0 && depth <= 100) {
                 this.core = depth
@@ -237,9 +298,7 @@ export default {
                 this.handleRefresh()
               })
               .catch(() => {
-                this.$router.push({
-                  path: '/home'
-                })
+                this.handleToHome()
               })
           }
         })
@@ -261,15 +320,13 @@ export default {
               this.handleRefresh()
             })
             .catch(() => {
-              this.$router.push({
-                path: '/home'
-              })
+              this.handleToHome()
             })
         })
     },
 
     /**
-     * @description: 训练范围下拉框改变时触发
+     * @description: 目标范围下拉框改变时触发
      */
     handleChangeScope() {
       this.updateBg()
@@ -308,8 +365,10 @@ export default {
       this.$router.push({
         path: '/deep-sensory-measure',
         query: {
-          halfScope: JSON.stringify(parseFloat((this.scope / 2).toFixed(1))),
-          target: JSON.stringify(this.target)
+          scope: JSON.stringify(this.scope), // 目标范围
+          target: JSON.stringify(this.target), // 训练目标
+          groups: JSON.stringify(this.groups), // 训练组数
+          groupRestTime: JSON.stringify(this.groupRestTime) // 组间休息时长
         }
       })
     },
@@ -341,14 +400,22 @@ export default {
     flex: 1;
     margin: 5px 0 15px 60px;
     @include flex(row, space-between, stretch);
-    /* 文字说明 */
+    /* 文字说明和图示 */
     .des {
       width: 30%;
       .content {
         font-size: 20px;
-        .content__item {
+        .item {
           margin-bottom: 20px;
         }
+      }
+      .img {
+        @include flex(row, center, center);
+        box-shadow: 0 0 8px #929292;
+      }
+      .amplify-btn {
+        @include flex(row, center, center);
+        margin-top: 10px;
       }
     }
 
@@ -388,15 +455,9 @@ export default {
     /* 参数设置 */
     .set {
       width: 30%;
-      .set__one {
-        margin: 100px 0;
-        @include flex(row, flex-start, center);
-        .text {
-          font-size: 22px;
-          margin-right: 10px;
-        }
-      }
-      .set__two {
+      @include flex(column, center, flex-start);
+      .item {
+        margin-bottom: 30px;
         @include flex(row, flex-start, center);
         .text {
           font-size: 22px;
@@ -413,6 +474,11 @@ export default {
       font-size: 26px;
       margin: 0 40px;
     }
+  }
+
+  .img-dialog {
+    @include flex(row, center, center);
+    transform: scale(2);
   }
 }
 </style>

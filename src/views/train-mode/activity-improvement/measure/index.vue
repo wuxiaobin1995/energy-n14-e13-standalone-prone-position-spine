@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-12 17:42:55
- * @LastEditTime: 2023-05-20 11:37:22
+ * @LastEditTime: 2023-05-22 16:08:33
  * @Description : 活动度训练-具体测量
 -->
 <template>
@@ -167,6 +167,10 @@ export default {
     })
   },
   beforeDestroy() {
+    // 清除计时器
+    if (this.restTimeClock) {
+      clearInterval(this.restTimeClock)
+    }
     // 关闭串口
     if (this.usbPort) {
       if (this.usbPort.isOpen) {
@@ -227,6 +231,7 @@ export default {
             this.parser = this.usbPort.pipe(new Readline({ delimiter: '\n' }))
             this.parser.on('data', data => {
               const depth = parseInt(data)
+
               /* 只允许正整数和0，且[0, 100] */
               if (/^-?[0-9]\d*$/.test(depth) && depth >= 0 && depth <= 100) {
                 /* 判断是否暂停 */
@@ -562,7 +567,6 @@ export default {
         })
         .then(() => {
           this.isFinished = true
-          this.nowNum = this.num
         })
         .catch(() => {
           this.$alert(`请点击"返回"按钮，然后重新测试！`, '数据保存失败', {

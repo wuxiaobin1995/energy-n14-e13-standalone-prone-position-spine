@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-14 14:37:48
- * @LastEditTime: 2023-05-20 10:34:42
+ * @LastEditTime: 2023-05-23 15:55:52
  * @Description : 训练-数据记录
 -->
 <template>
@@ -32,7 +32,7 @@
           round
           plain
           @click="handleStabilizerActivation"
-          >局部稳定肌激活</el-button
+          >内核心激活训练</el-button
         >
 
         <el-button
@@ -41,15 +41,15 @@
           round
           plain
           @click="handleDeepSensory"
-          >深感觉训练</el-button
+          >本体感觉训练</el-button
         >
 
-        <el-button class="item" type="primary" round plain @click="handleStatic"
-          >静态训练</el-button
+        <el-button class="item" type="info" round plain @click="handleStatic"
+          >静态稳定训练</el-button
         >
 
         <el-button class="item" type="info" round plain @click="handleDynamic"
-          >动态训练</el-button
+          >动态稳定训练</el-button
         >
       </div>
 
@@ -82,28 +82,28 @@ export default {
     },
 
     /**
-     * @description: 局部稳定肌激活训练
+     * @description: 内核心激活训练
      */
     handleStabilizerActivation() {
       this.$router.push({ path: '/train-record/stabilizer-activation' })
     },
 
     /**
-     * @description: 深感觉训练
+     * @description: 本体感觉训练
      */
     handleDeepSensory() {
       this.$router.push({ path: '/train-record/deep-sensory' })
     },
 
     /**
-     * @description: 静态训练
+     * @description: 静态稳定训练
      */
     handleStatic() {
       this.$router.push({ path: '/train-record/static' })
     },
 
     /**
-     * @description: 动态训练
+     * @description: 动态稳定训练
      */
     handleDynamic() {
       this.$router.push({ path: '/train-record/dynamic' })

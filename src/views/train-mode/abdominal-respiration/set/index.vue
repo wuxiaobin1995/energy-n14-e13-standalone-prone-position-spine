@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-05-02 16:28:38
- * @LastEditTime: 2023-05-20 11:23:08
+ * @LastEditTime: 2023-05-22 09:19:13
  * @Description : 腹式呼吸训练-参数设置
 -->
 <template>

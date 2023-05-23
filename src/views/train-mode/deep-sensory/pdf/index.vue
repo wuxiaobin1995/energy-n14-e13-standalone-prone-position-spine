@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-02-24 16:36:11
- * @LastEditTime: 2023-05-02 17:04:30
+ * @LastEditTime: 2023-05-23 09:31:02
  * @Description : 本体感觉训练-导出PDF
 -->
 <template>
@@ -11,70 +11,72 @@
   >
     <!-- PDF区域 -->
     <div id="pdf" class="pdf-wrapper">
-      <!-- 上部分 -->
-      <div class="up">
-        <div>
-          <!-- 标题 -->
-          <div class="title">本体感觉训练报告</div>
-          <!-- 基本信息 -->
-          <div class="info">
-            <div class="info__item">姓名：{{ pdfData.userName }}</div>
-            <div class="info__item">性别：{{ pdfData.sex }}</div>
-            <div class="info__item">训练日期：{{ pdfData.pdfTime }}</div>
-          </div>
+      <div class="top">
+        <el-image class="logo" :src="logoSrc" fit="scale-down"></el-image>
+
+        <div class="title">本体感觉训练-综合报告</div>
+
+        <div class="divider"></div>
+
+        <div class="info">
+          <div class="item">{{ pdfData.hospital }}</div>
+          <div class="item">姓名：{{ pdfData.userName }}</div>
+          <div class="item">性别：{{ pdfData.sex }}</div>
+          <div class="item">训练日期：{{ pdfData.pdfTime }}</div>
         </div>
 
-        <!-- logo -->
-        <div class="logo-img">
-          <el-image :src="logoSrc" fit="scale-down"></el-image>
-        </div>
+        <div class="divider"></div>
       </div>
 
-      <!-- 结果 -->
       <div class="main">
-        <div class="main-wrapper">
+        <div class="left">
           <div class="item">
-            <div class="text">目标值</div>
+            <div class="text">训练目标：</div>
             <div class="val">{{ pdfData.target }}</div>
           </div>
           <div class="item">
-            <div class="text">测量值</div>
-            <div class="val-mid">{{ pdfData.oneVal }}</div>
-            <div class="val-mid">{{ pdfData.twoVal }}</div>
-            <div class="val-mid">{{ pdfData.threeVal }}</div>
+            <div class="text">组间休息时长：</div>
+            <div class="val">{{ pdfData.groupRestTime }}s</div>
           </div>
           <div class="item">
-            <div class="text">平均值</div>
-            <div class="val">{{ pdfData.averageCore }}</div>
+            <div class="text">训练组数：</div>
+            <div class="val">{{ pdfData.groups }}</div>
+          </div>
+          <div class="item">
+            <div class="text">训练平均值：</div>
+            <div class="val">{{ pdfData.average }}</div>
+          </div>
+          <div class="item">
+            <div class="text">完成度：</div>
+            <div class="val">{{ pdfData.completion }}%</div>
           </div>
         </div>
-      </div>
 
-      <!-- 建议 -->
-      <div class="advice">
-        <div class="advice__wrapper">
-          <div v-if="adviceShow === '好'" class="advice__content">
-            <span class="advice__content--active">腰椎深感觉功能好：</span
-            >位置觉好，建议加强内核心力量，增强脊柱稳定，静态稳定5～10次，动态稳定5～10次。
-          </div>
-          <div v-else-if="adviceShow === '较差'" class="advice__content">
-            <span class="advice__content--active">腰椎深感觉功能较差：</span
-            >位置觉较差，建议腹式呼吸训练5～10次，静态稳定训练5～10次。
-          </div>
-          <div v-else-if="adviceShow === '差'" class="advice__content">
-            <span class="advice__content--active">腰椎深感觉功能差：</span
-            >位置觉差，建议内核心激活训练5～10次，腹式呼吸训练5～10次。
-          </div>
+        <div class="right">
+          <table border="1" class="table">
+            <tr :style="{ height: '40px' }" bgcolor="#E7E6E6" align="center">
+              <th>训练组数</th>
+              <th>训练值</th>
+            </tr>
+            <tr
+              :style="{ height: '30px' }"
+              align="center"
+              v-for="(item, index) in pdfData.coreResultArray"
+              :key="index"
+            >
+              <td>{{ index + 1 }}</td>
+              <td>{{ item }}</td>
+            </tr>
+          </table>
         </div>
       </div>
     </div>
 
-    <!-- 按钮组 -->
     <div class="btn">
-      <el-button class="btn__item" type="primary" @click="handlePdf"
+      <el-button class="item" type="primary" @click="handlePdf"
         >保存PDF</el-button
       >
-      <el-button class="btn__item" type="success" plain @click="handleGoBack"
+      <el-button class="item" type="success" plain @click="handleGoBack"
         >返回</el-button
       >
     </div>
@@ -96,20 +98,22 @@ export default {
       routerName: JSON.parse(this.$route.query.routerName),
 
       fullscreenLoading: false,
-
       logoSrc: require('@/assets/img/Company_Logo/logo_1.png'), // 公司商标
 
-      adviceShow: '',
       // 数据
       pdfData: {
+        hospital: '',
         userName: '',
         sex: '',
-        pdfTime: '',
-        target: '',
-        oneVal: '',
-        twoVal: '',
-        threeVal: '',
-        averageVal: ''
+
+        target: '', // 训练目标
+        groups: '', // 训练组数
+        groupRestTime: '', // 组间休息时长
+
+        coreResultArray: [], // 多组的结果值数组
+        average: '', // 平均值
+        completion: '', // 完成度
+        pdfTime: ''
       }
     }
   },
@@ -133,18 +137,6 @@ export default {
         .toArray()
         .then(res => {
           this.pdfData = res[0]
-        })
-        .then(() => {
-          const res = Math.abs(this.pdfData.averageCore - this.pdfData.target)
-          if (res <= 5) {
-            this.adviceShow = '好'
-          } else if (res > 5 && res <= 7.5) {
-            this.adviceShow = '较差'
-          } else if (res > 7.5) {
-            this.adviceShow = '差'
-          } else {
-            this.adviceShow = ''
-          }
         })
         .catch(err => {
           this.$confirm(
@@ -178,7 +170,7 @@ export default {
     handlePdf() {
       this.$htmlToPdf(
         'pdf',
-        `本体感觉训练报告 ${this.$moment().format('YYYY-MM-DD HH_mm_ss')}`,
+        `本体感觉训练-综合报告 ${this.$moment().format('YYYY-MM-DD HH_mm_ss')}`,
         500
       )
     },
@@ -197,91 +189,75 @@ export default {
 
 <style lang="scss" scoped>
 .train-deep-sensory-pdf {
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
+  padding: 10px;
   @include flex(column, stretch, stretch);
 
   /* PDF区域 */
   .pdf-wrapper {
-    padding: 40px;
     flex: 1;
     @include flex(column, stretch, stretch);
 
-    /* 上部分 */
-    .up {
-      @include flex(row, space-between, stretch);
-      /* 标题 */
+    .top {
+      position: relative;
+      @include flex(column, stretch, center);
+      .logo {
+        position: absolute;
+        top: 10px;
+        right: 5px;
+        width: 180px;
+      }
       .title {
-        font-size: 40px;
-        color: green;
+        font-size: 50px;
       }
-      /* 基本信息 */
+      .divider {
+        margin-top: 15px;
+        border: 1px solid rgb(204, 204, 204);
+        width: 100%;
+      }
       .info {
-        margin-top: 20px;
-        @include flex(row, flex-start, center);
-        font-size: 26px;
-        .info__item {
-          margin-right: 30px;
+        width: 100%;
+        margin-top: 15px;
+        @include flex(row, space-around, center);
+        .item {
+          font-size: 20px;
         }
-      }
-      /* logo */
-      .logo-img {
-        width: 300px;
       }
     }
 
-    /* 结果 */
     .main {
       flex: 1;
-      @include flex(column, center, center);
-      .main-wrapper {
-        border: 1px solid black;
-        @include flex(row, stretch, stretch);
+      @include flex(row, center, center);
+      .left {
+        @include flex(column, stretch, stretch);
+        margin-right: 260px;
         .item {
-          width: 20vw;
+          @include flex(row, flex-start, center);
+          margin-bottom: 30px;
           .text {
-            font-size: 30px;
+            font-size: 28px;
             font-weight: 700;
-            padding: 10px 0;
-            @include flex(row, center, center);
-            border: 1px solid black;
           }
           .val {
-            font-size: 24px;
-            height: 180px;
-            @include flex(row, center, center);
-            border: 1px solid black;
-          }
-          .val-mid {
-            font-size: 24px;
-            height: 60px;
-            @include flex(row, center, center);
-            border: 1px solid black;
+            font-size: 28px;
           }
         }
       }
-    }
 
-    /* 建议 */
-    .advice {
-      @include flex(column, center, center);
-      font-size: 22px;
-      .advice__wrapper {
-        width: 60vw;
-        .advice__content {
-          .advice__content--active {
-            color: red;
-          }
+      .right {
+        .table {
+          width: 350px;
+          font-size: 22px;
         }
       }
     }
   }
 
-  /* 按钮组 */
   .btn {
     @include flex(row, center, center);
     margin: 20px 0;
-    .btn__item {
+    .item {
       font-size: 28px;
       margin: 0 40px;
     }

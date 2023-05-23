@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-14 16:08:43
- * @LastEditTime: 2023-02-24 11:57:00
+ * @LastEditTime: 2023-05-22 10:14:47
  * @Description : 活动度训练-数据记录
 -->
 <template>
@@ -50,7 +50,7 @@
     >
       <!-- No -->
       <el-table-column align="center" type="index" width="50"></el-table-column>
-      <!-- 测试时间 -->
+      <!-- 训练时间 -->
       <el-table-column
         align="center"
         prop="pdfTime"

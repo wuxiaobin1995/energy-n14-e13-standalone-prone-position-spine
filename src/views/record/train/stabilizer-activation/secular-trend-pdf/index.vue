@@ -2,7 +2,7 @@
  * @Author      : Mr.bin
  * @Date        : 2023-02-24 17:08:22
  * @LastEditTime: 2023-02-24 17:08:27
- * @Description : 局部稳定肌激活训练-导出长期趋势PDF
+ * @Description : 内核心激活训练-导出长期趋势PDF
 -->
 <template>
   <div
@@ -14,7 +14,7 @@
       <div class="top">
         <el-image class="logo" :src="logoSrc" fit="scale-down"></el-image>
 
-        <div class="title">局部稳定肌激活训练-长期趋势报告</div>
+        <div class="title">内核心激活训练-长期趋势报告</div>
 
         <div class="divider"></div>
 
@@ -22,6 +22,7 @@
           <div class="item">{{ hospital }}</div>
           <div class="item">姓名：{{ userName }}</div>
           <div class="item">性别：{{ sex }}</div>
+          <div class="item">出生日期：{{ birthday }}</div>
         </div>
 
         <div class="divider"></div>
@@ -65,11 +66,14 @@ export default {
       /* 其他 */
       fullscreenLoading: false,
       logoSrc: require('@/assets/img/Company_Logo/logo_1.png'), // 公司商标
-      userName: this.$store.state.currentUserInfo.userName,
-      sex: this.$store.state.currentUserInfo.sex,
+
       hospital: window.localStorage.getItem('hospital')
         ? window.localStorage.getItem('hospital')
         : '未设置医院',
+      userName: this.$store.state.currentUserInfo.userName,
+      sex: this.$store.state.currentUserInfo.sex,
+      birthday: this.$store.state.currentUserInfo.birthday,
+
       completionArray: [] // 评分数组
     }
   },
@@ -172,7 +176,7 @@ export default {
     handlePdf() {
       this.$htmlToPdf(
         'pdf',
-        `局部稳定肌激活训练-长期趋势报告 ${this.$moment().format(
+        `内核心激活训练-长期趋势报告 ${this.$moment().format(
           'YYYY-MM-DD HH_mm_ss'
         )}`,
         500

@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-02-08 14:17:27
- * @LastEditTime: 2023-03-08 09:00:44
+ * @LastEditTime: 2023-05-22 11:55:24
  * @Description : 内核心激活训练-具体测量
 -->
 <template>
@@ -10,12 +10,23 @@
       <div class="title">内核心激活训练</div>
       <div>提示：开始有5秒预备时间，请从低位开始预备</div>
 
+      <!-- 主内容区 -->
       <div class="content">
+        <!-- 图形 -->
         <div class="chart">
           <div id="chart" :style="{ width: '100%', height: '100%' }"></div>
         </div>
+
+        <!-- 实时组数 -->
+        <div class="num">
+          <div class="item">
+            <div class="text">训练组数</div>
+            <div class="value">{{ nowGroups }}/{{ groups }}</div>
+          </div>
+        </div>
       </div>
 
+      <!-- 按钮组 -->
       <div class="btn">
         <el-button
           class="item"
@@ -51,6 +62,25 @@
           >返 回</el-button
         >
       </div>
+
+      <!-- 休息倒计时弹窗 -->
+      <el-dialog
+        title="休 息 倒 计 时"
+        :visible.sync="restDialogVisible"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        :show-close="false"
+        top="30vh"
+        width="20%"
+        center
+      >
+        <div class="rest-dialog">
+          <div class="item">{{ nowGroupRestTime }}</div>
+        </div>
+        <span slot="footer">
+          <el-button type="primary" @click="handleSkip">跳 过</el-button>
+        </span>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -69,9 +99,11 @@ export default {
   data() {
     return {
       /* 路由传参 */
-      targetUp: JSON.parse(this.$route.query.targetUp),
-      targetDown: JSON.parse(this.$route.query.targetDown),
-      keepTime: JSON.parse(this.$route.query.keepTime),
+      targetUp: JSON.parse(this.$route.query.targetUp), // 上限
+      targetDown: JSON.parse(this.$route.query.targetDown), // 下限
+      keepTime: JSON.parse(this.$route.query.keepTime), // 保持时长
+      groups: JSON.parse(this.$route.query.groups), // 训练组数
+      groupRestTime: JSON.parse(this.$route.query.groupRestTime), // 组间休息时长
 
       /* 串口相关变量 */
       usbPort: null,
@@ -83,17 +115,26 @@ export default {
       option: {},
       xData: [], // 横坐标数组
 
+      /* 参考曲线相关 */
+      bgArray: [], // 参考曲线
+
       /* 控制相关 */
-      isStart: false, // 是否开始
-      isPause: false, // 是否暂停
-      isFinished: false, // 是否完成该次训练
+      isStart: false, // 是否开始训练
+      isPause: false, // 是否暂停训练
+      isFinished: false, // 是否完成该训练
       isDelayed: true, // 是否要延时预备
+      isRest: false, // 是否处于休息状态
 
       /* 其他 */
-      depthArray: [], // 完整数据数组
-      pdfTime: '',
+      nowGroups: 0, // 实时组数
+      restDialogVisible: false, // 休息倒计时弹窗
+      restTimeClock: null, // 休息计时器
+      nowGroupRestTime: JSON.parse(this.$route.query.groupRestTime), // 实时休息时间倒计时
 
-      bgArray: [] // 参考曲线
+      depthShowArray: [], // 实时展示曲线轨迹数组
+      depthArray: [], // 一组完整数据数组
+      allDepthArray: [], // 多组完整数据数组
+      pdfTime: ''
     }
   },
 
@@ -101,9 +142,15 @@ export default {
     this.initSerialPort()
   },
   mounted() {
-    this.initChart()
+    this.countChart().then(() => {
+      this.initChart()
+    })
   },
   beforeDestroy() {
+    // 清除计时器
+    if (this.restTimeClock) {
+      clearInterval(this.restTimeClock)
+    }
     // 关闭串口
     if (this.usbPort) {
       if (this.usbPort.isOpen) {
@@ -167,8 +214,9 @@ export default {
 
               /* 只允许正整数和0，且[0, 100] */
               if (/^-?[0-9]\d*$/.test(depth) && depth >= 0 && depth <= 100) {
+                /* 判断是否暂停 */
                 if (this.isPause === false) {
-                  // 延时预备5秒，让用户有个时间调整
+                  /* 延时预备5秒，让用户有个时间调整 */
                   if (this.isDelayed === true) {
                     this.depthArray.push(depth)
                     this.option.series[0].data = this.depthArray
@@ -184,16 +232,35 @@ export default {
                     }
                   }
 
-                  // 预备结束，正式测量
-                  if (this.isDelayed === false) {
+                  /* 预备结束，正式开始测量 */
+                  if (this.isDelayed === false && this.isRest === false) {
                     this.depthArray.push(depth)
+                    this.depthShowArray.push(depth)
+
+                    if (this.depthShowArray.length === this.bgArray.length) {
+                      this.depthShowArray = []
+                    }
 
                     // 渲染图形
-                    this.option.series[0].data = this.depthArray
+                    this.option.series[0].data = this.depthShowArray
                     this.myChart.setOption(this.option)
 
-                    // 结束并保存数据
+                    // 结束一组训练
                     if (this.depthArray.length === this.bgArray.length) {
+                      this.nowGroups += 1 // 实时组数+1
+                      this.allDepthArray.push(this.depthArray) // 数组累加
+
+                      this.depthArray = []
+                      this.depthShowArray = []
+
+                      // 休息弹窗
+                      if (this.nowGroups < this.groups) {
+                        this.onRestDialog()
+                      }
+                    }
+
+                    /* 所有组完成，保存数据 */
+                    if (this.nowGroups >= this.groups) {
                       this.saveData()
                     }
                   }
@@ -230,57 +297,67 @@ export default {
     },
 
     /**
+     * @description: 计算图形所需参数逻辑函数
+     */
+    countChart() {
+      return new Promise((resolve, reject) => {
+        const keepTime = this.keepTime // 保持时长
+        const targetUp = this.targetUp // 上限
+        const targetDown = this.targetDown // 下限
+
+        const intervalTarget = targetUp - targetDown
+        const number = parseInt(intervalTarget / 5)
+
+        const standardUpArray = []
+        const standardTopArray = []
+        const standardDownArray = []
+
+        /* 上升阶段 */
+        let sum = targetDown
+        for (let i = 0; i < number; i++) {
+          for (let i = 0; i < keepTime * 10; i++) {
+            standardUpArray.push(sum)
+          }
+          for (let i = 0; i < 10; i++) {
+            sum = sum + 0.5
+            standardUpArray.push(sum)
+          }
+        }
+
+        /* 最高阶段 */
+        for (let i = 0; i < keepTime * 10; i++) {
+          standardTopArray.push(sum)
+        }
+
+        /* 下降阶段 */
+        for (let i = 0; i < number; i++) {
+          for (let i = 0; i < 10; i++) {
+            sum = sum - 0.5
+            standardDownArray.push(sum)
+          }
+          for (let i = 0; i < keepTime * 10; i++) {
+            standardDownArray.push(sum)
+          }
+        }
+
+        this.bgArray.push(...standardUpArray)
+        this.bgArray.push(...standardTopArray)
+        this.bgArray.push(...standardDownArray)
+
+        /* x轴 */
+        this.xData = []
+        for (let i = 0; i < this.bgArray.length; i++) {
+          this.xData.push(parseFloat((i * 0.1).toFixed(1)))
+        }
+
+        resolve()
+      })
+    },
+
+    /**
      * @description: 初始化echarts图形
      */
     initChart() {
-      /* 绘制参考曲线逻辑 */
-      const keepTime = this.keepTime
-      const targetUp = this.targetUp
-      const targetDown = this.targetDown
-      const intervalTarget = targetUp - targetDown
-      const number = parseInt(intervalTarget / 5)
-
-      const standardUpArray = []
-      const standardTopArray = []
-      const standardDownArray = []
-
-      /* 上升阶段 */
-      let sum = targetDown
-      for (let i = 0; i < number; i++) {
-        for (let i = 0; i < keepTime * 10; i++) {
-          standardUpArray.push(sum)
-        }
-        for (let i = 0; i < 10; i++) {
-          sum = sum + 0.5
-          standardUpArray.push(sum)
-        }
-      }
-
-      /* 最高阶段 */
-      for (let i = 0; i < keepTime * 10; i++) {
-        standardTopArray.push(sum)
-      }
-
-      /* 下降阶段 */
-      for (let i = 0; i < number; i++) {
-        for (let i = 0; i < 10; i++) {
-          sum = sum - 0.5
-          standardDownArray.push(sum)
-        }
-        for (let i = 0; i < keepTime * 10; i++) {
-          standardDownArray.push(sum)
-        }
-      }
-
-      this.bgArray.push(...standardUpArray)
-      this.bgArray.push(...standardTopArray)
-      this.bgArray.push(...standardDownArray)
-
-      /* x轴 */
-      for (let i = 0; i < this.bgArray.length; i++) {
-        this.xData.push(parseFloat((i * 0.1).toFixed(1)))
-      }
-
       this.myChart = this.$echarts.init(document.getElementById('chart'))
       this.option = {
         xAxis: {
@@ -294,13 +371,13 @@ export default {
           splitLine: {
             show: false // 隐藏背景网格线
           },
-          min: targetDown - 3 >= 0 ? targetDown - 3 : 0,
-          max: targetUp + 3 <= 100 ? targetUp + 3 : 100
+          min: this.targetDown - 3 >= 0 ? this.targetDown - 3 : 0,
+          max: this.targetUp + 3 <= 100 ? this.targetUp + 3 : 100
         },
         legend: {},
         series: [
           {
-            name: '运动轨迹',
+            name: '单组轨迹',
             data: [],
             color: 'red',
             type: 'line',
@@ -308,7 +385,7 @@ export default {
             showSymbol: false
           },
           {
-            name: `参考曲线(${targetDown}~${targetUp})`,
+            name: `参考曲线(${this.targetDown}~${this.targetUp})`,
             data: this.bgArray,
             color: 'rgba(0, 255, 0, 0.7)',
             type: 'line',
@@ -322,6 +399,43 @@ export default {
     },
 
     /**
+     * @description: 休息倒计时弹窗函数
+     */
+    onRestDialog() {
+      // 进入休息状态，标志位置true
+      this.isRest = true
+
+      // 开启弹窗
+      this.restDialogVisible = true
+
+      // 初始化倒计时长
+      this.nowGroupRestTime = this.groupRestTime
+
+      // 开始倒计时
+      this.restTimeClock = setInterval(() => {
+        this.nowGroupRestTime -= 1
+        if (this.nowGroupRestTime === 0) {
+          this.handleSkip()
+        }
+      }, 1000)
+    },
+    /**
+     * @description: 跳过休息按钮
+     */
+    handleSkip() {
+      // 休息结束，标志位置false
+      this.isRest = false
+
+      // 清除计时器
+      if (this.restTimeClock) {
+        clearInterval(this.restTimeClock)
+      }
+
+      // 关闭弹窗
+      this.restDialogVisible = false
+    },
+
+    /**
      * @description: 保存数据逻辑函数
      */
     saveData() {
@@ -331,22 +445,42 @@ export default {
         }
       }
 
-      this.isStart = false
       this.isPause = false
       this.isDelayed = true
+      this.isRest = false
+
+      /* 计算综合曲线轨迹 */
+      const allDepthArrayDelayering = [] // 数组扁平化
+      for (let i = 0; i < this.allDepthArray.length; i++) {
+        allDepthArrayDelayering.push(...this.allDepthArray[i])
+      }
+      // console.log(this.allDepthArray)
+      // console.log(allDepthArrayDelayering)
+      const itemArrLen = this.allDepthArray[0].length // 单个元素数组的元素数量
+      let comprehensiveArray = []
+      let sum = 0
+      for (let i = 0; i < this.allDepthArray[0].length; i++) {
+        for (let j = 0; j < this.groups; j++) {
+          sum += allDepthArrayDelayering[itemArrLen * j + i]
+        }
+        comprehensiveArray.push(parseInt(sum / this.groups))
+        sum = 0
+      }
+      // console.log(comprehensiveArray)
 
       /* 计算完成度 */
+      const contrastArray = this.bgArray
       const yesArray = []
-      for (let i = 0; i < this.depthArray.length; i++) {
-        const item = this.depthArray[i]
-        const contrast = this.bgArray[i]
+      for (let i = 0; i < comprehensiveArray.length; i++) {
+        const item = comprehensiveArray[i]
+        const contrast = contrastArray[i]
         const differenceVal = Math.abs(item - contrast)
         if (differenceVal >= 0 && differenceVal <= 2) {
           yesArray.push(differenceVal)
         }
       }
       const completion = parseFloat(
-        ((yesArray.length / this.depthArray.length) * 100).toFixed(0)
+        ((yesArray.length / comprehensiveArray.length) * 100).toFixed(0)
       )
 
       /* 保存到数据库 */
@@ -363,14 +497,17 @@ export default {
           weight: this.$store.state.currentUserInfo.weight,
           birthday: this.$store.state.currentUserInfo.birthday,
 
+          targetUp: this.targetUp, // 上限
+          targetDown: this.targetDown, // 下限
+          keepTime: this.keepTime, // 保持时长
+          groups: this.groups, // 训练组数
+          groupRestTime: this.groupRestTime, // 组间休息时长
+
+          allDepthArray: this.allDepthArray, // 多组完整数据数组
+          comprehensiveArray: comprehensiveArray, // 综合曲线轨迹
+          completion: completion, // 完成度
           pdfTime: this.pdfTime,
 
-          keepTime: this.keepTime,
-          completion: completion,
-          depthArray: this.depthArray,
-          bgArray: this.bgArray,
-          targetUp: this.targetUp,
-          targetDown: this.targetDown,
           type: '内核心激活训练'
         })
         .then(() => {
@@ -404,7 +541,13 @@ export default {
       this.isPause = false
       this.isFinished = false
       this.isDelayed = true
-      this.depthArray = [] // 完整数据数组
+      this.isRest = false
+
+      this.depthShowArray = [] // 实时展示曲线轨迹数组
+      this.depthArray = [] // 一组完整数据数组
+      this.allDepthArray = [] // 多组完整数据数组
+
+      this.nowGroups = 0
 
       if (this.usbPort) {
         if (!this.usbPort.isOpen) {
@@ -475,9 +618,29 @@ export default {
 
     .content {
       flex: 1;
-      @include flex(row, center, stretch);
+      @include flex(row, space-between, stretch);
       .chart {
         flex: 1;
+      }
+      .num {
+        @include flex(column, center, stretch);
+        padding: 0 20px;
+        .item {
+          font-size: 24px;
+          @include flex(column, center, center);
+          margin: 30px 0;
+          .text {
+            margin-bottom: 12px;
+          }
+          .value {
+            @include flex(row, center, center);
+            padding: 4px 0;
+            border: 1px solid black;
+            border-radius: 5px;
+            width: 100px;
+            background-color: rgb(216, 216, 216);
+          }
+        }
       }
     }
 
@@ -486,6 +649,15 @@ export default {
       .item {
         font-size: 28px;
         margin: 0 40px;
+      }
+    }
+
+    .rest-dialog {
+      @include flex(column, center, center);
+      .item {
+        font-size: 90px;
+        font-weight: 700;
+        color: green;
       }
     }
   }

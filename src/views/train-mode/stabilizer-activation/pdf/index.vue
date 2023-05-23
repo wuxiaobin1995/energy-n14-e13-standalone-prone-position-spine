@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-02-08 14:17:27
- * @LastEditTime: 2023-05-02 17:03:52
+ * @LastEditTime: 2023-05-22 10:19:36
  * @Description : 内核心激活训练-导出PDF
 -->
 <template>
@@ -14,12 +14,12 @@
       <div class="top">
         <el-image class="logo" :src="logoSrc" fit="scale-down"></el-image>
 
-        <div class="title">内核心激活训练报告</div>
+        <div class="title">内核心激活训练-综合报告</div>
 
         <div class="divider"></div>
 
         <div class="info">
-          <div class="item">{{ hospital }}</div>
+          <div class="item">{{ pdfData.hospital }}</div>
           <div class="item">姓名：{{ pdfData.userName }}</div>
           <div class="item">性别：{{ pdfData.sex }}</div>
           <div class="item">训练日期：{{ pdfData.pdfTime }}</div>
@@ -37,9 +37,12 @@
           <el-image :src="lv" fit="scale-down"></el-image>
           <div class="val">
             <div class="title" :style="{ color: colorLv }">{{ textLv }}</div>
-            <div class="num">保持时长：{{ pdfData.keepTime }}</div>
-            <div class="completion">训练评分：{{ pdfData.completion }}</div>
-            <div class="advice">{{ advice }}</div>
+            <div class="item">综合训练评分：{{ pdfData.completion }}分</div>
+            <div class="item">保持时长：{{ pdfData.keepTime }}秒</div>
+            <div class="item">训练组数：{{ pdfData.groups }}</div>
+            <div class="item">组间休息时长：{{ pdfData.groupRestTime }}秒</div>
+
+            <div class="item">{{ advice }}</div>
           </div>
         </div>
       </div>
@@ -76,8 +79,10 @@ export default {
       option: {},
       xData: [], // 横坐标数组
 
-      fullscreenLoading: false,
+      /* 参考曲线相关 */
+      fullArray: [], // 完整参考曲线
 
+      fullscreenLoading: false,
       logoSrc: require('@/assets/img/Company_Logo/logo_1.png'), // 公司商标
       lv: require('@/assets/img/Train/PDF/优秀.png'),
       oneLv: require('@/assets/img/Train/PDF/优秀.png'), // 优秀
@@ -89,19 +94,22 @@ export default {
       advice: '', // 建议
 
       pdfData: {
+        hospital: '',
         userName: '',
         sex: '',
-        pdfTime: '',
-        completion: '', // 完成度
-        keepTime: '', // 保持时长
+
         targetUp: '', // 上限
         targetDown: '', // 下限
-        depthArray: [], // 数据数组
-        bgArray: [] // 参考曲线
-      },
-      hospital: window.localStorage.getItem('hospital')
-        ? window.localStorage.getItem('hospital')
-        : '未设置医院'
+
+        keepTime: '', // 保持时长
+        groups: '', // 训练组数
+        groupRestTime: '', // 组间休息时长
+
+        allDepthArray: [], // 多组完整数据数组
+        comprehensiveArray: [], // 综合曲线轨迹
+        completion: '', // 完成度
+        pdfTime: ''
+      }
     }
   },
 
@@ -128,7 +136,7 @@ export default {
         .then(() => {
           /* 根据不同的评分动态变化显示 */
           if (this.pdfData.completion < 40) {
-            this.advice = '局部稳定肌激活差，建议加强活动度训练'
+            this.advice = '内核心激活差，建议加强活动度训练'
             this.lv = this.fourLv
             this.textLv = '差'
             this.colorLv = '#FA5151'
@@ -136,7 +144,7 @@ export default {
             this.pdfData.completion >= 40 &&
             this.pdfData.completion <= 59
           ) {
-            this.advice = '局部稳定肌激活较差，建议加强活动度训练'
+            this.advice = '内核心激活较差，建议加强活动度训练'
             this.lv = this.threeLv
             this.textLv = '较差'
             this.colorLv = '#FFC300'
@@ -144,19 +152,21 @@ export default {
             this.pdfData.completion >= 60 &&
             this.pdfData.completion <= 79
           ) {
-            this.advice = '局部稳定肌激活良好，建议加强活动度训练'
+            this.advice = '内核心激活良好，建议加强活动度训练'
             this.lv = this.twoLv
             this.textLv = '良好'
             this.colorLv = '#00B578'
           } else {
-            this.advice = '局部稳定肌激活优秀，建议加强静态训练'
+            this.advice = '内核心激活优秀，建议加强静态训练'
             this.lv = this.oneLv
             this.textLv = '优秀'
             this.colorLv = '#07B9B9'
           }
 
           /* 渲染图形 */
-          this.initChart()
+          this.countChart().then(() => {
+            this.initChart()
+          })
         })
         .catch(err => {
           this.$confirm(
@@ -185,14 +195,67 @@ export default {
     },
 
     /**
+     * @description: 计算图形所需参数逻辑函数
+     */
+    countChart() {
+      return new Promise((resolve, reject) => {
+        const keepTime = this.pdfData.keepTime // 保持时长
+        const targetUp = this.pdfData.targetUp // 上限
+        const targetDown = this.pdfData.targetDown // 下限
+
+        const intervalTarget = targetUp - targetDown
+        const number = parseInt(intervalTarget / 5)
+
+        const standardUpArray = []
+        const standardTopArray = []
+        const standardDownArray = []
+
+        /* 上升阶段 */
+        let sum = targetDown
+        for (let i = 0; i < number; i++) {
+          for (let i = 0; i < keepTime * 10; i++) {
+            standardUpArray.push(sum)
+          }
+          for (let i = 0; i < 10; i++) {
+            sum = sum + 0.5
+            standardUpArray.push(sum)
+          }
+        }
+
+        /* 最高阶段 */
+        for (let i = 0; i < keepTime * 10; i++) {
+          standardTopArray.push(sum)
+        }
+
+        /* 下降阶段 */
+        for (let i = 0; i < number; i++) {
+          for (let i = 0; i < 10; i++) {
+            sum = sum - 0.5
+            standardDownArray.push(sum)
+          }
+          for (let i = 0; i < keepTime * 10; i++) {
+            standardDownArray.push(sum)
+          }
+        }
+
+        this.fullArray.push(...standardUpArray)
+        this.fullArray.push(...standardTopArray)
+        this.fullArray.push(...standardDownArray)
+
+        /* x轴 */
+        this.xData = []
+        for (let i = 0; i < this.fullArray.length; i++) {
+          this.xData.push(parseFloat((i * 0.1).toFixed(1)))
+        }
+
+        resolve()
+      })
+    },
+
+    /**
      * @description: 初始化echarts图形
      */
     initChart() {
-      /* x轴 */
-      for (let i = 0; i < this.pdfData.bgArray.length; i++) {
-        this.xData.push(parseFloat((i * 0.1).toFixed(1)))
-      }
-
       this.myChart = this.$echarts.init(document.getElementById('chart'))
       this.option = {
         xAxis: {
@@ -214,8 +277,8 @@ export default {
         legend: {},
         series: [
           {
-            name: '运动轨迹',
-            data: this.pdfData.depthArray,
+            name: '综合运动轨迹',
+            data: this.pdfData.comprehensiveArray,
             color: 'red',
             type: 'line',
             smooth: true,
@@ -223,7 +286,7 @@ export default {
           },
           {
             name: `参考曲线(${this.pdfData.targetDown}~${this.pdfData.targetUp})`,
-            data: this.pdfData.bgArray,
+            data: this.fullArray,
             color: 'rgba(0, 255, 0, 0.7)',
             type: 'line',
             smooth: false,
@@ -241,7 +304,7 @@ export default {
     handlePdf() {
       this.$htmlToPdf(
         'pdf',
-        `内核心激活训练报告 ${this.$moment().format(
+        `内核心激活训练-综合报告 ${this.$moment().format(
           'YYYY-MM-DD HH_mm_ss'
         )}`,
         500
@@ -318,13 +381,7 @@ export default {
             font-size: 46px;
             margin-bottom: 30px;
           }
-          .num {
-            margin-bottom: 3px;
-          }
-          .completion {
-            margin-bottom: 3px;
-          }
-          .advice {
+          .item {
             margin-bottom: 3px;
           }
         }

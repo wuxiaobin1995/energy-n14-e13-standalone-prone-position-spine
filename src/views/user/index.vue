@@ -40,22 +40,6 @@
           @click="handleUserExcel"
           >导出用户信息</el-button
         >
-        <!-- 导出所有测试数据 -->
-        <el-button
-          :loading="testExcelLoading"
-          icon="el-icon-download"
-          type="success"
-          @click="handleTestExcel"
-          >导出测试 Excel</el-button
-        >
-        <!-- 导出所有训练数据 -->
-        <el-button
-          :loading="trainExcelLoading"
-          icon="el-icon-download"
-          type="success"
-          @click="handleTrainExcel"
-          >导出训练 Excel</el-button
-        >
       </div>
 
       <!-- 表格 -->
@@ -178,6 +162,13 @@
           @click="handleAddUser"
           >添加用户</el-button
         >
+        <el-button
+          class="item"
+          type="success"
+          icon="el-icon-download"
+          @click="handleDataOutput"
+          >导出数据</el-button
+        >
         <el-button class="item" type="info" @click="handleRefresh"
           >刷 新</el-button
         >
@@ -199,8 +190,6 @@ export default {
       loading: false, // 加载动画
 
       userExcelLoading: false, // 导出用户 Excel加载动画
-      testExcelLoading: false, // 导出测试 Excel加载动画
-      trainExcelLoading: false, // 导出训练 Excel加载动画
 
       allUserData: [], // user表的所有用户数据
       showData: [] // 表格显示的数据
@@ -432,6 +421,15 @@ export default {
     },
 
     /**
+     * @description: 导出所选用户的数据（测试、训练）
+     */
+    handleDataOutput() {
+      this.$router.push({
+        path: '/user-data-output'
+      })
+    },
+
+    /**
      * @description: 导出用户 Excel按钮
      */
     handleUserExcel() {
@@ -488,20 +486,6 @@ export default {
           duration: 3000
         })
       }
-    },
-
-    /**
-     * @description: 导出测试 Excel按钮
-     */
-    handleTestExcel() {
-      console.log('导出测试 Excel按钮')
-    },
-
-    /**
-     * @description: 导出训练 Excel按钮
-     */
-    handleTrainExcel() {
-      console.log('导出训练 Excel按钮')
     },
 
     /**

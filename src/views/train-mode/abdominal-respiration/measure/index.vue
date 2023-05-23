@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-05-17 09:32:54
- * @LastEditTime: 2023-05-20 11:49:28
+ * @LastEditTime: 2023-05-22 09:26:29
  * @Description : 腹式呼吸训练-具体测量
 -->
 <template>
@@ -234,6 +234,7 @@ export default {
             this.parser = this.usbPort.pipe(new Readline({ delimiter: '\n' }))
             this.parser.on('data', data => {
               const depth = parseInt(data)
+
               /* 只允许正整数和0，且[0, 100] */
               if (/^-?[0-9]\d*$/.test(depth) && depth >= 0 && depth <= 100) {
                 /* 判断是否暂停 */

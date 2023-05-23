@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-09 21:42:38
- * @LastEditTime: 2023-05-02 16:45:47
+ * @LastEditTime: 2023-05-23 10:49:52
  * @Description : 静态稳定训练-参数设置
 -->
 <template>
@@ -21,20 +21,24 @@
     <div class="main">
       <!-- 参数设置 -->
       <div class="set">
-        <!-- 保持时间 -->
-        <div class="set__one">
-          <span class="text">保持时间</span>
-          <el-input-number
-            v-model="keepTime"
-            :precision="0"
-            :step="1"
-            :min="10"
-            :max="90"
-          ></el-input-number>
+        <!-- 目标范围 -->
+        <div class="item">
+          <span class="text">目标范围</span>
+          <el-select
+            v-model="scope"
+            placeholder="目标范围"
+            @change="handleChangeScope"
+          >
+            <el-option
+              v-for="item in options"
+              :key="item.value"
+              :value="item.value"
+            >
+            </el-option>
+          </el-select>
         </div>
-
         <!-- 训练目标 -->
-        <div class="set__two">
+        <div class="item">
           <span class="text">训练目标</span>
           <el-input-number
             v-model="target"
@@ -43,6 +47,39 @@
             :min="0"
             :max="100"
             @change="handleChangeTarget"
+          ></el-input-number>
+        </div>
+        <!-- 训练时长 -->
+        <div class="item">
+          <span class="text">训练时长</span>
+          <el-input-number
+            v-model="keepTime"
+            :precision="0"
+            :step="1"
+            :min="10"
+            :max="60"
+          ></el-input-number>
+        </div>
+        <!-- 训练组数 -->
+        <div class="item">
+          <span class="text">训练组数</span>
+          <el-input-number
+            v-model="groups"
+            :precision="0"
+            :step="1"
+            :min="2"
+            :max="10"
+          ></el-input-number>
+        </div>
+        <!-- 组间休息时长 -->
+        <div class="item">
+          <span class="text">组间休息时长</span>
+          <el-input-number
+            v-model="groupRestTime"
+            :precision="0"
+            :step="1"
+            :min="5"
+            :max="60"
           ></el-input-number>
         </div>
       </div>
@@ -118,15 +155,31 @@ export default {
 
       /* 其他 */
       action: '1', // 动作选择
-      keepTime: 10, // 保持时间，10~90
-      // 训练目标，默认取上下限的中间值
+      keepTime: 10, // 训练时长，10~60
       target: parseInt(
         (this.$store.state.bothFlexibility.maxDepth +
           this.$store.state.bothFlexibility.minDepth) /
           2
-      ),
+      )
+        ? parseInt(
+            (this.$store.state.bothFlexibility.maxDepth +
+              this.$store.state.bothFlexibility.minDepth) /
+              2
+          )
+        : 50, // 训练目标（默认取上下限的中间值），0~100
+      scope: 5, // 目标范围（5、10），指绿色区域的宽度
+      options: [
+        {
+          value: 5
+        },
+        {
+          value: 10
+        }
+      ],
+      groups: 5, // 训练组数，2~10
+      groupRestTime: 10, // 组间休息时长(s)，5~60
 
-      core: 0 // 光标数值
+      core: 0 // 光标实时数值
     }
   },
 
@@ -152,6 +205,15 @@ export default {
   },
 
   methods: {
+    /**
+     * @description: 返回首页
+     */
+    handleToHome() {
+      this.$router.push({
+        path: '/home'
+      })
+    },
+
     /**
      * @description: 初始化串口对象
      */
@@ -199,15 +261,14 @@ export default {
                   this.handleRefresh()
                 })
                 .catch(() => {
-                  this.$router.push({
-                    path: '/home'
-                  })
+                  this.handleToHome()
                 })
             })
 
             this.parser = this.usbPort.pipe(new Readline({ delimiter: '\n' }))
             this.parser.on('data', data => {
               const depth = parseInt(data)
+
               /* 只允许正整数和0，且[0, 100] */
               if (/^-?[0-9]\d*$/.test(depth) && depth >= 0 && depth <= 100) {
                 this.core = depth
@@ -231,9 +292,7 @@ export default {
                 this.handleRefresh()
               })
               .catch(() => {
-                this.$router.push({
-                  path: '/home'
-                })
+                this.handleToHome()
               })
           }
         })
@@ -255,11 +314,16 @@ export default {
               this.handleRefresh()
             })
             .catch(() => {
-              this.$router.push({
-                path: '/home'
-              })
+              this.handleToHome()
             })
         })
+    },
+
+    /**
+     * @description: 目标范围下拉框改变时触发
+     */
+    handleChangeScope() {
+      this.updateBg()
     },
 
     /**
@@ -274,7 +338,7 @@ export default {
      */
     updateBg() {
       const newTarget = this.target
-      const newHalfScope = 2.5
+      const newHalfScope = parseFloat((this.scope / 2).toFixed(1))
       this.bgColorObj = {
         'background-image': `linear-gradient(
           to top,
@@ -295,10 +359,12 @@ export default {
       this.$router.push({
         path: '/static-measure',
         query: {
-          halfScope: JSON.stringify(2.5),
-          target: JSON.stringify(this.target),
-          keepTime: JSON.stringify(this.keepTime),
-          action: JSON.stringify(this.action)
+          scope: JSON.stringify(this.scope), // 目标范围
+          target: JSON.stringify(this.target), // 训练目标
+          keepTime: JSON.stringify(this.keepTime), // 训练时长
+          groups: JSON.stringify(this.groups), // 训练组数
+          groupRestTime: JSON.stringify(this.groupRestTime), // 组间休息时长
+          action: JSON.stringify(this.action) // 动作
         }
       })
     },
@@ -342,16 +408,9 @@ export default {
     /* 参数设置 */
     .set {
       width: 30%;
-      @include flex(column, center, center);
-      .set__one {
-        @include flex(row, flex-start, center);
-        .text {
-          font-size: 22px;
-          margin-right: 10px;
-        }
-      }
-      .set__two {
-        margin: 100px 0;
+      @include flex(column, center, flex-start);
+      .item {
+        margin-bottom: 30px;
         @include flex(row, flex-start, center);
         .text {
           font-size: 22px;

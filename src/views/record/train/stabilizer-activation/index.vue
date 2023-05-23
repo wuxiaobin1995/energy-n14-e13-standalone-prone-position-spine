@@ -1,8 +1,8 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-02-24 17:06:48
- * @LastEditTime: 2023-03-07 16:52:17
- * @Description : 局部稳定肌激活训练-数据记录
+ * @LastEditTime: 2023-05-22 10:45:16
+ * @Description : 内核心激活训练-数据记录
 -->
 <template>
   <div class="train-stabilizer-activation-record">
@@ -11,7 +11,7 @@
       <!-- 标题 -->
       <el-page-header
         title="返回首页"
-        content="局部稳定肌激活训练"
+        content="内核心激活训练"
         @back="handleToHome"
       ></el-page-header>
       <!-- 日期筛选 -->
@@ -50,7 +50,7 @@
     >
       <!-- No -->
       <el-table-column align="center" type="index" width="50"></el-table-column>
-      <!-- 测试时间 -->
+      <!-- 训练时间 -->
       <el-table-column
         align="center"
         prop="pdfTime"
@@ -58,14 +58,20 @@
         width="260"
         sortable
       ></el-table-column>
-      <!-- 训练个数 -->
-      <!-- <el-table-column
+      <!-- 保持时长 -->
+      <el-table-column
         align="center"
-        prop="num"
-        label="训练个数"
-        width="120"
-        sortable
-      ></el-table-column> -->
+        prop="keepTime"
+        label="保持时长"
+        width="80"
+      ></el-table-column>
+      <!-- 训练组数 -->
+      <el-table-column
+        align="center"
+        prop="groups"
+        label="训练组数"
+        width="80"
+      ></el-table-column>
       <!-- 训练评分 -->
       <el-table-column
         align="center"
@@ -219,7 +225,7 @@ export default {
       db.train_data
         .where({
           userId: this.$store.state.currentUserInfo.userId,
-          type: '局部稳定肌激活训练'
+          type: '内核心激活训练'
         })
         .toArray()
         .then(res => {
@@ -258,12 +264,12 @@ export default {
         .between(
           [
             this.$store.state.currentUserInfo.userId,
-            '局部稳定肌激活训练',
+            '内核心激活训练',
             this.selectDateValue[0]
           ],
           [
             this.$store.state.currentUserInfo.userId,
-            '局部稳定肌激活训练',
+            '内核心激活训练',
             this.selectDateValue[1]
           ],
           true,
@@ -375,7 +381,7 @@ export default {
         query: {
           userId: JSON.stringify(this.$store.state.currentUserInfo.userId),
           routerName: JSON.stringify('/train-record/stabilizer-activation'),
-          type: JSON.stringify('局部稳定肌激活训练')
+          type: JSON.stringify('内核心激活训练')
         }
       })
     },

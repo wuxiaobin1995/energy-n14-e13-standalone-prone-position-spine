@@ -1,8 +1,8 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-14 16:49:00
- * @LastEditTime: 2023-02-24 17:04:08
- * @Description : 动态训练-数据记录
+ * @LastEditTime: 2023-05-23 15:16:59
+ * @Description : 动态稳定训练-数据记录
 -->
 <template>
   <div class="train-dynamic-record">
@@ -11,7 +11,7 @@
       <!-- 标题 -->
       <el-page-header
         title="返回首页"
-        content="动态训练"
+        content="动态稳定训练"
         @back="handleToHome"
       ></el-page-header>
       <!-- 日期筛选 -->
@@ -50,7 +50,7 @@
     >
       <!-- No -->
       <el-table-column align="center" type="index" width="50"></el-table-column>
-      <!-- 测试时间 -->
+      <!-- 训练时间 -->
       <el-table-column
         align="center"
         prop="pdfTime"
@@ -63,15 +63,41 @@
         align="center"
         prop="action"
         label="动作类型"
-        width="160"
-        sortable
+        width="80"
+      ></el-table-column>
+      <!-- 目标范围 -->
+      <el-table-column
+        align="center"
+        prop="scope"
+        label="目标范围"
+        width="80"
+      ></el-table-column>
+      <!-- 训练目标 -->
+      <el-table-column
+        align="center"
+        prop="target"
+        label="训练目标"
+        width="80"
+      ></el-table-column>
+      <!-- 训练时长 -->
+      <el-table-column
+        align="center"
+        prop="keepTime"
+        label="训练时长"
+        width="80"
+      ></el-table-column>
+      <!-- 训练组数 -->
+      <el-table-column
+        align="center"
+        prop="groups"
+        label="训练组数"
+        width="80"
       ></el-table-column>
       <!-- 训练评分 -->
       <el-table-column
         align="center"
-        prop="completion"
+        prop="averageCompletion"
         label="训练评分"
-        sortable
       ></el-table-column>
 
       <!-- 查看报告按钮 -->
@@ -219,7 +245,7 @@ export default {
       db.train_data
         .where({
           userId: this.$store.state.currentUserInfo.userId,
-          type: '动态训练'
+          type: '动态稳定训练'
         })
         .toArray()
         .then(res => {
@@ -258,12 +284,12 @@ export default {
         .between(
           [
             this.$store.state.currentUserInfo.userId,
-            '动态训练',
+            '动态稳定训练',
             this.selectDateValue[0]
           ],
           [
             this.$store.state.currentUserInfo.userId,
-            '动态训练',
+            '动态稳定训练',
             this.selectDateValue[1]
           ],
           true,
@@ -375,7 +401,7 @@ export default {
         query: {
           userId: JSON.stringify(this.$store.state.currentUserInfo.userId),
           routerName: JSON.stringify('/train-record/dynamic'),
-          type: JSON.stringify('动态训练')
+          type: JSON.stringify('动态稳定训练')
         }
       })
     },

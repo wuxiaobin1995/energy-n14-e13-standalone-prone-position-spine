@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-02-08 14:17:27
- * @LastEditTime: 2023-05-02 17:05:19
+ * @LastEditTime: 2023-05-22 09:41:28
  * @Description : 内核心激活训练-参数设置
 -->
 <template>
@@ -17,19 +17,44 @@
     </div>
 
     <div class="content">
+      <!-- 示意图 -->
       <div class="img">
         <el-image class="item" :src="imgSrc" fit="scale-down"></el-image>
       </div>
+
+      <!-- 配置项 -->
       <div class="set">
         <!-- 保持时长 -->
-        <div class="set__one">
+        <div class="item">
           <span class="text">保持时长</span>
           <el-input-number
             v-model="keepTime"
             :precision="0"
             :step="1"
-            :min="3"
-            :max="20"
+            :min="1"
+            :max="10"
+          ></el-input-number>
+        </div>
+        <!-- 训练组数 -->
+        <div class="item">
+          <span class="text">训练组数</span>
+          <el-input-number
+            v-model="groups"
+            :precision="0"
+            :step="1"
+            :min="2"
+            :max="5"
+          ></el-input-number>
+        </div>
+        <!-- 组间休息时长 -->
+        <div class="item">
+          <span class="text">组间休息时长</span>
+          <el-input-number
+            v-model="groupRestTime"
+            :precision="0"
+            :step="1"
+            :min="5"
+            :max="60"
           ></el-input-number>
         </div>
       </div>
@@ -58,14 +83,12 @@ export default {
       audioOpen: this.$store.state.voiceSwitch,
       audioSrc: path.join(__static, `narrate/mandarin/内核心激活训练.mp3`),
 
-      /* 图形相关变量 */
-      myChart: null,
-      option: {},
-
       /* 其他 */
-      targetUp: this.$store.state.bothFlexibility.maxDepth, // 训练目标上限
-      targetDown: this.$store.state.bothFlexibility.minDepth, // 训练目标下限
-      keepTime: 3 // 保持时长（3~20）
+      targetUp: this.$store.state.bothFlexibility.maxDepth, // 上限
+      targetDown: this.$store.state.bothFlexibility.minDepth, // 下限
+      keepTime: 3, // 保持时长(s)，1~10
+      groups: 3, // 训练组数，2~5
+      groupRestTime: 10 // 组间休息时长(s)，5~60
     }
   },
 
@@ -86,9 +109,11 @@ export default {
       this.$router.push({
         path: '/stabilizer-activation-measure',
         query: {
-          targetUp: JSON.stringify(this.targetUp),
-          targetDown: JSON.stringify(this.targetDown),
-          keepTime: JSON.stringify(this.keepTime)
+          targetUp: JSON.stringify(this.targetUp), // 上限
+          targetDown: JSON.stringify(this.targetDown), // 下限
+          keepTime: JSON.stringify(this.keepTime), // 保持时长
+          groups: JSON.stringify(this.groups), // 训练组数
+          groupRestTime: JSON.stringify(this.groupRestTime) // 组间休息时长
         }
       })
     }
@@ -115,18 +140,20 @@ export default {
     @include flex(row, space-between, stretch);
     .img {
       flex: 1;
-      @include flex(row, flex-end, center);
+      @include flex(row, center, center);
       .item {
         width: 90%;
       }
     }
     .set {
       width: 35%;
-      @include flex(column, center, center);
-      .set__one {
+      padding-left: 30px;
+      @include flex(column, center, flex-start);
+      .item {
+        margin-bottom: 40px;
         .text {
-          font-size: 22px;
           margin-right: 10px;
+          font-size: 22px;
         }
       }
     }

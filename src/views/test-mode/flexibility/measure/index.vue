@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-08 16:13:32
- * @LastEditTime: 2023-05-17 10:52:49
+ * @LastEditTime: 2023-05-22 10:54:59
  * @Description : 骨盆灵活度测试-具体测量
 -->
 <template>
@@ -58,7 +58,7 @@
 
       <!-- 右半部 -->
       <div class="right">
-        <div class="text">示意图</div>
+        <div class="text">示意动作</div>
         <div class="img">
           <el-image :src="imgSrc" fit="scale-down"></el-image>
         </div>
@@ -102,7 +102,7 @@ export default {
       isFinished: false, // 是否完成该次测试
 
       /* 其他 */
-      imgSrc: require('@/assets/img/Test/Flexibility/测量曲线预览图.png'),
+      imgSrc: require('@/assets/img/Test/Flexibility/骨盆灵活度测试-动作展示.gif'),
 
       depthArray: [], // 数据数组
       pdfTime: '',
