@@ -1,7 +1,7 @@
 /*
  * @Author      : Mr.bin
  * @Date        : 2021-11-09 09:16:02
- * @LastEditTime: 2023-05-23 16:13:06
+ * @LastEditTime: 2023-05-30 14:35:13
  * @Description : 路由
  */
 import Vue from 'vue'
@@ -93,33 +93,33 @@ const routes = [
       },
 
       /* 测试模式 */
-      // 骨盆灵活度测试-动作展示
+      // 活动度测试-动作展示
       {
         path: 'test-flexibility-show',
         name: 'test-flexibility-show',
         component: () => import('@/views/test-mode/flexibility/show'),
-        meta: ['骨盆灵活度测试-动作展示']
+        meta: ['活动度测试-动作展示']
       },
-      // 骨盆灵活度测试-内核心是什么
+      // 活动度测试-内核心是什么
       {
         path: 'test-flexibility-what',
         name: 'test-flexibility-what',
         component: () => import('@/views/test-mode/flexibility/what'),
-        meta: ['骨盆灵活度测试-内核心是什么']
+        meta: ['活动度测试-内核心是什么']
       },
-      // 骨盆灵活度测试-内核心训练的好处
+      // 活动度测试-内核心训练的好处
       {
         path: 'test-flexibility-why',
         name: 'test-flexibility-why',
         component: () => import('@/views/test-mode/flexibility/why'),
-        meta: ['骨盆灵活度测试-内核心训练的好处']
+        meta: ['活动度测试-内核心训练的好处']
       },
-      // 骨盆灵活度测试-具体测量
+      // 活动度测试-具体测量
       {
         path: 'test-flexibility-measure',
         name: 'test-flexibility-measure',
         component: () => import('@/views/test-mode/flexibility/measure'),
-        meta: ['骨盆灵活度测试-具体测量']
+        meta: ['活动度测试-具体测量']
       },
 
       /* 训练模式 */
@@ -233,12 +233,12 @@ const routes = [
         meta: ['测试-数据记录'],
         redirect: '/test-record/flexibility',
         children: [
-          // 骨盆灵活度测试
+          // 活动度测试
           {
             path: 'flexibility',
             name: 'test-flexibility-record',
             component: () => import('@/views/record/test/flexibility'),
-            meta: ['骨盆灵活度测试']
+            meta: ['活动度测试']
           }
         ]
       },
@@ -301,20 +301,20 @@ const routes = [
   },
 
   /* 测试报告 */
-  // 骨盆灵活度测试-导出PDF
+  // 活动度测试-导出PDF
   {
     path: '/test-flexibility-pdf',
     name: 'test-flexibility-pdf',
     component: () => import('@/views/test-mode/flexibility/pdf'),
-    meta: ['骨盆灵活度测试-导出PDF']
+    meta: ['活动度测试-导出PDF']
   },
-  // 骨盆灵活度测试-导出长期趋势PDF
+  // 活动度测试-导出长期趋势PDF
   {
     path: '/test-flexibility-secular-trend-pdf',
     name: 'test-flexibility-secular-trend-pdf',
     component: () =>
       import('@/views/record/test/flexibility/secular-trend-pdf'),
-    meta: ['骨盆灵活度测试-导出长期趋势PDF']
+    meta: ['活动度测试-导出长期趋势PDF']
   },
 
   /* 训练报告 */

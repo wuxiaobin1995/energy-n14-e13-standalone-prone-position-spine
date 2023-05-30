@@ -14,7 +14,7 @@
           round
           plain
           @click="handleFlexibility"
-          >骨盆灵活度测试</el-button
+          >活动度测试</el-button
         >
       </div>
 
@@ -33,7 +33,7 @@ export default {
 
   methods: {
     /**
-     * @description: 骨盆灵活度测试
+     * @description: 活动度测试
      */
     handleFlexibility() {
       this.$router.push({ path: '/test-record/flexibility' })

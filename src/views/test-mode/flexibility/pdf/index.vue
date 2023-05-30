@@ -1,8 +1,8 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-08 17:55:19
- * @LastEditTime: 2023-02-07 17:24:31
- * @Description : 骨盆灵活度测试-导出PDF
+ * @LastEditTime: 2023-05-30 14:49:46
+ * @Description : 活动度测试-导出PDF
 -->
 <template>
   <div
@@ -14,7 +14,7 @@
       <div class="top">
         <el-image class="logo" :src="logoSrc" fit="scale-down"></el-image>
 
-        <div class="title">骨盆灵活度测试报告</div>
+        <div class="title">活动度测试报告</div>
 
         <div class="divider"></div>
 
@@ -42,15 +42,15 @@
           <div class="title">建议：</div>
           <div class="item" v-if="textLv === '小' || textLv === '很小'">
             <span class="item-title">过低</span
-            >：骨盆的灵活度过低，可能会出现弯腰活动受限或腰背酸痛等症状，首先需要首先进行内核心肌活和活动度改善，增加腰椎灵活度的同事，掌握肌肉发力。
+            >：活动度过低，可能会出现弯腰活动受限或腰背酸痛等症状，首先需要首先进行内核心肌活和活动度改善，增加腰椎灵活度的同事，掌握肌肉发力。
           </div>
           <div class="item" v-else-if="textLv === '适中'">
             <span class="item-title">适中</span
-            >：灵活度在正常范围内，建议加强训练，保持灵活度。
+            >：活动度在正常范围内，建议加强训练，保持灵活度。
           </div>
           <div class="item" v-else>
             <span class="item-title">过高</span
-            >：骨盆的灵活度过高，与腰椎不稳、遗传等因素有关，可能会导致慢性腰痛、腰椎间盘突出、骶髂关节疼痛等问题，需要加强腰椎的静态训练和对骨盆的控制。
+            >：活动度过高，与腰椎不稳、遗传等因素有关，可能会导致慢性腰痛、腰椎间盘突出、骶髂关节疼痛等问题，需要加强腰椎的静态训练和对骨盆的控制。
           </div>
         </div>
       </div>
@@ -190,7 +190,7 @@ export default {
     handlePdf() {
       this.$htmlToPdf(
         'pdf',
-        `骨盆灵活度测试报告 ${this.$moment().format('YYYY-MM-DD HH_mm_ss')}`,
+        `活动度测试报告 ${this.$moment().format('YYYY-MM-DD HH_mm_ss')}`,
         500
       )
     },

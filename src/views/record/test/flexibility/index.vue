@@ -2,7 +2,7 @@
  * @Author      : Mr.bin
  * @Date        : 2022-12-14 10:10:35
  * @LastEditTime: 2023-02-24 10:28:38
- * @Description : 骨盆灵活度测试-数据记录
+ * @Description : 活动度测试-数据记录
 -->
 <template>
   <div class="test-flexibility-record">
@@ -11,7 +11,7 @@
       <!-- 标题 -->
       <el-page-header
         title="返回首页"
-        content="骨盆灵活度测试"
+        content="活动度测试"
         @back="handleToHome"
       ></el-page-header>
       <!-- 日期筛选 -->
@@ -225,7 +225,7 @@ export default {
       db.test_data
         .where({
           userId: this.$store.state.currentUserInfo.userId,
-          type: '骨盆灵活度测试'
+          type: '活动度测试'
         })
         .toArray()
         .then(res => {
@@ -264,12 +264,12 @@ export default {
         .between(
           [
             this.$store.state.currentUserInfo.userId,
-            '骨盆灵活度测试',
+            '活动度测试',
             this.selectDateValue[0]
           ],
           [
             this.$store.state.currentUserInfo.userId,
-            '骨盆灵活度测试',
+            '活动度测试',
             this.selectDateValue[1]
           ],
           true,
@@ -381,7 +381,7 @@ export default {
         query: {
           userId: JSON.stringify(this.$store.state.currentUserInfo.userId),
           routerName: JSON.stringify('/test-record/flexibility'),
-          type: JSON.stringify('骨盆灵活度测试')
+          type: JSON.stringify('活动度测试')
         }
       })
     },

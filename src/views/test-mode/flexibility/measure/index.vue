@@ -1,8 +1,8 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-08 16:13:32
- * @LastEditTime: 2023-05-22 10:54:59
- * @Description : 骨盆灵活度测试-具体测量
+ * @LastEditTime: 2023-05-30 14:31:09
+ * @Description : 活动度测试-具体测量
 -->
 <template>
   <div class="test-flexibility-measure">
@@ -10,7 +10,7 @@
       <!-- 左半部 -->
       <div class="left">
         <div class="top">
-          <div class="title">骨盆灵活度测试</div>
+          <div class="title">活动度测试</div>
           <div class="text">
             <div class="item">
               缓慢上抬腰腹部至最高，随后缓慢下压至最低，重复3次
@@ -102,7 +102,7 @@ export default {
       isFinished: false, // 是否完成该次测试
 
       /* 其他 */
-      imgSrc: require('@/assets/img/Test/Flexibility/骨盆灵活度测试-动作展示.gif'),
+      imgSrc: require('@/assets/img/Test/Flexibility/活动度测试-动作展示.gif'),
 
       depthArray: [], // 数据数组
       pdfTime: '',
@@ -313,7 +313,7 @@ export default {
               maxDepth: maxDepth,
               flexibility: this.flexibility,
               pdfTime: this.pdfTime,
-              type: '骨盆灵活度测试'
+              type: '活动度测试'
             })
             .then(() => {
               this.$message({

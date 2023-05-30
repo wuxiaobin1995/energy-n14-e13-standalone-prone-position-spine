@@ -1,8 +1,8 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-14 10:13:00
- * @LastEditTime: 2023-02-24 10:33:33
- * @Description : 骨盆灵活度测试-导出长期趋势PDF
+ * @LastEditTime: 2023-05-30 14:33:45
+ * @Description : 活动度测试-导出长期趋势PDF
 -->
 <template>
   <div
@@ -14,7 +14,7 @@
       <div class="top">
         <el-image class="logo" :src="logoSrc" fit="scale-down"></el-image>
 
-        <div class="title">骨盆灵活度测试-长期趋势报告</div>
+        <div class="title">活动度测试-长期趋势报告</div>
 
         <div class="divider"></div>
 
@@ -172,7 +172,7 @@ export default {
     handlePdf() {
       this.$htmlToPdf(
         'pdf',
-        `骨盆灵活度测试-长期趋势报告 ${this.$moment().format(
+        `活动度测试-长期趋势报告 ${this.$moment().format(
           'YYYY-MM-DD HH_mm_ss'
         )}`,
         500

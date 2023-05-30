@@ -1,13 +1,13 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-08 14:37:53
- * @LastEditTime: 2023-05-17 09:27:30
- * @Description : 骨盆灵活度测试-动作展示
+ * @LastEditTime: 2023-05-30 14:45:38
+ * @Description : 活动度测试-动作展示
 -->
 <template>
   <div class="test-flexibility-show">
     <!-- 语音播放 -->
-    <audio ref="audio" controls="controls" hidden :src="audioSrc" />
+    <!-- <audio ref="audio" controls="controls" hidden :src="audioSrc" /> -->
 
     <div class="wrapper">
       <el-page-header
@@ -19,8 +19,8 @@
 
       <div class="top">
         <div class="left">
-          <div class="title">骨盆灵活度测试</div>
-          <div class="text">测试目的：检查骨盆是否处于正常范围</div>
+          <div class="title">活动度测试</div>
+          <div class="text">测试目的：检查腰椎的灵活性</div>
         </div>
         <el-button icon="el-icon-search" type="warning" @click="handleDes"
           >查看内核心介绍</el-button
@@ -49,21 +49,21 @@ export default {
 
   data() {
     return {
-      showImg: require('@/assets/img/Test/Flexibility/骨盆灵活度测试-动作展示.gif'),
+      showImg: require('@/assets/img/Test/Flexibility/活动度测试-动作展示.gif'),
 
       /* 语音相关 */
-      audioOpen: this.$store.state.voiceSwitch,
-      audioSrc: path.join(__static, `narrate/mandarin/骨盆灵活度测试.mp3`)
+      // audioOpen: this.$store.state.voiceSwitch,
+      // audioSrc: path.join(__static, `narrate/mandarin/活动度测试.mp3`)
     }
   },
 
   mounted() {
-    if (this.audioOpen === true) {
-      setTimeout(() => {
-        this.$refs.audio.currentTime = 0
-        this.$refs.audio.play()
-      }, 500)
-    }
+    // if (this.audioOpen === true) {
+    //   setTimeout(() => {
+    //     this.$refs.audio.currentTime = 0
+    //     this.$refs.audio.play()
+    //   }, 500)
+    // }
   },
 
   methods: {

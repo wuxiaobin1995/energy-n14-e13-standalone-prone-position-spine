@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-02-08 14:17:27
- * @LastEditTime: 2023-05-23 14:55:51
+ * @LastEditTime: 2023-05-30 14:32:19
  * @Description : 本体感觉训练-参数设置
 -->
 <template>
@@ -139,7 +139,7 @@ export default {
 
   data() {
     return {
-      imgSrc: require('@/assets/img/Test/Flexibility/骨盆灵活度测试-动作展示.gif'),
+      imgSrc: require('@/assets/img/Test/Flexibility/活动度测试-动作展示.gif'),
 
       /* 语音相关 */
       audioOpen: this.$store.state.voiceSwitch,

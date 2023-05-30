@@ -1,8 +1,8 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-08 14:39:11
- * @LastEditTime: 2022-12-08 16:12:10
- * @Description : 骨盆灵活度测试-内核心训练的好处
+ * @LastEditTime: 2023-05-30 14:30:45
+ * @Description : 活动度测试-内核心训练的好处
 -->
 <template>
   <div class="test-flexibility-why">
