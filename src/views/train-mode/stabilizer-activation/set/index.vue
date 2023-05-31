@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-02-08 14:17:27
- * @LastEditTime: 2023-05-22 09:41:28
+ * @LastEditTime: 2023-05-31 15:01:26
  * @Description : 内核心激活训练-参数设置
 -->
 <template>
@@ -43,7 +43,7 @@
             :precision="0"
             :step="1"
             :min="2"
-            :max="5"
+            :max="10"
           ></el-input-number>
         </div>
         <!-- 组间休息时长 -->
@@ -53,8 +53,8 @@
             v-model="groupRestTime"
             :precision="0"
             :step="1"
-            :min="5"
-            :max="60"
+            :min="30"
+            :max="120"
           ></el-input-number>
         </div>
       </div>
@@ -87,8 +87,8 @@ export default {
       targetUp: this.$store.state.bothFlexibility.maxDepth, // 上限
       targetDown: this.$store.state.bothFlexibility.minDepth, // 下限
       keepTime: 3, // 保持时长(s)，1~10
-      groups: 3, // 训练组数，2~5
-      groupRestTime: 10 // 组间休息时长(s)，5~60
+      groups: 3, // 训练组数，2~10
+      groupRestTime: 30 // 组间休息时长(s)，30~120
     }
   },
 

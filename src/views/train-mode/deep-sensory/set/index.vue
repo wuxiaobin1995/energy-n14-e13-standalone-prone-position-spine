@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-02-08 14:17:27
- * @LastEditTime: 2023-05-30 14:32:19
+ * @LastEditTime: 2023-05-31 15:03:26
  * @Description : 本体感觉训练-参数设置
 -->
 <template>
@@ -95,8 +95,8 @@
             v-model="groupRestTime"
             :precision="0"
             :step="1"
-            :min="5"
-            :max="60"
+            :min="30"
+            :max="120"
           ></el-input-number>
         </div>
       </div>
@@ -173,8 +173,8 @@ export default {
           value: 10
         }
       ],
-      groups: 5, // 训练组数，2~10
-      groupRestTime: 10, // 组间休息时长(s)，5~60
+      groups: 10, // 训练组数，2~10
+      groupRestTime: 30, // 组间休息时长(s)，30~120
 
       core: 0 // 光标实时数值
     }

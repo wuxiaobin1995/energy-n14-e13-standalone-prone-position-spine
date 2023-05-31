@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-05-02 16:28:38
- * @LastEditTime: 2023-05-22 09:19:13
+ * @LastEditTime: 2023-05-31 14:52:39
  * @Description : 腹式呼吸训练-参数设置
 -->
 <template>
@@ -58,7 +58,7 @@
             :precision="0"
             :step="1"
             :min="2"
-            :max="5"
+            :max="10"
           ></el-input-number>
         </div>
         <!-- 组间休息时长 -->
@@ -68,8 +68,8 @@
             v-model="groupRestTime"
             :precision="0"
             :step="1"
-            :min="5"
-            :max="60"
+            :min="30"
+            :max="120"
             @change="handleKeepTimeChange"
           ></el-input-number>
         </div>
@@ -81,7 +81,7 @@
             :precision="0"
             :step="1"
             :min="1"
-            :max="3"
+            :max="10"
             @change="handleKeepTimeChange"
           ></el-input-number>
         </div>
@@ -93,7 +93,7 @@
             :precision="0"
             :step="1"
             :min="1"
-            :max="3"
+            :max="10"
             @change="handleRestTimeChange"
           ></el-input-number>
         </div>
@@ -130,11 +130,11 @@ export default {
       targetUp: this.$store.state.bothFlexibility.maxDepth, // 上限
       targetDown: this.$store.state.bothFlexibility.minDepth, // 下限
       target: this.$store.state.bothFlexibility.minDepth + 5, // 训练目标
-      num: 5, // 训练次数，5~20
-      groups: 3, // 训练组数，2~5
-      groupRestTime: 10, // 组间休息时长(s)，5~60
-      keepTime: 3, // 保持时长(s)，1~3
-      restTime: 3, // 休息时长(s)，1~3
+      num: 10, // 训练次数，5~20
+      groups: 3, // 训练组数，2~10
+      groupRestTime: 30, // 组间休息时长(s)，30~120
+      keepTime: 4, // 保持时长(s)，1~10
+      restTime: 2, // 休息时长(s)，1~10
 
       /* 参考曲线相关 */
       standardArray: [], // 基础参考曲线

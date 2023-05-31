@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-09 21:12:48
- * @LastEditTime: 2023-05-22 11:17:47
+ * @LastEditTime: 2023-05-31 14:59:30
  * @Description : 活动度训练-参数设置
 -->
 <template>
@@ -44,7 +44,7 @@
             :precision="0"
             :step="1"
             :min="2"
-            :max="5"
+            :max="10"
           ></el-input-number>
         </div>
         <!-- 间隔时长 -->
@@ -65,8 +65,8 @@
             v-model="groupRestTime"
             :precision="0"
             :step="1"
-            :min="5"
-            :max="60"
+            :min="30"
+            :max="120"
           ></el-input-number>
         </div>
       </div>
@@ -98,10 +98,10 @@ export default {
       /* 其他 */
       targetUp: this.$store.state.bothFlexibility.maxDepth, // 上限
       targetDown: this.$store.state.bothFlexibility.minDepth, // 下限
-      num: 5, // 训练次数，5~20
-      groups: 3, // 训练组数，2~5
+      num: 10, // 训练次数，5~20
+      groups: 3, // 训练组数，2~10
       intervalTime: 5, // 间隔时长(s)，3~10
-      groupRestTime: 10 // 组间休息时长(s)，5~60
+      groupRestTime: 30 // 组间休息时长(s)，30~120
     }
   },
 

@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-09 21:42:38
- * @LastEditTime: 2023-05-23 15:42:01
+ * @LastEditTime: 2023-05-31 15:09:56
  * @Description : 动态稳定训练-参数设置
 -->
 <template>
@@ -57,7 +57,7 @@
             :precision="0"
             :step="1"
             :min="10"
-            :max="60"
+            :max="600"
           ></el-input-number>
         </div>
         <!-- 训练组数 -->
@@ -78,8 +78,8 @@
             v-model="groupRestTime"
             :precision="0"
             :step="1"
-            :min="5"
-            :max="60"
+            :min="30"
+            :max="120"
           ></el-input-number>
         </div>
       </div>
@@ -155,7 +155,7 @@ export default {
 
       /* 其他 */
       action: '1', // 动作选择
-      keepTime: 10, // 训练时长，10~60
+      keepTime: 30, // 训练时长，10~600
       target: parseInt(
         (this.$store.state.bothFlexibility.maxDepth +
           this.$store.state.bothFlexibility.minDepth) /
@@ -176,8 +176,8 @@ export default {
           value: 10
         }
       ],
-      groups: 5, // 训练组数，2~10
-      groupRestTime: 10, // 组间休息时长(s)，5~60
+      groups: 3, // 训练组数，2~10
+      groupRestTime: 30, // 组间休息时长(s)，30~120
 
       core: 0 // 光标实时数值
     }
