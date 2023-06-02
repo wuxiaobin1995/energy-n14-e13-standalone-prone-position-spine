@@ -1,14 +1,11 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-09 21:42:38
- * @LastEditTime: 2023-05-31 15:08:54
+ * @LastEditTime: 2023-06-02 14:46:11
  * @Description : 静态稳定训练-参数设置
 -->
 <template>
   <div class="static-set">
-    <!-- 语音播放 -->
-    <audio ref="audio" controls="controls" hidden :src="audioSrc" />
-
     <!-- 文字说明 -->
     <div class="des">
       <div class="item">训练目的：增强腰椎稳定性</div>
@@ -128,9 +125,6 @@
 </template>
 
 <script>
-/* 路径模块 */
-import path from 'path'
-
 /* 串口通信库 */
 import SerialPort from 'serialport'
 import Readline from '@serialport/parser-readline'
@@ -140,10 +134,6 @@ export default {
 
   data() {
     return {
-      /* 语音相关 */
-      audioOpen: this.$store.state.voiceSwitch,
-      audioSrc: path.join(__static, `narrate/mandarin/静态稳定训练.mp3`),
-
       /* 串口相关变量 */
       usbPort: null,
       parser: null,
@@ -186,14 +176,6 @@ export default {
   created() {
     this.updateBg()
     this.initSerialPort()
-  },
-  mounted() {
-    if (this.audioOpen === true) {
-      setTimeout(() => {
-        this.$refs.audio.currentTime = 0
-        this.$refs.audio.play()
-      }, 500)
-    }
   },
   beforeDestroy() {
     // 关闭串口

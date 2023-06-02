@@ -1,11 +1,14 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-12 20:45:16
- * @LastEditTime: 2023-05-23 15:48:11
+ * @LastEditTime: 2023-06-02 14:53:41
  * @Description : 静态稳定训练-具体测量
 -->
 <template>
   <div class="static-measure">
+    <!-- 语音播放 -->
+    <audio ref="audio" controls="controls" hidden :src="audioSrc" />
+
     <div class="wrapper">
       <!-- 主区域 -->
       <div class="main">
@@ -13,13 +16,22 @@
         <div class="left">
           <div class="title">静态稳定训练</div>
           <div v-if="action === '1'" class="text">
-            动作要求：首先将光标移动到绿色区域内，随后腰腹部持续收紧使光标不晃动，保持单腿屈曲的动作，过程中将肩部和臀部紧贴软垫，直至训练结束。
+            动作要求：控制光标移动到绿色区域内，持续收紧腰腹部使光标不晃动，<span
+              :style="{ color: 'green' }"
+              >保持单腿屈曲的动作</span
+            >，过程中肩部和臀部紧贴软垫，直至训练结束。
           </div>
           <div v-if="action === '2'" class="text">
-            动作要求：首先将光标移动到绿色区域内，随后腰腹部持续收紧使光标不晃动，保持双腿屈曲的动作，过程中将肩部和臀部紧贴软垫，直至训练结束。
+            动作要求：控制光标移动到绿色区域内，持续收紧腰腹部使光标不晃动，<span
+              :style="{ color: 'green' }"
+              >保持双腿屈曲的动作</span
+            >，过程中将肩部和臀部紧贴软垫，直至训练结束。
           </div>
           <div v-if="action === '3'" class="text">
-            动作要求：首先将光标移动到绿色区域内，随后腰腹部持续收紧使光标不晃动，保持对侧肢体屈曲的动作，过程中将肩部和臀部紧贴软垫，直至训练结束。
+            动作要求：控制光标移动到绿色区域内，持续收紧腰腹部使光标不晃动，<span
+              :style="{ color: 'green' }"
+              >保持对侧肢体屈曲的动作</span
+            >，过程中将肩部和臀部紧贴软垫，直至训练结束。
           </div>
           <div class="content">
             <div class="time-bg">
@@ -127,6 +139,9 @@
 </template>
 
 <script>
+/* 路径模块 */
+import path from 'path'
+
 /* 串口通信库 */
 import SerialPort from 'serialport'
 import Readline from '@serialport/parser-readline'
@@ -146,6 +161,25 @@ export default {
       groups: JSON.parse(this.$route.query.groups), // 训练组数
       groupRestTime: JSON.parse(this.$route.query.groupRestTime), // 组间休息时长
       action: JSON.parse(this.$route.query.action), // 动作
+
+      /* 语音相关 */
+      audioOpen: this.$store.state.voiceSwitch,
+      audioSrc: path.join(
+        __static,
+        `narrate/mandarin/Train/静态稳定训练-1.mp3`
+      ),
+      audioSrc1: path.join(
+        __static,
+        `narrate/mandarin/Train/静态稳定训练-1.mp3`
+      ),
+      audioSrc2: path.join(
+        __static,
+        `narrate/mandarin/Train/静态稳定训练-2.mp3`
+      ),
+      audioSrc3: path.join(
+        __static,
+        `narrate/mandarin/Train/静态稳定训练-3.mp3`
+      ),
 
       /* 串口相关变量 */
       usbPort: null,
@@ -183,8 +217,24 @@ export default {
   },
 
   created() {
+    if (this.action === '1') {
+      this.audioSrc = this.audioSrc1
+    } else if (this.action === '2') {
+      this.audioSrc = this.audioSrc2
+    } else if (this.action === '3') {
+      this.audioSrc = this.audioSrc3
+    }
+
     this.updateBg()
     this.initSerialPort()
+  },
+  mounted() {
+    if (this.audioOpen === true) {
+      setTimeout(() => {
+        this.$refs.audio.currentTime = 0
+        this.$refs.audio.play()
+      }, 500)
+    }
   },
   beforeDestroy() {
     // 清除训练计时器
@@ -432,9 +482,7 @@ export default {
       for (let i = 0; i < this.completionResultArray.length; i++) {
         sum += this.completionResultArray[i]
       }
-      const completion = parseInt(
-        sum / this.completionResultArray.length
-      )
+      const completion = parseInt(sum / this.completionResultArray.length)
 
       /* 保存到数据库 */
       this.pdfTime = this.$moment().format('YYYY-MM-DD HH:mm:ss')

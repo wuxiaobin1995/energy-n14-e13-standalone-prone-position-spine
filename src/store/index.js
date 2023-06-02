@@ -1,7 +1,7 @@
 /*
  * @Author      : Mr.bin
  * @Date        : 2021-11-09 09:16:02
- * @LastEditTime: 2023-05-02 15:48:34
+ * @LastEditTime: 2023-06-02 11:39:16
  * @Description : vuex
  */
 import Vue from 'vue'
@@ -23,11 +23,14 @@ export default new Vuex.Store({
       lastLoginTime: '' // 最后登录时间
     },
 
-    /* 最大、最小灵活度值 */
+    /* 最大、最小活动度值 */
     bothFlexibility: {
       maxDepth: null,
       minDepth: null
     },
+
+    /* 训练方案的选项 */
+    planSelect: [],
 
     /* 语音开关 */
     voiceSwitch: true
@@ -39,9 +42,14 @@ export default new Vuex.Store({
       state.currentUserInfo = currentUserInfo
     },
 
-    /* 最大、最小灵活度值 */
-    SET_BOTHFLEXIBILITY(state, newBothFlexibility) {
-      state.bothFlexibility = newBothFlexibility
+    /* 最大、最小活动度值 */
+    SET_BOTHFLEXIBILITY(state, bothFlexibility) {
+      state.bothFlexibility = bothFlexibility
+    },
+
+    /* 训练方案的选项 */
+    CHANGE_PLANSELECT(state, planSelect) {
+      state.planSelect = planSelect
     },
 
     /* 语音开关 */
@@ -59,10 +67,18 @@ export default new Vuex.Store({
       })
     },
 
-    /* 最大、最小灵活度值 */
-    setBothFlexibility({ commit }, newBothFlexibility) {
+    /* 最大、最小活动度值 */
+    setBothFlexibility({ commit }, bothFlexibility) {
       return new Promise((resolve, reject) => {
-        commit('SET_BOTHFLEXIBILITY', newBothFlexibility)
+        commit('SET_BOTHFLEXIBILITY', bothFlexibility)
+        resolve()
+      })
+    },
+
+    /* 训练方案的选项 */
+    changePlanSelect({ commit }, planSelect) {
+      return new Promise((resolve, reject) => {
+        commit('CHANGE_PLANSELECT', planSelect)
         resolve()
       })
     },

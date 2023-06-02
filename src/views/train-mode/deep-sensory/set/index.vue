@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-02-08 14:17:27
- * @LastEditTime: 2023-05-31 15:03:26
+ * @LastEditTime: 2023-06-02 15:07:34
  * @Description : 本体感觉训练-参数设置
 -->
 <template>
@@ -143,7 +143,7 @@ export default {
 
       /* 语音相关 */
       audioOpen: this.$store.state.voiceSwitch,
-      audioSrc: path.join(__static, `narrate/mandarin/本体感觉训练.mp3`),
+      audioSrc: path.join(__static, `narrate/mandarin/Train/本体感觉训练.mp3`),
 
       /* 串口相关变量 */
       usbPort: null,
@@ -411,7 +411,6 @@ export default {
       }
       .img {
         @include flex(row, center, center);
-        box-shadow: 0 0 8px #929292;
       }
       .amplify-btn {
         @include flex(row, center, center);

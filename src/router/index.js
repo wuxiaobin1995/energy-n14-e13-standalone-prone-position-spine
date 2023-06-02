@@ -1,7 +1,7 @@
 /*
  * @Author      : Mr.bin
  * @Date        : 2021-11-09 09:16:02
- * @LastEditTime: 2023-05-30 14:35:13
+ * @LastEditTime: 2023-06-02 15:32:29
  * @Description : 路由
  */
 import Vue from 'vue'
@@ -222,6 +222,38 @@ const routes = [
         name: 'dynamic-measure',
         component: () => import('@/views/train-mode/dynamic/measure'),
         meta: ['动态稳定训练-具体测量']
+      },
+
+      /* 训练方案 */
+      // 训练方案-主页
+      {
+        path: 'train-plan',
+        name: 'train-plan',
+        component: () => import('@/views/train-plan-mode'),
+        meta: ['训练方案-主页']
+      },
+      // 训练方案-项目选择
+      {
+        path: 'train-plan-select',
+        name: 'train-plan-select',
+        component: () => import('@/views/train-plan-mode/select'),
+        meta: ['训练方案-项目选择']
+      },
+      // 方案-腹式呼吸训练-参数设置
+      {
+        path: 'plan-abdominal-respiration-set',
+        name: 'plan-abdominal-respiration-set',
+        component: () =>
+          import('@/views/train-plan-mode/plan-abdominal-respiration/set'),
+        meta: ['方案-腹式呼吸训练-参数设置']
+      },
+      // 方案-腹式呼吸训练-具体测量
+      {
+        path: 'plan-abdominal-respiration-measure',
+        name: 'plan-abdominal-respiration-measure',
+        component: () =>
+          import('@/views/train-plan-mode/plan-abdominal-respiration/measure'),
+        meta: ['方案-腹式呼吸训练-具体测量']
       },
 
       /* 数据记录 */

@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-14 17:35:07
- * @LastEditTime: 2023-05-20 10:47:54
+ * @LastEditTime: 2023-06-01 17:30:02
  * @Description : 腹式呼吸训练-导出长期趋势PDF
 -->
 <template>

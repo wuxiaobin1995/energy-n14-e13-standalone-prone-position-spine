@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2021-11-09 11:55:02
- * @LastEditTime: 2023-05-23 17:40:50
+ * @LastEditTime: 2023-06-01 15:31:59
  * @Description : 首页
 -->
 <template>
@@ -220,14 +220,9 @@ export default {
             this.$store.state.bothFlexibility.maxDepth !== null &&
             this.$store.state.bothFlexibility.minDepth !== null
           ) {
-            this.$message({
-              message: '正在开发中......',
-              type: 'warning',
-              duration: 2000
+            this.$router.push({
+              path: '/train-plan'
             })
-            // this.$router.push({
-            //   path: ''
-            // })
           } else {
             this.$confirm(
               `检测到您没有最大和最小腰椎活动度的值，请先进行"活动度测试"`,

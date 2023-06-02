@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-02-08 14:17:27
- * @LastEditTime: 2023-05-31 15:01:26
+ * @LastEditTime: 2023-06-02 14:39:47
  * @Description : 内核心激活训练-参数设置
 -->
 <template>
@@ -81,7 +81,7 @@ export default {
 
       /* 语音相关 */
       audioOpen: this.$store.state.voiceSwitch,
-      audioSrc: path.join(__static, `narrate/mandarin/内核心激活训练.mp3`),
+      audioSrc: path.join(__static, `narrate/mandarin/Train/内核心激活训练.mp3`),
 
       /* 其他 */
       targetUp: this.$store.state.bothFlexibility.maxDepth, // 上限

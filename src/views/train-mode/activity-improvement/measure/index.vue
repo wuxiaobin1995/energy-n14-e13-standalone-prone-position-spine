@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-12 17:42:55
- * @LastEditTime: 2023-05-22 16:08:33
+ * @LastEditTime: 2023-06-02 14:37:53
  * @Description : 活动度训练-具体测量
 -->
 <template>
@@ -118,9 +118,9 @@ export default {
 
       /* 语音相关 */
       audioOpen: this.$store.state.voiceSwitch,
-      audioSrc: path.join(__static, `narrate/mandarin/上凸.mp3`),
-      audioUpSrc: path.join(__static, `narrate/mandarin/上凸.mp3`),
-      audioDownSrc: path.join(__static, `narrate/mandarin/下压.mp3`),
+      audioSrc: path.join(__static, `narrate/mandarin/Train/上凸.mp3`),
+      audioUpSrc: path.join(__static, `narrate/mandarin/Train/上凸.mp3`),
+      audioDownSrc: path.join(__static, `narrate/mandarin/Train/下压.mp3`),
 
       /* 串口相关变量 */
       usbPort: null,

@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-09 21:12:48
- * @LastEditTime: 2023-05-31 14:59:30
+ * @LastEditTime: 2023-06-02 14:37:38
  * @Description : 活动度训练-参数设置
 -->
 <template>
@@ -93,7 +93,7 @@ export default {
 
       /* 语音相关 */
       audioOpen: this.$store.state.voiceSwitch,
-      audioSrc: path.join(__static, `narrate/mandarin/活动度训练.mp3`),
+      audioSrc: path.join(__static, `narrate/mandarin/Train/活动度训练.mp3`),
 
       /* 其他 */
       targetUp: this.$store.state.bothFlexibility.maxDepth, // 上限

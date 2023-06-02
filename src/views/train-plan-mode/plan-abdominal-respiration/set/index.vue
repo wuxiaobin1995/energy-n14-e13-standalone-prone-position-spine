@@ -1,109 +1,112 @@
 <!--
  * @Author      : Mr.bin
- * @Date        : 2023-05-02 16:28:38
- * @LastEditTime: 2023-06-02 14:34:11
- * @Description : 腹式呼吸训练-参数设置
+ * @Date        : 2023-06-02 15:21:29
+ * @LastEditTime: 2023-06-02 18:10:38
+ * @Description : 方案-腹式呼吸训练-参数设置
 -->
 <template>
-  <div class="abdominal-respiration-set">
+  <div class="plan-abdominal-respiration-set">
     <!-- 语音播放 -->
     <audio ref="audio" controls="controls" hidden :src="audioSrc" />
 
-    <div class="des">
-      <div class="item">
-        训练目的：进行腹式呼吸训练，加强腹横肌收缩能力，修复腹直肌分离，缓解肩颈疼痛
-      </div>
-      <div class="item">
-        动作要求：首先鼻吸气腹部隆起，随后嘴呼气，同时控制腰腹部向下压紧，且能触及侧腹部肌肉明显收缩，同时保持肩部和臀部紧贴软垫，重复动作至训练结束
-      </div>
-      <div class="item">提示：从中间点开始预备</div>
-    </div>
-
-    <div class="content">
-      <!-- 图形 -->
-      <div class="chart">
-        <div id="chart" :style="{ width: '100%', height: '100%' }"></div>
+    <div class="wrapper">
+      <div class="des">
+        <div class="title">腹式呼吸训练</div>
+        <div class="item">
+          训练目的：进行腹式呼吸训练，加强腹横肌收缩能力，修复腹直肌分离，缓解肩颈疼痛
+        </div>
+        <div class="item">
+          动作要求：首先鼻吸气腹部隆起，随后嘴呼气，同时控制腰腹部向下压紧，且能触及侧腹部肌肉明显收缩，同时保持肩部和臀部紧贴软垫，重复动作至训练结束
+        </div>
+        <div class="item">提示：从中间点开始预备</div>
       </div>
 
-      <!-- 配置项 -->
-      <div class="set">
-        <!-- 训练目标 -->
-        <div class="item">
-          <span class="text">训练目标</span>
-          <el-input-number
-            v-model="target"
-            :precision="0"
-            :step="1"
-            :min="targetDown + 5"
-            :max="midpoint - 5"
-            @change="handleTargetChange"
-          ></el-input-number>
+      <div class="content">
+        <!-- 图形 -->
+        <div class="chart">
+          <div id="chart" :style="{ width: '100%', height: '100%' }"></div>
         </div>
-        <!-- 训练次数 -->
-        <div class="item">
-          <span class="text">训练次数</span>
-          <el-input-number
-            v-model="num"
-            :precision="0"
-            :step="1"
-            :min="5"
-            :max="20"
-          ></el-input-number>
-        </div>
-        <!-- 训练组数 -->
-        <div class="item">
-          <span class="text">训练组数</span>
-          <el-input-number
-            v-model="groups"
-            :precision="0"
-            :step="1"
-            :min="2"
-            :max="10"
-          ></el-input-number>
-        </div>
-        <!-- 组间休息时长 -->
-        <div class="item">
-          <span class="text">组间休息时长</span>
-          <el-input-number
-            v-model="groupRestTime"
-            :precision="0"
-            :step="1"
-            :min="30"
-            :max="120"
-            @change="handleKeepTimeChange"
-          ></el-input-number>
-        </div>
-        <!-- 保持时间 -->
-        <div class="item">
-          <span class="text">保持时长</span>
-          <el-input-number
-            v-model="keepTime"
-            :precision="0"
-            :step="1"
-            :min="1"
-            :max="10"
-            @change="handleKeepTimeChange"
-          ></el-input-number>
-        </div>
-        <!-- 休息时间 -->
-        <div class="item">
-          <span class="text">休息时长</span>
-          <el-input-number
-            v-model="restTime"
-            :precision="0"
-            :step="1"
-            :min="1"
-            :max="10"
-            @change="handleRestTimeChange"
-          ></el-input-number>
+
+        <!-- 配置项 -->
+        <div class="set">
+          <!-- 训练目标 -->
+          <div class="item">
+            <span class="text">训练目标</span>
+            <el-input-number
+              v-model="target"
+              :precision="0"
+              :step="1"
+              :min="targetDown + 5"
+              :max="midpoint - 5"
+              @change="handleTargetChange"
+            ></el-input-number>
+          </div>
+          <!-- 训练次数 -->
+          <div class="item">
+            <span class="text">训练次数</span>
+            <el-input-number
+              v-model="num"
+              :precision="0"
+              :step="1"
+              :min="5"
+              :max="20"
+            ></el-input-number>
+          </div>
+          <!-- 训练组数 -->
+          <div class="item">
+            <span class="text">训练组数</span>
+            <el-input-number
+              v-model="groups"
+              :precision="0"
+              :step="1"
+              :min="2"
+              :max="10"
+            ></el-input-number>
+          </div>
+          <!-- 组间休息时长 -->
+          <div class="item">
+            <span class="text">组间休息时长</span>
+            <el-input-number
+              v-model="groupRestTime"
+              :precision="0"
+              :step="1"
+              :min="30"
+              :max="120"
+              @change="handleKeepTimeChange"
+            ></el-input-number>
+          </div>
+          <!-- 保持时间 -->
+          <div class="item">
+            <span class="text">保持时长</span>
+            <el-input-number
+              v-model="keepTime"
+              :precision="0"
+              :step="1"
+              :min="1"
+              :max="10"
+              @change="handleKeepTimeChange"
+            ></el-input-number>
+          </div>
+          <!-- 休息时间 -->
+          <div class="item">
+            <span class="text">休息时长</span>
+            <el-input-number
+              v-model="restTime"
+              :precision="0"
+              :step="1"
+              :min="1"
+              :max="10"
+              @change="handleRestTimeChange"
+            ></el-input-number>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="btn">
-      <el-button class="item" type="primary" @click="handleStart"
-        >开始训练</el-button
-      >
+      <div class="btn">
+        <el-button class="item" type="primary" @click="handleStart"
+          >开 始</el-button
+        >
+      </div>
     </div>
   </div>
 </template>
@@ -113,7 +116,7 @@
 import path from 'path'
 
 export default {
-  name: 'abdominal-respiration-set',
+  name: 'plan-abdominal-respiration-set',
 
   data() {
     return {
@@ -293,7 +296,7 @@ export default {
      */
     handleStart() {
       this.$router.push({
-        path: '/abdominal-respiration-measure',
+        path: '/plan-abdominal-respiration-measure',
         query: {
           targetUp: JSON.stringify(this.targetUp), // 上限
           targetDown: JSON.stringify(this.targetDown), // 下限
@@ -312,43 +315,57 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.abdominal-respiration-set {
+.plan-abdominal-respiration-set {
   width: 100%;
   height: 100%;
-  @include flex(column, stretch, stretch);
+  @include flex(row, center, center);
 
-  .des {
-    margin: 5px 0 15px 60px;
-    font-size: 18px;
-    .item {
-      margin-bottom: 5px;
-    }
-  }
+  .wrapper {
+    width: 94%;
+    height: 96%;
+    border-radius: 34px;
+    background-color: #ffffff;
+    box-shadow: 0 0 10px #929292;
+    padding: 26px 50px;
+    @include flex(column, stretch, stretch);
 
-  .content {
-    flex: 1;
-    @include flex(row, space-between, stretch);
-    .chart {
-      flex: 1;
-    }
-    .set {
-      width: 35%;
-      padding-left: 30px;
-      @include flex(column, stretch, flex-start);
+    .des {
+      .title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #8a38f5;
+        margin-bottom: 5px;
+      }
       .item {
-        margin-bottom: 40px;
-        .text {
-          margin-right: 10px;
-          font-size: 22px;
+        font-size: 18px;
+        margin-bottom: 5px;
+      }
+    }
+
+    .content {
+      flex: 1;
+      @include flex(row, space-between, stretch);
+      .chart {
+        flex: 1;
+      }
+      .set {
+        width: 30%;
+        @include flex(column, center, flex-start);
+        .item {
+          margin-bottom: 40px;
+          .text {
+            margin-right: 10px;
+            font-size: 22px;
+          }
         }
       }
     }
-  }
 
-  .btn {
-    @include flex(row, center, center);
-    .item {
-      font-size: 28px;
+    .btn {
+      @include flex(row, center, center);
+      .item {
+        font-size: 28px;
+      }
     }
   }
 }

@@ -1,11 +1,11 @@
 <!--
  * @Author      : Mr.bin
- * @Date        : 2023-05-17 09:32:54
- * @LastEditTime: 2023-06-02 14:36:05
- * @Description : 腹式呼吸训练-具体测量
+ * @Date        : 2023-06-02 15:22:05
+ * @LastEditTime: 2023-06-02 15:25:35
+ * @Description : 方案-腹式呼吸训练-具体测量
 -->
 <template>
-  <div class="abdominal-respiration-measure">
+  <div class="plan-abdominal-respiration-measure">
     <!-- 语音播放 -->
     <audio ref="audio" controls="controls" hidden :src="audioSrc" />
 
@@ -104,7 +104,7 @@ import Readline from '@serialport/parser-readline'
 import { initDB } from '@/db/index.js'
 
 export default {
-  name: 'abdominal-respiration-measure',
+  name: 'plan-abdominal-respiration-measure',
 
   data() {
     return {
@@ -644,31 +644,18 @@ export default {
     /**
      * @description: 查看报告按钮
      */
-    handleToPdf() {
-      this.$router.push({
-        path: '/train-abdominal-respiration-pdf',
-        query: {
-          userId: JSON.stringify(this.$store.state.currentUserInfo.userId),
-          pdfTime: JSON.stringify(this.pdfTime),
-          routerName: JSON.stringify('/train-select/abdominal-respiration-set')
-        }
-      })
-    },
+    handleToPdf() {},
 
     /**
      * @description: 返回上一页
      */
-    handleGoBack() {
-      this.$router.push({
-        path: '/train-select/abdominal-respiration-set'
-      })
-    }
+    handleGoBack() {}
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.abdominal-respiration-measure {
+.plan-abdominal-respiration-measure {
   width: 100%;
   height: 100%;
   @include flex(row, center, center);

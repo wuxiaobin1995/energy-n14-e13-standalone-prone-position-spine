@@ -1,13 +1,13 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-08 14:37:53
- * @LastEditTime: 2023-05-30 14:45:38
+ * @LastEditTime: 2023-06-02 14:32:28
  * @Description : 活动度测试-动作展示
 -->
 <template>
   <div class="test-flexibility-show">
     <!-- 语音播放 -->
-    <!-- <audio ref="audio" controls="controls" hidden :src="audioSrc" /> -->
+    <audio ref="audio" controls="controls" hidden :src="audioSrc" />
 
     <div class="wrapper">
       <el-page-header
@@ -52,18 +52,18 @@ export default {
       showImg: require('@/assets/img/Test/Flexibility/活动度测试-动作展示.gif'),
 
       /* 语音相关 */
-      // audioOpen: this.$store.state.voiceSwitch,
-      // audioSrc: path.join(__static, `narrate/mandarin/活动度测试.mp3`)
+      audioOpen: this.$store.state.voiceSwitch,
+      audioSrc: path.join(__static, `narrate/mandarin/Test/活动度测试.mp3`)
     }
   },
 
   mounted() {
-    // if (this.audioOpen === true) {
-    //   setTimeout(() => {
-    //     this.$refs.audio.currentTime = 0
-    //     this.$refs.audio.play()
-    //   }, 500)
-    // }
+    if (this.audioOpen === true) {
+      setTimeout(() => {
+        this.$refs.audio.currentTime = 0
+        this.$refs.audio.play()
+      }, 500)
+    }
   },
 
   methods: {
