@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-06-05 16:25:35
- * @LastEditTime: 2023-06-06 14:47:02
+ * @LastEditTime: 2023-06-06 16:31:52
  * @Description : 方案报告-导出PDF
 -->
 <template>
@@ -21,29 +21,17 @@
       <stabilizer-activation :data="stabilizerActivationData" />
     </div>
 
-    <div
-      class="wrapper"
-      :style="{ height: dynamicHeight }"
-      v-if="trainType.includes('本体感觉训练')"
-    >
+    <div class="wrapper" v-if="trainType.includes('本体感觉训练')">
       <top :data="top" />
       <deep-sensory :data="deepSensoryData" />
     </div>
 
-    <div
-      class="wrapper"
-      :style="{ height: dynamicHeight }"
-      v-if="trainType.includes('静态稳定训练')"
-    >
+    <div class="wrapper" v-if="trainType.includes('静态稳定训练')">
       <top :data="top" />
       <static :data="staticData" />
     </div>
 
-    <div
-      class="wrapper"
-      :style="{ height: dynamicHeight }"
-      v-if="trainType.includes('动态稳定训练')"
-    >
+    <div class="wrapper" v-if="trainType.includes('动态稳定训练')">
       <top :data="top" />
       <dynamic :data="dynamicData" />
     </div>
@@ -119,21 +107,6 @@ export default {
       deepSensoryData: {},
       staticData: {},
       dynamicData: {}
-    }
-  },
-
-  computed: {
-    /* 动态改变 height 的值 */
-    dynamicHeight() {
-      if (
-        this.trainType.includes('腹式呼吸训练') ||
-        this.trainType.includes('活动度训练') ||
-        this.trainType.includes('内核心激活训练')
-      ) {
-        return '124vh'
-      } else {
-        return '100vh'
-      }
     }
   },
 
@@ -250,7 +223,7 @@ export default {
 
   .wrapper {
     width: 100%;
-    height: 124vh; // 若打印布局有问题，调整此值
+    height: 100vh; // 若打印布局有问题，调整此值
     border-bottom: 1px solid black;
   }
 
