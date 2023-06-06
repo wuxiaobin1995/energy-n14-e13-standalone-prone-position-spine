@@ -1,19 +1,14 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-02-07 14:24:28
- * @LastEditTime: 2023-06-06 17:59:07
+ * @LastEditTime: 2023-06-06 22:35:39
  * @Description : 顶部栏
 -->
 <template>
   <div class="TopBar">
     <!-- logo -->
     <div class="logo">
-      <el-image
-        class="logo__img"
-        :src="logoSrc"
-        fit="scale-down"
-        @click.native="handleToHome"
-      ></el-image>
+      <el-image class="logo__img" :src="logoSrc" fit="scale-down"></el-image>
       <span class="text">卧姿肢体康复评估与训练系统</span>
     </div>
 

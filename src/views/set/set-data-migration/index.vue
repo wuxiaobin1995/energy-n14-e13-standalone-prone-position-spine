@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-06 21:44:39
- * @LastEditTime: 2023-02-07 14:59:25
+ * @LastEditTime: 2023-06-06 20:24:04
  * @Description : 数据迁移
 -->
 <template>
@@ -99,15 +99,41 @@ export default {
                   db.train_data
                     .toArray()
                     .then(res3 => {
-                      const data = {
-                        user: res1,
-                        test_data: res2,
-                        train_data: res3
-                      }
-                      Tools.outputFile(
-                        'energy_all_data_output.json',
-                        JSON.stringify(data)
-                      ) // 导出json文件操作
+                      db.train_plan_data
+                        .toArray()
+                        .then(res4 => {
+                          const data = {
+                            user: res1,
+                            test_data: res2,
+                            train_data: res3,
+                            train_plan_data: res4
+                          }
+                          Tools.outputFile(
+                            'energy_all_data_output.json',
+                            JSON.stringify(data)
+                          ) // 导出json文件操作
+                        })
+                        .catch(err => {
+                          this.$confirm(
+                            `导出train_plan_data表数据失败：${err}`,
+                            '提示',
+                            {
+                              type: 'warning',
+                              center: true,
+                              showClose: false,
+                              closeOnClickModal: false,
+                              closeOnPressEscape: false,
+                              confirmButtonText: '刷 新',
+                              cancelButtonText: '返回首页'
+                            }
+                          )
+                            .then(() => {
+                              this.handleRefresh()
+                            })
+                            .catch(() => {
+                              this.handleToHome()
+                            })
+                        })
                     })
                     .catch(err => {
                       this.$confirm(
@@ -261,6 +287,22 @@ export default {
             .catch(err => {
               this.$message({
                 message: `train_data表数据导入失败：${err}`,
+                type: 'error',
+                duration: 6000
+              })
+              reject(err)
+            })
+        }
+
+        for (let i = 0; i < data['train_plan_data'].length; i++) {
+          db.train_plan_data
+            .add(data['train_plan_data'][i])
+            .then(() => {
+              resolve(1)
+            })
+            .catch(err => {
+              this.$message({
+                message: `train_plan_data表数据导入失败：${err}`,
                 type: 'error',
                 duration: 6000
               })

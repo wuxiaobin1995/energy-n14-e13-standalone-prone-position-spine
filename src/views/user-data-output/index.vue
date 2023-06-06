@@ -1,8 +1,8 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-05-23 15:58:13
- * @LastEditTime: 2023-05-23 17:42:22
- * @Description : 导出所选用户的数据（测试、训练）
+ * @LastEditTime: 2023-06-06 22:22:13
+ * @Description : 导出所选用户的数据（测试、训练、方案）
 -->
 <template>
   <div class="user-data-output">
@@ -69,14 +69,21 @@
           type="primary"
           icon="el-icon-download"
           @click="handleTestOutput"
-          >导出-测试-数据</el-button
+          >导出-测试</el-button
         >
         <el-button
           class="item"
           type="primary"
           icon="el-icon-download"
           @click="handleTrainOutput"
-          >导出-训练-数据</el-button
+          >导出-训练</el-button
+        >
+        <el-button
+          class="item"
+          type="primary"
+          icon="el-icon-download"
+          @click="handleTrainPlanOutput"
+          >导出-训练方案</el-button
         >
         <el-button class="item" type="info" @click="handleRefresh"
           >刷 新</el-button
@@ -99,9 +106,11 @@ export default {
       allUserData: [], // user表的所有用户数据
       allTestData: [], // test_data表的所有数据
       allTrainData: [], // train_data表的所有数据
+      allTrainPlanData: [], // train_plan_data表的所有数据
 
       outputTestData: [], // 最终导出的测试数据
       outputTrainData: [], // 最终导出的训练数据
+      outputTrainPlanData: [], // 最终导出的训练方案数据
 
       userSelection: [] // 所选择的用户数组，多选
     }
@@ -364,6 +373,109 @@ export default {
     },
 
     /**
+     * @description: 获取所有训练方案数据
+     */
+    getTrainPlanData() {
+      this.loading = true
+      const db = initDB()
+      db.train_plan_data
+        .toArray()
+        .then(res => {
+          this.allTrainPlanData = res
+        })
+        .then(() => {
+          /* 筛选对应用户 */
+          const userIdArray = []
+          for (let i = 0; i < this.userSelection.length; i++) {
+            const item = this.userSelection[i]
+            userIdArray.push(item.userId)
+          }
+
+          this.outputTrainPlanData = []
+          for (let i = 0; i < this.allTrainPlanData.length; i++) {
+            const item = this.allTrainPlanData[i]
+            if (userIdArray.includes(item.userId)) {
+              const planDataString = JSON.stringify(item.planDataArray)
+              item.planDataString = planDataString
+              this.outputTrainPlanData.push(item)
+            }
+          }
+        })
+        .then(() => {
+          // 此处使用懒加载的方式
+          import('@/utils/Export2Excel.js')
+            .then(excel => {
+              const excelTitle = {
+                userId: 'ID',
+                userName: '姓名',
+                sex: '性别',
+                height: '身高(cm)',
+                weight: '体重(kg)',
+                birthday: '出生日期',
+                type: '训练方案类型',
+                hospital: '医院',
+                planDataString: '数据源',
+                pdfTime: '训练方案时间'
+              }
+              const tHeader = Object.values(excelTitle)
+              // 会根据key键的顺序、属性值等动态变化
+              const filterVal = Object.keys(excelTitle)
+              const exportData = this.formatJson(
+                filterVal,
+                this.outputTrainPlanData
+              )
+              excel.export_json_to_excel({
+                header: tHeader, // 表头 必填
+                data: exportData, // 具体数据 必填
+                filename:
+                  '卧姿肢体康复评估与训练系统-单机版-用户训练方案数据 ' +
+                  this.$moment().format('YYYY-MM-DD HH_mm_ss'), // 导出文件名，非必填
+                autoWidth: true, // 自适应列宽，非必填
+                bookType: 'xlsx' // 导出格式，非必填
+              })
+            })
+            .then(() => {
+              this.$message({
+                message: '导出Excel成功',
+                type: 'success',
+                duration: 3000
+              })
+            })
+            .catch(err => {
+              this.$message({
+                message: `导出Excel失败：${err}`,
+                type: 'error',
+                duration: 5000
+              })
+            })
+        })
+        .catch(() => {
+          this.$confirm(
+            `获取train_plan_data表数据失败，请点击刷新按钮重试！`,
+            '提示',
+            {
+              type: 'warning',
+              center: true,
+              showClose: false,
+              closeOnClickModal: false,
+              closeOnPressEscape: false,
+              confirmButtonText: '刷 新',
+              cancelButtonText: '返回上一页'
+            }
+          )
+            .then(() => {
+              this.handleRefresh()
+            })
+            .catch(() => {
+              this.handleBack()
+            })
+        })
+        .finally(() => {
+          this.loading = false
+        })
+    },
+
+    /**
      * @description: 导出测试数据
      */
     handleTestOutput() {
@@ -384,6 +496,21 @@ export default {
     handleTrainOutput() {
       if (this.userSelection.length) {
         this.getTrainData()
+      } else {
+        this.$message({
+          message: '提示：请选择用户！',
+          type: 'error',
+          duration: 1500
+        })
+      }
+    },
+
+    /**
+     * @description: 导出训练方案数据
+     */
+    handleTrainPlanOutput() {
+      if (this.userSelection.length) {
+        this.getTrainPlanData()
       } else {
         this.$message({
           message: '提示：请选择用户！',
