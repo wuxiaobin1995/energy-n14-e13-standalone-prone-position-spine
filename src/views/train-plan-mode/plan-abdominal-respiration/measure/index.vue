@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-06-02 15:22:05
- * @LastEditTime: 2023-06-02 15:25:35
+ * @LastEditTime: 2023-06-05 17:00:38
  * @Description : 方案-腹式呼吸训练-具体测量
 -->
 <template>
@@ -62,11 +62,10 @@
           class="item"
           type="success"
           :disabled="!isFinished"
-          @click="handleToPdf"
-          >查看报告</el-button
-        >
-        <el-button class="item" type="info" @click="handleGoBack"
-          >返 回</el-button
+          @click="handleFinish"
+          >{{
+            this.$store.state.planSelect.length === 0 ? '查看报告' : '下一项'
+          }}</el-button
         >
       </div>
 
@@ -226,7 +225,7 @@ export default {
                 center: true,
                 confirmButtonText: '返回上一页',
                 callback: () => {
-                  this.handleGoBack()
+                  this.handleBack()
                 }
               })
             })
@@ -334,7 +333,7 @@ export default {
               center: true,
               confirmButtonText: '返回上一页',
               callback: () => {
-                this.handleGoBack()
+                this.handleBack()
               }
             })
           }
@@ -349,7 +348,7 @@ export default {
               center: true,
               confirmButtonText: '返回上一页',
               callback: () => {
-                this.handleGoBack()
+                this.handleBack()
               }
             }
           )
@@ -516,8 +515,6 @@ export default {
       for (let i = 0; i < this.allDepthArray.length; i++) {
         allDepthArrayDelayering.push(...this.allDepthArray[i])
       }
-      // console.log(this.allDepthArray)
-      // console.log(allDepthArrayDelayering)
       const itemArrLen = this.allDepthArray[0].length // 单个元素数组的元素数量
       let comprehensiveArray = []
       let sum = 0
@@ -528,7 +525,6 @@ export default {
         comprehensiveArray.push(parseInt(sum / this.groups))
         sum = 0
       }
-      // console.log(comprehensiveArray)
 
       /* 计算完成度 */
       const contrastArray = []
@@ -548,58 +544,99 @@ export default {
         ((yesArray.length / comprehensiveArray.length) * 100).toFixed(0)
       )
 
-      /* 保存到数据库 */
-      this.pdfTime = this.$moment().format('YYYY-MM-DD HH:mm:ss')
-      const hospital = window.localStorage.getItem('hospital')
-      const db = initDB()
-      db.train_data
-        .add({
-          hospital: hospital,
-          userId: this.$store.state.currentUserInfo.userId,
-          userName: this.$store.state.currentUserInfo.userName,
-          sex: this.$store.state.currentUserInfo.sex,
-          height: this.$store.state.currentUserInfo.height,
-          weight: this.$store.state.currentUserInfo.weight,
-          birthday: this.$store.state.currentUserInfo.birthday,
+      /* 删除Vuex训练方案选项的第一个元素 */
+      let planSelect = JSON.parse(JSON.stringify(this.$store.state.planSelect))
+      planSelect.shift()
+      this.$store.dispatch('changePlanSelect', planSelect)
 
-          targetUp: this.targetUp, // 上限
-          targetDown: this.targetDown, // 下限
-          midpoint: this.midpoint, // 灵活度中点
-          target: this.target, // 训练目标
-          num: this.num, // 训练次数
-          groups: this.groups, // 训练组数
-          groupRestTime: this.groupRestTime, // 组间休息时长
-          keepTime: this.keepTime, // 保持时长
-          restTime: this.restTime, // 休息时长
+      /* 数据 */
+      const obj = {
+        type: '腹式呼吸训练',
 
-          allDepthArray: this.allDepthArray, // 多组完整数据数组
-          comprehensiveArray: comprehensiveArray, // 综合曲线轨迹
-          completion: completion, // 完成度
-          pdfTime: this.pdfTime,
+        targetUp: this.targetUp, // 上限
+        targetDown: this.targetDown, // 下限
+        midpoint: this.midpoint, // 灵活度中点
+        target: this.target, // 训练目标
+        num: this.num, // 训练次数
+        groups: this.groups, // 训练组数
+        groupRestTime: this.groupRestTime, // 组间休息时长
+        keepTime: this.keepTime, // 保持时长
+        restTime: this.restTime, // 休息时长
 
-          type: '腹式呼吸训练'
+        allDepthArray: this.allDepthArray, // 多组完整数据数组
+        comprehensiveArray: comprehensiveArray, // 综合曲线轨迹
+        completion: completion // 完成度
+      }
+
+      /* 若后面还有训练，则暂时保存数据到 sessionStorage，然后跳到下一个训练 */
+      if (this.$store.state.planSelect.length) {
+        /* 暂存至 sessionStorage */
+        let planDataArray = JSON.parse(
+          window.sessionStorage.getItem('planDataArray')
+        )
+        planDataArray.push(obj)
+        window.sessionStorage.setItem(
+          'planDataArray',
+          JSON.stringify(planDataArray)
+        )
+
+        this.isFinished = true
+
+        this.$message({
+          message: '完成，请进行下一项训练！',
+          type: 'success',
+          duration: 1500
         })
-        .then(() => {
-          this.$message({
-            message: '数据保存成功，可以查看报告！',
-            type: 'success',
-            duration: 1500
+      } else {
+        /* 若后面没有训练，则把 sessionStorage的全部暂存数据，保存至indexDB数据库中，且可以查看报告 */
+        let planDataArray = JSON.parse(
+          window.sessionStorage.getItem('planDataArray')
+        )
+        planDataArray.push(obj)
+        /* 保存到数据库 */
+        this.pdfTime = this.$moment().format('YYYY-MM-DD HH:mm:ss')
+        const hospital = window.localStorage.getItem('hospital')
+        const planType = window.sessionStorage.getItem('planType')
+        const db = initDB()
+        db.train_plan_data
+          .add({
+            type: planType,
+
+            hospital: hospital,
+            userId: this.$store.state.currentUserInfo.userId,
+            userName: this.$store.state.currentUserInfo.userName,
+            sex: this.$store.state.currentUserInfo.sex,
+            height: this.$store.state.currentUserInfo.height,
+            weight: this.$store.state.currentUserInfo.weight,
+            birthday: this.$store.state.currentUserInfo.birthday,
+
+            planDataArray: planDataArray,
+            pdfTime: this.pdfTime
           })
-        })
-        .then(() => {
-          this.isFinished = true
-        })
-        .catch(() => {
-          this.$alert(`请点击"返回"按钮，然后重新测试！`, '数据保存失败', {
-            type: 'error',
-            showClose: false,
-            center: true,
-            confirmButtonText: '返回',
-            callback: () => {
-              this.handleGoBack()
-            }
+          .then(() => {
+            this.$message({
+              message: '数据保存成功，可以查看报告！',
+              type: 'success',
+              duration: 1500
+            })
           })
-        })
+          .then(() => {
+            this.isFinished = true
+          })
+          .catch(() => {
+            this.$alert(`请点击"返回"按钮，然后重新训练！`, '数据保存失败', {
+              type: 'error',
+              showClose: false,
+              center: true,
+              confirmButtonText: '返回方案选择',
+              callback: () => {
+                this.$router.push({
+                  path: '/train-plan'
+                })
+              }
+            })
+          })
+      }
     },
 
     /**
@@ -642,14 +679,35 @@ export default {
     },
 
     /**
-     * @description: 查看报告按钮
+     * @description: 查看报告按钮或者下一项
      */
-    handleToPdf() {},
+    handleFinish() {
+      if (this.$store.state.planSelect.length) {
+        // 下一项
+        this.$router.push({
+          path: `/${this.$store.state.planSelect[0]}-set`
+        })
+      } else {
+        // 查看报告
+        this.$router.push({
+          path: '/plan-pdf',
+          query: {
+            userId: JSON.stringify(this.$store.state.currentUserInfo.userId),
+            pdfTime: JSON.stringify(this.pdfTime),
+            routerName: JSON.stringify('/train-plan')
+          }
+        })
+      }
+    },
 
     /**
      * @description: 返回上一页
      */
-    handleGoBack() {}
+    handleBack() {
+      this.$router.push({
+        path: '/plan-abdominal-respiration-set'
+      })
+    }
   }
 }
 </script>

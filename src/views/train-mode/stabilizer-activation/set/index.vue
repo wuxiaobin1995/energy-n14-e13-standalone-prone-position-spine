@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-02-08 14:17:27
- * @LastEditTime: 2023-06-02 14:39:47
+ * @LastEditTime: 2023-06-06 16:07:39
  * @Description : 内核心激活训练-参数设置
 -->
 <template>
@@ -77,11 +77,14 @@ export default {
 
   data() {
     return {
-      imgSrc: require('@/assets/img/Train/Stabilizer_Activation/示意图.png'), // 示意图
+      imgSrc: require('@/assets/img/Train/Stabilizer_Activation/内核心激活训练.gif'), // 示意图
 
       /* 语音相关 */
       audioOpen: this.$store.state.voiceSwitch,
-      audioSrc: path.join(__static, `narrate/mandarin/Train/内核心激活训练.mp3`),
+      audioSrc: path.join(
+        __static,
+        `narrate/mandarin/Train/内核心激活训练.mp3`
+      ),
 
       /* 其他 */
       targetUp: this.$store.state.bothFlexibility.maxDepth, // 上限
@@ -142,7 +145,7 @@ export default {
       flex: 1;
       @include flex(row, center, center);
       .item {
-        width: 90%;
+        transform: scale(1.1);
       }
     }
     .set {

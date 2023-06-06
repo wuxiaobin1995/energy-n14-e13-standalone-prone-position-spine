@@ -1,7 +1,7 @@
 /*
  * @Author      : Mr.bin
  * @Date        : 2021-11-09 09:16:02
- * @LastEditTime: 2023-06-02 15:32:29
+ * @LastEditTime: 2023-06-05 21:48:51
  * @Description : 路由
  */
 import Vue from 'vue'
@@ -247,6 +247,44 @@ const routes = [
           import('@/views/train-plan-mode/plan-abdominal-respiration/set'),
         meta: ['方案-腹式呼吸训练-参数设置']
       },
+      // 方案-活动度训练-参数设置
+      {
+        path: 'plan-activity-improvement-set',
+        name: 'plan-activity-improvement-set',
+        component: () =>
+          import('@/views/train-plan-mode/plan-activity-improvement/set'),
+        meta: ['方案-活动度训练-参数设置']
+      },
+      // 方案-内核心激活训练-参数设置
+      {
+        path: 'plan-stabilizer-activation-set',
+        name: 'plan-stabilizer-activation-set',
+        component: () =>
+          import('@/views/train-plan-mode/plan-stabilizer-activation/set'),
+        meta: ['方案-内核心激活训练-参数设置']
+      },
+      // 方案-本体感觉训练-参数设置
+      {
+        path: 'plan-deep-sensory-set',
+        name: 'plan-deep-sensory-set',
+        component: () =>
+          import('@/views/train-plan-mode/plan-deep-sensory/set'),
+        meta: ['方案-本体感觉训练-参数设置']
+      },
+      // 方案-静态稳定训练-参数设置
+      {
+        path: 'plan-static-set',
+        name: 'plan-static-set',
+        component: () => import('@/views/train-plan-mode/plan-static/set'),
+        meta: ['方案-静态稳定训练-参数设置']
+      },
+      // 方案-动态稳定训练-参数设置
+      {
+        path: 'plan-dynamic-set',
+        name: 'plan-dynamic-set',
+        component: () => import('@/views/train-plan-mode/plan-dynamic/set'),
+        meta: ['方案-动态稳定训练-参数设置']
+      },
       // 方案-腹式呼吸训练-具体测量
       {
         path: 'plan-abdominal-respiration-measure',
@@ -254,6 +292,44 @@ const routes = [
         component: () =>
           import('@/views/train-plan-mode/plan-abdominal-respiration/measure'),
         meta: ['方案-腹式呼吸训练-具体测量']
+      },
+      // 方案-活动度训练-具体测量
+      {
+        path: 'plan-activity-improvement-measure',
+        name: 'plan-activity-improvement-measure',
+        component: () =>
+          import('@/views/train-plan-mode/plan-activity-improvement/measure'),
+        meta: ['方案-活动度训练-具体测量']
+      },
+      // 方案-内核心激活训练-具体测量
+      {
+        path: 'plan-stabilizer-activation-measure',
+        name: 'plan-stabilizer-activation-measure',
+        component: () =>
+          import('@/views/train-plan-mode/plan-stabilizer-activation/measure'),
+        meta: ['方案-内核心激活训练-具体测量']
+      },
+      // 方案-本体感觉训练-具体测量
+      {
+        path: 'plan-deep-sensory-measure',
+        name: 'plan-deep-sensory-measure',
+        component: () =>
+          import('@/views/train-plan-mode/plan-deep-sensory/measure'),
+        meta: ['方案-本体感觉训练-具体测量']
+      },
+      // 方案-静态稳定训练-具体测量
+      {
+        path: 'plan-static-measure',
+        name: 'plan-static-measure',
+        component: () => import('@/views/train-plan-mode/plan-static/measure'),
+        meta: ['方案-静态稳定训练-具体测量']
+      },
+      // 方案-动态稳定训练-具体测量
+      {
+        path: 'plan-dynamic-measure',
+        name: 'plan-dynamic-measure',
+        component: () => import('@/views/train-plan-mode/plan-dynamic/measure'),
+        meta: ['方案-动态稳定训练-具体测量']
       },
 
       /* 数据记录 */
@@ -326,6 +402,58 @@ const routes = [
             name: 'train-dynamic-record',
             component: () => import('@/views/record/train/dynamic'),
             meta: ['动态稳定训练']
+          }
+        ]
+      },
+      // 训练方案
+      {
+        path: 'train-plan-record',
+        name: 'train-plan-record',
+        component: () => import('@/views/record/train-plan'),
+        meta: ['训练方案-数据记录'],
+        redirect: '/train-plan-record/separationofrectus-abdominismuscle',
+        children: [
+          // 腹直肌分离
+          {
+            path: 'separationofrectus-abdominismuscle',
+            name: 'train-plan-separationofrectus-abdominismuscle-record',
+            component: () =>
+              import(
+                '@/views/record/train-plan/separationofrectus-abdominismuscle'
+              ),
+            meta: ['腹直肌分离']
+          },
+          // 产后腰痛
+          {
+            path: 'postpartum-lowbackpain',
+            name: 'train-plan-postpartum-lowbackpain-record',
+            component: () =>
+              import('@/views/record/train-plan/postpartum-lowbackpain'),
+            meta: ['产后腰痛']
+          },
+          // 盆骨前倾
+          {
+            path: 'pelvic-anteriortilt',
+            name: 'train-plan-pelvic-anteriortilt-record',
+            component: () =>
+              import('@/views/record/train-plan/pelvic-anteriortilt'),
+            meta: ['盆骨前倾']
+          },
+          // 耻骨联合痛
+          {
+            path: 'pubic-symphysispain',
+            name: 'train-plan-pubic-symphysispain-record',
+            component: () =>
+              import('@/views/record/train-plan/pubic-symphysispain'),
+            meta: ['耻骨联合痛']
+          },
+          // 骶髂关节痛
+          {
+            path: 'sacroiliac-jointpain',
+            name: 'train-plan-sacroiliac-jointpain-record',
+            component: () =>
+              import('@/views/record/train-plan/sacroiliac-jointpain'),
+            meta: ['骶髂关节痛']
           }
         ]
       }
@@ -442,6 +570,15 @@ const routes = [
     name: 'train-dynamic-secular-trend-pdf',
     component: () => import('@/views/record/train/dynamic/secular-trend-pdf'),
     meta: ['动态稳定训练-导出长期趋势PDF']
+  },
+
+  /* 方案报告 */
+  // 方案报告-导出PDF
+  {
+    path: '/plan-pdf',
+    name: 'plan-pdf',
+    component: () => import('@/views/train-plan-mode/pdf'),
+    meta: ['方案报告-导出PDF']
   },
 
   {

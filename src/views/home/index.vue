@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2021-11-09 11:55:02
- * @LastEditTime: 2023-06-01 15:31:59
+ * @LastEditTime: 2023-06-05 21:52:43
  * @Description : 首页
 -->
 <template>
@@ -61,7 +61,7 @@
       <!-- 数据记录选择弹窗 -->
       <el-dialog
         :visible.sync="centerDialogVisible"
-        width="45%"
+        width="50%"
         center
         top="35vh"
         :show-close="false"
@@ -72,6 +72,9 @@
           >
           <el-button class="btn" type="primary" @click="handleGoTrainRecord"
             >训练记录</el-button
+          >
+          <el-button class="btn" type="warning" @click="handleGoTrainPlanRecord"
+            >方案记录</el-button
           >
         </div>
       </el-dialog>
@@ -357,6 +360,12 @@ export default {
      */
     handleGoTrainRecord() {
       this.$router.push({ path: '/train-record' })
+    },
+    /**
+     * @description: 跳转至训练方案记录页
+     */
+    handleGoTrainPlanRecord() {
+      this.$router.push({ path: '/train-plan-record' })
     }
   }
 }

@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-06-01 14:44:04
- * @LastEditTime: 2023-06-02 16:57:39
+ * @LastEditTime: 2023-06-05 16:03:11
  * @Description : 训练方案-项目选择
 -->
 <template>
@@ -106,6 +106,8 @@ export default {
   },
 
   created() {
+    window.sessionStorage.setItem('planType', this.type) // 所选的方案类型
+
     this.onJudgingSelectability()
   },
 

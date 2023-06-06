@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-09 21:12:48
- * @LastEditTime: 2023-06-02 14:37:38
+ * @LastEditTime: 2023-06-06 16:06:50
  * @Description : 活动度训练-参数设置
 -->
 <template>
@@ -89,7 +89,7 @@ export default {
 
   data() {
     return {
-      imgSrc: require('@/assets/img/Train/Activity_Improvement/示意图.png'), // 示意图
+      imgSrc: require('@/assets/img/Train/Activity_Improvement/活动度训练.gif'), // 示意图
 
       /* 语音相关 */
       audioOpen: this.$store.state.voiceSwitch,
@@ -156,7 +156,7 @@ export default {
       flex: 1;
       @include flex(row, center, center);
       .item {
-        width: 90%;
+        transform: scale(1.1);
       }
     }
     .set {

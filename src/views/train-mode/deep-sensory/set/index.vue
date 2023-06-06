@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-02-08 14:17:27
- * @LastEditTime: 2023-06-02 15:07:34
+ * @LastEditTime: 2023-06-06 16:01:15
  * @Description : 本体感觉训练-参数设置
 -->
 <template>
@@ -139,7 +139,7 @@ export default {
 
   data() {
     return {
-      imgSrc: require('@/assets/img/Test/Flexibility/活动度测试-动作展示.gif'),
+      imgSrc: require('@/assets/img/Train/Deep_Sensory/本体感觉训练.gif'),
 
       /* 语音相关 */
       audioOpen: this.$store.state.voiceSwitch,

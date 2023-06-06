@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-05-02 16:28:38
- * @LastEditTime: 2023-06-02 14:34:11
+ * @LastEditTime: 2023-06-06 15:46:13
  * @Description : 腹式呼吸训练-参数设置
 -->
 <template>
@@ -21,8 +21,12 @@
 
     <div class="content">
       <!-- 图形 -->
-      <div class="chart">
+      <div class="chart" :style="{ display: 'none' }">
         <div id="chart" :style="{ width: '100%', height: '100%' }"></div>
+      </div>
+      <!-- 示意图 -->
+      <div class="img">
+        <el-image class="item" :src="showImg" fit="scale-down"></el-image>
       </div>
 
       <!-- 配置项 -->
@@ -120,6 +124,8 @@ export default {
       /* 语音相关 */
       audioOpen: this.$store.state.voiceSwitch,
       audioSrc: path.join(__static, `narrate/mandarin/Train/腹式呼吸训练.mp3`),
+
+      showImg: require('@/assets/img/Train/Abdominal_Respiration/腹式呼吸训练.gif'),
 
       /* 图形相关变量 */
       myChart: null,
@@ -330,6 +336,13 @@ export default {
     @include flex(row, space-between, stretch);
     .chart {
       flex: 1;
+    }
+    .img {
+      flex: 1;
+      @include flex(row, center, center);
+      .item {
+        transform: scale(1.1);
+      }
     }
     .set {
       width: 35%;

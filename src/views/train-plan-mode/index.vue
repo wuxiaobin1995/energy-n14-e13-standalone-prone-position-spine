@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-06-01 14:43:57
- * @LastEditTime: 2023-06-01 15:51:02
+ * @LastEditTime: 2023-06-05 22:10:31
  * @Description : 训练方案-主页
 -->
 <template>
@@ -70,8 +70,11 @@ export default {
   },
 
   created() {
-    /* 初始化Vuex */
+    /* 初始化 Vuex */
     this.$store.dispatch('changePlanSelect', []) // 训练方案的选项
+    /* 初始化 sessionStorage */
+    window.sessionStorage.setItem('planDataArray', JSON.stringify([])) // 完成一次训练方案的数据
+    window.sessionStorage.setItem('planType', '') // 所选的方案类型
   },
 
   methods: {
