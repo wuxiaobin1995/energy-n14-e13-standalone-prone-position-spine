@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-14 10:13:00
- * @LastEditTime: 2023-05-30 14:33:45
+ * @LastEditTime: 2023-06-07 09:21:59
  * @Description : 活动度测试-导出长期趋势PDF
 -->
 <template>
@@ -70,7 +70,7 @@ export default {
       hospital: window.localStorage.getItem('hospital')
         ? window.localStorage.getItem('hospital')
         : '未设置医院',
-      flexibilityArray: [] // 灵活度数组
+      flexibilityArray: [] // 活动度数组
     }
   },
 
@@ -153,7 +153,7 @@ export default {
         legend: {},
         series: [
           {
-            name: '骨盆灵活度',
+            name: '骨盆活动度',
             data: this.flexibilityArray,
             color: 'green',
             type: 'line',

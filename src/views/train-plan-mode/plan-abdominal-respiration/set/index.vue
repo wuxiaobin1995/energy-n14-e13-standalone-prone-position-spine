@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-06-02 15:21:29
- * @LastEditTime: 2023-06-02 18:10:38
+ * @LastEditTime: 2023-06-07 09:20:30
  * @Description : 方案-腹式呼吸训练-参数设置
 -->
 <template>
@@ -165,7 +165,7 @@ export default {
   },
 
   computed: {
-    // 灵活度中点
+    // 活动度中点
     midpoint() {
       return parseInt(((this.targetUp + this.targetDown) / 2).toFixed(0))
     }
@@ -178,7 +178,7 @@ export default {
     countChart() {
       return new Promise((resolve, reject) => {
         /* 绘制参考曲线逻辑 */
-        const midpoint = this.midpoint // 灵活度中点
+        const midpoint = this.midpoint // 活动度中点
         const target = this.target // 训练目标
         const restTime = this.restTime // 休息时长
         const keepTime = this.keepTime // 保持时长
@@ -306,7 +306,7 @@ export default {
         query: {
           targetUp: JSON.stringify(this.targetUp), // 上限
           targetDown: JSON.stringify(this.targetDown), // 下限
-          midpoint: JSON.stringify(this.midpoint), // 灵活度中点
+          midpoint: JSON.stringify(this.midpoint), // 活动度中点
           target: JSON.stringify(this.target), // 训练目标
           num: JSON.stringify(this.num), // 训练次数
           groups: JSON.stringify(this.groups), // 训练组数

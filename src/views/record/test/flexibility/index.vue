@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-14 10:10:35
- * @LastEditTime: 2023-02-24 10:28:38
+ * @LastEditTime: 2023-06-07 09:22:29
  * @Description : 活动度测试-数据记录
 -->
 <template>
@@ -72,11 +72,11 @@
         label="下限"
         width="200"
       ></el-table-column>
-      <!-- 灵活度 -->
+      <!-- 活动度 -->
       <el-table-column
         align="center"
         prop="flexibility"
-        label="骨盆灵活度"
+        label="骨盆活动度"
         sortable
       ></el-table-column>
 

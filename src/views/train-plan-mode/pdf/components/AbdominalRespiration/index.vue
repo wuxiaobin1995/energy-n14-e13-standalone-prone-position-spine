@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-06-06 09:28:53
- * @LastEditTime: 2023-06-06 14:11:51
+ * @LastEditTime: 2023-06-07 09:19:56
  * @Description : 腹式呼吸训练-pdf子组件
 -->
 <template>
@@ -100,7 +100,7 @@ export default {
      */
     countChart() {
       return new Promise((resolve, reject) => {
-        const midpoint = this.data.midpoint // 灵活度中点
+        const midpoint = this.data.midpoint // 活动度中点
         const target = this.data.target // 训练目标
         const restTime = this.data.restTime // 休息时长
         const keepTime = this.data.keepTime // 保持时长

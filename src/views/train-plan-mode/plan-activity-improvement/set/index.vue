@@ -12,7 +12,7 @@
     <div class="wrapper">
       <div class="des">
         <div class="title">活动度训练</div>
-        <div class="item">训练目的：改善骨盆灵活度</div>
+        <div class="item">训练目的：改善骨盆活动度</div>
         <div class="item">
           动作要求：吸气同时控制腰腹部，缓慢上抬至最高，上抬的过程中保持肩部和臀部紧贴软垫，随后呼气同时控制腰腹部缓慢向下压至最低，重复至训练结束
         </div>

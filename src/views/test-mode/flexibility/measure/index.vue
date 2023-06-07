@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-08 16:13:32
- * @LastEditTime: 2023-05-30 14:31:09
+ * @LastEditTime: 2023-06-07 09:17:58
  * @Description : 活动度测试-具体测量
 -->
 <template>
@@ -64,7 +64,7 @@
         </div>
 
         <div class="result">
-          <div>灵活度：{{ flexibility ? flexibility : '待测量' }}</div>
+          <div>活动度：{{ flexibility ? flexibility : '待测量' }}</div>
           <div :style="{ 'margin-top': '20px', color: 'green' }">
             推荐值：30~40
           </div>
@@ -106,7 +106,7 @@ export default {
 
       depthArray: [], // 数据数组
       pdfTime: '',
-      flexibility: '' // 灵活度
+      flexibility: '' // 活动度
     }
   },
 
@@ -323,7 +323,7 @@ export default {
               })
             })
             .then(() => {
-              /* 设置Vuex中的最大、最小灵活度值 */
+              /* 设置Vuex中的最大、最小活动度值 */
               this.$store
                 .dispatch('setBothFlexibility', {
                   maxDepth: maxDepth,
@@ -331,7 +331,7 @@ export default {
                 })
                 .catch(() => {
                   this.$alert(
-                    `设置最大、最小灵活度Vuex失败，请重新测试！`,
+                    `设置最大、最小活动度Vuex失败，请重新测试！`,
                     '警告',
                     {
                       type: 'error',

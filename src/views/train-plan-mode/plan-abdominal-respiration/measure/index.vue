@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-06-02 15:22:05
- * @LastEditTime: 2023-06-05 17:00:38
+ * @LastEditTime: 2023-06-07 09:20:15
  * @Description : 方案-腹式呼吸训练-具体测量
 -->
 <template>
@@ -110,7 +110,7 @@ export default {
       /* 路由传参 */
       targetUp: JSON.parse(this.$route.query.targetUp), // 上限
       targetDown: JSON.parse(this.$route.query.targetDown), // 下限
-      midpoint: JSON.parse(this.$route.query.midpoint), // 灵活度中点
+      midpoint: JSON.parse(this.$route.query.midpoint), // 活动度中点
       target: JSON.parse(this.$route.query.target), // 训练目标
       num: JSON.parse(this.$route.query.num), // 训练次数
       groups: JSON.parse(this.$route.query.groups), // 训练组数
@@ -360,7 +360,7 @@ export default {
      */
     countChart() {
       return new Promise((resolve, reject) => {
-        const midpoint = this.midpoint // 灵活度中点
+        const midpoint = this.midpoint // 活动度中点
         const target = this.target // 训练目标
         const restTime = this.restTime // 休息时长
         const keepTime = this.keepTime // 保持时长
@@ -555,7 +555,7 @@ export default {
 
         targetUp: this.targetUp, // 上限
         targetDown: this.targetDown, // 下限
-        midpoint: this.midpoint, // 灵活度中点
+        midpoint: this.midpoint, // 活动度中点
         target: this.target, // 训练目标
         num: this.num, // 训练次数
         groups: this.groups, // 训练组数

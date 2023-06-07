@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-05-23 15:58:13
- * @LastEditTime: 2023-06-06 22:22:13
+ * @LastEditTime: 2023-06-07 09:21:12
  * @Description : 导出所选用户的数据（测试、训练、方案）
 -->
 <template>
@@ -213,7 +213,7 @@ export default {
                 hospital: '医院',
                 maxDepth: '上限',
                 minDepth: '下限',
-                flexibility: '灵活度',
+                flexibility: '活动度',
                 pdfTime: '测试时间'
               }
               const tHeader = Object.values(excelTitle)

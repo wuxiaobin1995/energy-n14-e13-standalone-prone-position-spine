@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-09 21:12:48
- * @LastEditTime: 2023-06-06 16:06:50
+ * @LastEditTime: 2023-06-07 09:19:22
  * @Description : 活动度训练-参数设置
 -->
 <template>
@@ -10,7 +10,7 @@
     <audio ref="audio" controls="controls" hidden :src="audioSrc" />
 
     <div class="des">
-      <div class="item">训练目的：改善骨盆灵活度</div>
+      <div class="item">训练目的：改善骨盆活动度</div>
       <div class="item">
         动作要求：吸气同时控制腰腹部，缓慢上抬至最高，上抬的过程中保持肩部和臀部紧贴软垫，随后呼气同时控制腰腹部缓慢向下压至最低，重复至训练结束
       </div>
