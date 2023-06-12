@@ -60,7 +60,11 @@
       <div class="right">
         <div class="text">示意动作</div>
         <div class="img">
-          <el-image :src="imgSrc" fit="scale-down"></el-image>
+          <el-image
+            :src="imgSrc"
+            fit="scale-down"
+            @click.native="handleAmplify"
+          ></el-image>
         </div>
 
         <div class="result">
@@ -70,6 +74,18 @@
           </div>
         </div>
       </div>
+
+      <!-- 图示放大弹窗 -->
+      <el-dialog
+        title="图 示"
+        :visible.sync="imgDialogVisible"
+        width="30%"
+        center
+      >
+        <div class="img-dialog">
+          <el-image :src="imgSrc" fit="scale-down"></el-image>
+        </div>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -104,6 +120,8 @@ export default {
       /* 其他 */
       imgSrc: require('@/assets/img/Test/Flexibility/活动度测试-动作展示.gif'),
 
+      imgDialogVisible: false, // 图示弹窗
+
       depthArray: [], // 数据数组
       pdfTime: '',
       flexibility: '' // 活动度
@@ -126,6 +144,13 @@ export default {
   },
 
   methods: {
+    /**
+     * @description: 图示放大
+     */
+    handleAmplify() {
+      this.imgDialogVisible = true
+    },
+
     /**
      * @description: 初始化串口对象
      */
@@ -485,6 +510,11 @@ export default {
         margin-top: 12vh;
         font-size: 22px;
       }
+    }
+
+    .img-dialog {
+      @include flex(row, center, center);
+      transform: scale(2);
     }
   }
 }

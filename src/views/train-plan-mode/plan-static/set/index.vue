@@ -101,15 +101,27 @@
         <div class="action">
           <div class="item">
             <el-radio v-model="action" label="1" border>动作一</el-radio>
-            <el-image :src="oneSrc" fit="scale-down"></el-image>
+            <el-image
+              :src="oneSrc"
+              fit="scale-down"
+              @click.native="handleAmplifyOne"
+            ></el-image>
           </div>
           <div class="item">
             <el-radio v-model="action" label="2" border>动作二</el-radio>
-            <el-image :src="twoSrc" fit="scale-down"></el-image>
+            <el-image
+              :src="twoSrc"
+              fit="scale-down"
+              @click.native="handleAmplifyTwo"
+            ></el-image>
           </div>
           <div class="item">
             <el-radio v-model="action" label="3" border>动作三</el-radio>
-            <el-image :src="threeSrc" fit="scale-down"></el-image>
+            <el-image
+              :src="threeSrc"
+              fit="scale-down"
+              @click.native="handleAmplifyThree"
+            ></el-image>
           </div>
         </div>
       </div>
@@ -123,6 +135,40 @@
           >刷新页面</el-button
         >
       </div>
+
+      <!-- 图示1放大弹窗 -->
+      <el-dialog
+        title="图 示"
+        :visible.sync="imgDialogVisibleOne"
+        width="30%"
+        center
+      >
+        <div class="img-dialog">
+          <el-image :src="oneSrc" fit="scale-down"></el-image>
+        </div>
+      </el-dialog>
+      <!-- 图示2放大弹窗 -->
+      <el-dialog
+        title="图 示"
+        :visible.sync="imgDialogVisibleTwo"
+        width="30%"
+        center
+      >
+        <div class="img-dialog">
+          <el-image :src="twoSrc" fit="scale-down"></el-image>
+        </div>
+      </el-dialog>
+      <!-- 图示3放大弹窗 -->
+      <el-dialog
+        title="图 示"
+        :visible.sync="imgDialogVisibleThree"
+        width="30%"
+        center
+      >
+        <div class="img-dialog">
+          <el-image :src="threeSrc" fit="scale-down"></el-image>
+        </div>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -145,6 +191,10 @@ export default {
       oneSrc: require('@/assets/img/Train/Static/1.png'),
       twoSrc: require('@/assets/img/Train/Static/2.png'),
       threeSrc: require('@/assets/img/Train/Static/3.png'),
+
+      imgDialogVisibleOne: false, // 图示1弹窗
+      imgDialogVisibleTwo: false, // 图示2弹窗
+      imgDialogVisibleThree: false, // 图示3弹窗
 
       /* 其他 */
       action: '1', // 动作选择
@@ -197,6 +247,31 @@ export default {
       this.$router.push({
         path: '/train-plan'
       })
+    },
+
+    /**
+     * @description: 图示1放大
+     */
+    handleAmplifyOne() {
+      this.imgDialogVisibleOne = true
+      this.imgDialogVisibleTwo = false
+      this.imgDialogVisibleThree = false
+    },
+    /**
+     * @description: 图示2放大
+     */
+    handleAmplifyTwo() {
+      this.imgDialogVisibleTwo = true
+      this.imgDialogVisibleOne = false
+      this.imgDialogVisibleThree = false
+    },
+    /**
+     * @description: 图示3放大
+     */
+    handleAmplifyThree() {
+      this.imgDialogVisibleThree = true
+      this.imgDialogVisibleOne = false
+      this.imgDialogVisibleTwo = false
     },
 
     /**
@@ -471,6 +546,11 @@ export default {
         font-size: 26px;
         margin: 0 40px;
       }
+    }
+
+    .img-dialog {
+      @include flex(row, center, center);
+      transform: scale(2);
     }
   }
 }

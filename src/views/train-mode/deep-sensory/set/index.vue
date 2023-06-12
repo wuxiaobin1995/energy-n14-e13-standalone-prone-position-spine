@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-02-08 14:17:27
- * @LastEditTime: 2023-06-06 16:01:15
+ * @LastEditTime: 2023-06-12 20:12:41
  * @Description : 本体感觉训练-参数设置
 -->
 <template>

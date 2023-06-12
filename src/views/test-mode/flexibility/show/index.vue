@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-08 14:37:53
- * @LastEditTime: 2023-06-06 15:22:26
+ * @LastEditTime: 2023-06-12 20:20:49
  * @Description : 活动度测试-动作展示
 -->
 <template>
@@ -28,7 +28,12 @@
       </div>
 
       <div class="show">
-        <el-image class="item" :src="showImg" fit="scale-down"></el-image>
+        <el-image
+          class="item"
+          :src="showImg"
+          fit="scale-down"
+          @click.native="handleAmplify"
+        ></el-image>
       </div>
 
       <div class="btn">
@@ -36,6 +41,18 @@
           >开 始 测 试</el-button
         >
       </div>
+
+      <!-- 图示放大弹窗 -->
+      <el-dialog
+        title="图 示"
+        :visible.sync="imgDialogVisible"
+        width="30%"
+        center
+      >
+        <div class="img-dialog">
+          <el-image :src="showImg" fit="scale-down"></el-image>
+        </div>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -50,6 +67,8 @@ export default {
   data() {
     return {
       showImg: require('@/assets/img/Test/Flexibility/活动度测试-动作展示.gif'),
+
+      imgDialogVisible: false, // 图示弹窗
 
       /* 语音相关 */
       audioOpen: this.$store.state.voiceSwitch,
@@ -74,6 +93,13 @@ export default {
       this.$router.push({
         path: '/home'
       })
+    },
+
+    /**
+     * @description: 图示放大
+     */
+    handleAmplify() {
+      this.imgDialogVisible = true
     },
 
     /**
@@ -148,6 +174,11 @@ export default {
         font-size: 28px;
         width: 240px;
       }
+    }
+
+    .img-dialog {
+      @include flex(row, center, center);
+      transform: scale(2);
     }
   }
 }
