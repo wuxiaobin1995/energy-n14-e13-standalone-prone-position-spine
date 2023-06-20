@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-12-08 17:55:19
- * @LastEditTime: 2023-06-07 09:17:26
+ * @LastEditTime: 2023-06-20 10:23:28
  * @Description : 活动度测试-导出PDF
 -->
 <template>
@@ -42,7 +42,7 @@
           <div class="title">建议：</div>
           <div class="item" v-if="textLv === '小' || textLv === '很小'">
             <span class="item-title">过低</span
-            >：活动度过低，可能会出现弯腰活动受限或腰背酸痛等症状，首先需要首先进行内核心肌活和活动度改善，增加腰椎活动度的同事，掌握肌肉发力。
+            >：活动度过低，可能会出现弯腰活动受限或腰背酸痛等症状，首先需要首先进行内核心肌活和活动度改善，增加腰椎活动度的同时，掌握肌肉发力。
           </div>
           <div class="item" v-else-if="textLv === '适中'">
             <span class="item-title">适中</span
