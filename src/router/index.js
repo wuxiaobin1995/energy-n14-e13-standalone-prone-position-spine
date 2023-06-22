@@ -1,7 +1,7 @@
 /*
  * @Author      : Mr.bin
  * @Date        : 2021-11-09 09:16:02
- * @LastEditTime: 2023-06-06 21:03:09
+ * @LastEditTime: 2023-06-22 16:00:48
  * @Description : 路由
  */
 import Vue from 'vue'
@@ -42,7 +42,7 @@ const routes = [
         component: () => import('@/views/user'),
         meta: ['用户']
       },
-      // 导出所选用户的数据（测试、训练、方案）
+      // 导出所选用户的数据（测试、训练、......）
       {
         path: 'user-data-output',
         name: 'user-data-output',

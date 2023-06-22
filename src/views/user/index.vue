@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-06-24 09:29:49
- * @LastEditTime: 2023-06-06 21:44:09
+ * @LastEditTime: 2023-06-22 16:02:58
  * @Description : 用户
 -->
 <template>
@@ -417,7 +417,7 @@ export default {
     },
 
     /**
-     * @description: 导出所选用户的数据（测试、训练）
+     * @description: 导出所选用户的数据（测试、训练、......）
      */
     handleDataOutput() {
       this.$router.push({

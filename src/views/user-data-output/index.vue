@@ -1,8 +1,8 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-05-23 15:58:13
- * @LastEditTime: 2023-06-07 09:21:12
- * @Description : 导出所选用户的数据（测试、训练、方案）
+ * @LastEditTime: 2023-06-22 16:01:26
+ * @Description : 导出所选用户的数据（测试、训练、......）
 -->
 <template>
   <div class="user-data-output">
