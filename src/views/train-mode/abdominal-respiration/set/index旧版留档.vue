@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-05-02 16:28:38
- * @LastEditTime: 2023-10-09 11:02:50
+ * @LastEditTime: 2023-09-05 10:34:59
  * @Description : 腹式呼吸训练-参数设置
 -->
 <template>
@@ -16,7 +16,7 @@
       <div class="item">
         动作要求：首先鼻吸气腹部隆起，随后嘴呼气，同时控制腹部向内收紧，腰部保持在中立位，肩部臀部贴着软垫
       </div>
-      <div class="item">提示：从中立位开始预备</div>
+      <div class="item">提示：从中间点开始预备</div>
     </div>
 
     <div class="content">
