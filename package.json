@@ -1,6 +1,6 @@
 {
   "name": "energy-n14-e13-standalone-prone-position-spine",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",

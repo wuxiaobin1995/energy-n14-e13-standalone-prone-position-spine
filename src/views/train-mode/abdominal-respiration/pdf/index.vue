@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-05-19 16:29:06
- * @LastEditTime: 2023-06-07 09:18:51
+ * @LastEditTime: 2023-10-23 11:11:33
  * @Description : 腹式呼吸训练-导出PDF
 -->
 <template>
@@ -38,12 +38,7 @@
           <div class="val">
             <div class="title" :style="{ color: colorLv }">{{ textLv }}</div>
             <div class="item">综合训练评分：{{ pdfData.completion }}分</div>
-            <div class="item">训练目标：{{ pdfData.target }}</div>
-            <div class="item">训练次数：{{ pdfData.num }}</div>
-            <div class="item">训练组数：{{ pdfData.groups }}</div>
-            <div class="item">保持时长：{{ pdfData.keepTime }}秒</div>
-            <div class="item">休息时长：{{ pdfData.restTime }}秒</div>
-            <div class="item">组间休息时长：{{ pdfData.groupRestTime }}秒</div>
+            <div class="item">训练时长：{{ pdfData.trainTime }}</div>
             <div class="item">{{ advice }}</div>
           </div>
         </div>
@@ -81,10 +76,7 @@ export default {
       option: {},
       xData: [], // 横坐标数组
 
-      /* 参考曲线相关 */
-      standardArray: [], // 基础参考曲线
-      fullArray: [], // 完整参考曲线
-
+      // 其他
       fullscreenLoading: false,
       logoSrc: require('@/assets/img/Company_Logo/logo_1.png'), // 公司商标
       lv: require('@/assets/img/Train/PDF/优秀.png'),
@@ -105,15 +97,9 @@ export default {
         targetDown: '', // 下限
 
         midpoint: '', // 活动度中点
-        target: '', // 训练目标
-        num: '', // 训练次数
-        groups: '', // 训练组数
-        groupRestTime: '', // 组间休息时长
-        keepTime: '', // 保持时长
-        restTime: '', // 休息时长
+        trainTime: '', // 训练时长
 
-        allDepthArray: [], // 多组完整数据数组
-        comprehensiveArray: [], // 综合曲线轨迹
+        depthArray: [], // 完整数据数组
         completion: '', // 完成度
         pdfTime: ''
       }
@@ -171,9 +157,7 @@ export default {
           }
 
           /* 渲染图形 */
-          this.countChart().then(() => {
-            this.initChart()
-          })
+          this.initChart()
         })
         .catch(err => {
           this.$confirm(
@@ -202,66 +186,15 @@ export default {
     },
 
     /**
-     * @description: 计算图形所需参数逻辑函数
-     */
-    countChart() {
-      return new Promise((resolve, reject) => {
-        const midpoint = this.pdfData.midpoint // 活动度中点
-        const target = this.pdfData.target // 训练目标
-        const restTime = this.pdfData.restTime // 休息时长
-        const keepTime = this.pdfData.keepTime // 保持时长
-
-        const restTimeArray = []
-        for (let i = 0; i < restTime * 10 + 1; i++) {
-          restTimeArray.push(midpoint)
-        }
-
-        const interval = parseFloat(((midpoint - target) / 10).toFixed(3)) // 间隔值
-
-        const downArray = []
-        let downSum = midpoint
-        for (let i = 0; i < 9; i++) {
-          downSum = downSum - interval
-          downArray.push(downSum)
-        }
-
-        const keepTimeArray = []
-        for (let i = 0; i < keepTime * 10 + 1; i++) {
-          keepTimeArray.push(target)
-        }
-
-        const upArray = []
-        let upSum = target
-        for (let i = 0; i < 9; i++) {
-          upSum = upSum + interval
-          upArray.push(upSum)
-        }
-
-        this.standardArray = restTimeArray.concat(
-          downArray,
-          keepTimeArray,
-          upArray
-        )
-
-        this.fullArray = []
-        for (let i = 0; i < this.pdfData.num; i++) {
-          this.fullArray.push(...this.standardArray)
-        }
-
-        /* x轴 */
-        this.xData = []
-        for (let i = 0; i < this.fullArray.length; i++) {
-          this.xData.push(parseFloat((i * 0.1).toFixed(1)))
-        }
-
-        resolve()
-      })
-    },
-
-    /**
      * @description: 初始化echarts图形
      */
     initChart() {
+      /* x轴 */
+      this.xData = []
+      for (let i = 0; i < this.pdfData.trainTime * 10; i++) {
+        this.xData.push(parseFloat((i * 0.1).toFixed(1)))
+      }
+
       this.myChart = this.$echarts.init(document.getElementById('chart'))
       this.option = {
         xAxis: {
@@ -275,23 +208,31 @@ export default {
           splitLine: {
             show: false // 隐藏背景网格线
           },
-          min: this.pdfData.target - 10 >= 0 ? this.pdfData.target - 10 : 0,
+          min: this.pdfData.midpoint - 10 >= 0 ? this.pdfData.midpoint - 10 : 0,
           max: this.pdfData.midpoint + 10
         },
         legend: {},
         series: [
           {
-            name: '综合运动轨迹',
-            data: this.pdfData.comprehensiveArray,
+            name: '运动轨迹',
+            data: this.pdfData.depthArray,
             color: 'red',
             type: 'line',
             smooth: true,
             showSymbol: false
           },
           {
-            name: `参考曲线(${this.pdfData.target}~${this.pdfData.midpoint})`,
-            data: this.fullArray,
-            color: 'rgba(0, 255, 0, 0.5)',
+            name: `上限曲线(${this.pdfData.midpoint + 5})`,
+            data: this.pdfData.bgUpArray,
+            color: 'green',
+            type: 'line',
+            smooth: false,
+            showSymbol: false
+          },
+          {
+            name: `下限曲线(${this.pdfData.midpoint - 5})`,
+            data: this.pdfData.bgDownArray,
+            color: 'green',
             type: 'line',
             smooth: false,
             showSymbol: false

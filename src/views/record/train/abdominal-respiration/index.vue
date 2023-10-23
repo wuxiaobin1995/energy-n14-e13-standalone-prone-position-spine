@@ -58,27 +58,6 @@
         width="260"
         sortable
       ></el-table-column>
-      <!-- 训练目标 -->
-      <el-table-column
-        align="center"
-        prop="target"
-        label="训练目标"
-        width="80"
-      ></el-table-column>
-      <!-- 训练次数 -->
-      <el-table-column
-        align="center"
-        prop="num"
-        label="训练次数"
-        width="80"
-      ></el-table-column>
-      <!-- 训练组数 -->
-      <el-table-column
-        align="center"
-        prop="groups"
-        label="训练组数"
-        width="80"
-      ></el-table-column>
       <!-- 训练评分 -->
       <el-table-column
         align="center"
@@ -232,7 +211,7 @@ export default {
       db.train_data
         .where({
           userId: this.$store.state.currentUserInfo.userId,
-          type: '腹式呼吸训练'
+          type: '腹式呼吸训练v3'
         })
         .toArray()
         .then(res => {
@@ -271,12 +250,12 @@ export default {
         .between(
           [
             this.$store.state.currentUserInfo.userId,
-            '腹式呼吸训练',
+            '腹式呼吸训练v3',
             this.selectDateValue[0]
           ],
           [
             this.$store.state.currentUserInfo.userId,
-            '腹式呼吸训练',
+            '腹式呼吸训练v3',
             this.selectDateValue[1]
           ],
           true,
@@ -388,7 +367,7 @@ export default {
         query: {
           userId: JSON.stringify(this.$store.state.currentUserInfo.userId),
           routerName: JSON.stringify('/train-record/abdominal-respiration'),
-          type: JSON.stringify('腹式呼吸训练')
+          type: JSON.stringify('腹式呼吸训练v3')
         }
       })
     },

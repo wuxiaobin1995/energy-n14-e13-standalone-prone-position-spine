@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2022-10-08 10:52:08
- * @LastEditTime: 2023-06-01 16:16:38
+ * @LastEditTime: 2023-10-23 11:14:09
  * @Description : energy-n14-e13-standalone-prone-position-spine
 -->
 
@@ -22,5 +22,7 @@
   2. 更新了图片
 - v3.0.0
   1. 新增训练方案模块
+- v3.1.0
+  1. 腹式呼吸训练模块更新
 
 PS：log4js 的 6.9.1 版本有问题，换一个别的版本
