@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-05-02 16:28:38
- * @LastEditTime: 2023-10-23 11:05:15
+ * @LastEditTime: 2023-10-23 11:51:30
  * @Description : 腹式呼吸训练-参数设置
 -->
 <template>
@@ -27,7 +27,7 @@
 
       <!-- 配置项 -->
       <div class="set">
-        <!-- 保持时间 -->
+        <!-- 训练时长 -->
         <div class="item">
           <span class="text">训练时长</span>
           <el-input-number
@@ -100,7 +100,6 @@ export default {
       // 默认是中点的±5
       const up = this.midpoint + 5
       const down = this.midpoint - 5
-
       for (let i = 0; i < this.trainTime * 10; i++) {
         this.bgUpArray.push(up)
         this.bgDownArray.push(down)

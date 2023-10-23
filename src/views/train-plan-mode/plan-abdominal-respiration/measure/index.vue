@@ -1,17 +1,13 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-06-02 15:22:05
- * @LastEditTime: 2023-06-07 09:20:15
+ * @LastEditTime: 2023-10-23 14:29:36
  * @Description : 方案-腹式呼吸训练-具体测量
 -->
 <template>
   <div class="plan-abdominal-respiration-measure">
-    <!-- 语音播放 -->
-    <audio ref="audio" controls="controls" hidden :src="audioSrc" />
-
     <div class="wrapper">
       <div class="title">腹式呼吸训练</div>
-      <div>提示：开始有5秒预备时间，请从中间位开始预备</div>
 
       <!-- 主内容区 -->
       <div class="content">
@@ -20,15 +16,11 @@
           <div id="chart" :style="{ width: '100%', height: '100%' }"></div>
         </div>
 
-        <!-- 实时次数和组数 -->
+        <!-- 完成度 -->
         <div class="num">
           <div class="item">
-            <div class="text">训练次数</div>
-            <div class="value">{{ nowNum }}/{{ num }}</div>
-          </div>
-          <div class="item">
-            <div class="text">训练组数</div>
-            <div class="value">{{ nowGroups }}/{{ groups }}</div>
+            <div class="text">完成度</div>
+            <div class="value">{{ completion }}%</div>
           </div>
         </div>
       </div>
@@ -68,32 +60,13 @@
           }}</el-button
         >
       </div>
-
-      <!-- 休息倒计时弹窗 -->
-      <el-dialog
-        title="休 息 倒 计 时"
-        :visible.sync="restDialogVisible"
-        :close-on-click-modal="false"
-        :close-on-press-escape="false"
-        :show-close="false"
-        top="30vh"
-        width="20%"
-        center
-      >
-        <div class="rest-dialog">
-          <div class="item">{{ nowGroupRestTime }}</div>
-        </div>
-        <span slot="footer">
-          <el-button type="primary" @click="handleSkip">跳 过</el-button>
-        </span>
-      </el-dialog>
     </div>
   </div>
 </template>
 
 <script>
 /* 路径模块 */
-import path from 'path'
+// import path from 'path'
 
 /* 串口通信库 */
 import SerialPort from 'serialport'
@@ -108,21 +81,10 @@ export default {
   data() {
     return {
       /* 路由传参 */
-      targetUp: JSON.parse(this.$route.query.targetUp), // 上限
-      targetDown: JSON.parse(this.$route.query.targetDown), // 下限
+      trainTime: JSON.parse(this.$route.query.trainTime), // 训练时长
       midpoint: JSON.parse(this.$route.query.midpoint), // 活动度中点
-      target: JSON.parse(this.$route.query.target), // 训练目标
-      num: JSON.parse(this.$route.query.num), // 训练次数
-      groups: JSON.parse(this.$route.query.groups), // 训练组数
-      groupRestTime: JSON.parse(this.$route.query.groupRestTime), // 组间休息时长
-      keepTime: JSON.parse(this.$route.query.keepTime), // 保持时长
-      restTime: JSON.parse(this.$route.query.restTime), // 休息时长
-
-      /* 语音相关 */
-      audioOpen: this.$store.state.voiceSwitch,
-      audioSrc: path.join(__static, `narrate/mandarin/Train/鼻吸气.mp3`),
-      audioInSrc: path.join(__static, `narrate/mandarin/Train/鼻吸气.mp3`),
-      audioOutSrc: path.join(__static, `narrate/mandarin/Train/嘴呼气.mp3`),
+      bgUpArray: JSON.parse(this.$route.query.bgUpArray), // 上限数组
+      bgDownArray: JSON.parse(this.$route.query.bgDownArray), // 下限数组
 
       /* 串口相关变量 */
       usbPort: null,
@@ -134,28 +96,17 @@ export default {
       option: {},
       xData: [], // 横坐标数组
 
-      /* 参考曲线相关 */
-      standardArray: [], // 基础参考曲线
-      bgArray: [], // 参考曲线，暂定5个一组
-
       /* 控制相关 */
       isStart: false, // 是否开始训练
       isPause: false, // 是否暂停训练
       isFinished: false, // 是否完成该训练
-      isDelayed: true, // 是否要延时预备
-      isRest: false, // 是否处于休息状态
 
       /* 其他 */
-      nowNum: 0, // 实时次数
-      nowGroups: 0, // 实时组数
-      restDialogVisible: false, // 休息倒计时弹窗
-      restTimeClock: null, // 休息计时器
-      nowGroupRestTime: JSON.parse(this.$route.query.groupRestTime), // 实时休息时间倒计时
+      targetUp: this.$store.state.bothFlexibility.maxDepth, // 上限
+      targetDown: this.$store.state.bothFlexibility.minDepth, // 下限
 
-      nowNumArray: [], // 用于计算剩余次数的数组
-      depthShowArray: [], // 实时展示曲线轨迹数组
-      depthArray: [], // 一组完整数据数组
-      allDepthArray: [], // 多组完整数据数组
+      depthArray: [], // 完整数据数组
+      completion: '', // 完成度%
       pdfTime: ''
     }
   },
@@ -164,15 +115,9 @@ export default {
     this.initSerialPort()
   },
   mounted() {
-    this.countChart().then(() => {
-      this.initChart()
-    })
+    this.initChart()
   },
   beforeDestroy() {
-    // 清除计时器
-    if (this.restTimeClock) {
-      clearInterval(this.restTimeClock)
-    }
     // 关闭串口
     if (this.usbPort) {
       if (this.usbPort.isOpen) {
@@ -211,11 +156,6 @@ export default {
             /* 调用 this.usbPort.open() 成功时触发（开启串口成功） */
             this.usbPort.on('open', () => {
               this.isStart = true
-              this.$message({
-                message: '预备阶段，倒计时5秒......',
-                type: 'warning',
-                duration: 4500
-              })
             })
             /* 调用 this.usbPort.open() 失败时触发（开启串口失败） */
             this.usbPort.on('error', () => {
@@ -238,90 +178,16 @@ export default {
               if (/^-?[0-9]\d*$/.test(depth) && depth >= 0 && depth <= 100) {
                 /* 判断是否暂停 */
                 if (this.isPause === false) {
-                  /* 延时预备5秒，让用户有个时间调整 */
-                  if (this.isDelayed === true) {
-                    this.depthShowArray.push(depth)
-                    this.option.series[0].data = this.depthShowArray
-                    this.myChart.setOption(this.option)
-                    if (this.depthShowArray.length >= 50) {
-                      this.$message({
-                        message: '正式开始！',
-                        type: 'success',
-                        duration: 3000
-                      })
-                      this.depthShowArray = []
-                      this.isDelayed = false
-                      // 先放一次鼻吸气语音，让用户的腰部在高位开始
-                      if (this.audioOpen === true) {
-                        this.audioSrc = this.audioInSrc
-                        setTimeout(() => {
-                          this.$refs.audio.currentTime = 0
-                          this.$refs.audio.play()
-                        }, 100)
-                      }
-                    }
-                  }
+                  /* 正式开始测量 */
+                  this.depthArray.push(depth)
 
-                  /* 预备结束，正式开始测量 */
-                  if (this.isDelayed === false && this.isRest === false) {
-                    this.depthArray.push(depth)
-                    this.depthShowArray.push(depth)
-                    this.nowNumArray.push(depth)
+                  // 渲染图形
+                  this.option.series[0].data = this.depthArray
+                  this.myChart.setOption(this.option)
 
-                    if (this.depthShowArray.length === this.bgArray.length) {
-                      this.depthShowArray = []
-                    }
-                    if (this.nowNumArray.length === this.standardArray.length) {
-                      this.nowNumArray = []
-                      this.nowNum += 1
-                    }
-
-                    /* 语音播放 */
-                    if (this.audioOpen === true) {
-                      if (this.nowNumArray.length === this.restTime * 10 - 6) {
-                        this.audioSrc = this.audioOutSrc
-                        setTimeout(() => {
-                          this.$refs.audio.currentTime = 0
-                          this.$refs.audio.play()
-                        }, 100)
-                      } else if (
-                        this.nowNumArray.length ===
-                        this.standardArray.length - 16
-                      ) {
-                        this.audioSrc = this.audioInSrc
-                        setTimeout(() => {
-                          this.$refs.audio.currentTime = 0
-                          this.$refs.audio.play()
-                        }, 100)
-                      }
-                    }
-
-                    // 渲染图形
-                    this.option.series[0].data = this.depthShowArray
-                    this.myChart.setOption(this.option)
-
-                    // 结束一组训练
-                    if (
-                      this.depthArray.length ===
-                      this.num * this.standardArray.length
-                    ) {
-                      this.nowGroups += 1 // 实时组数+1
-                      this.allDepthArray.push(this.depthArray) // 数组累加
-
-                      this.depthArray = []
-                      this.depthShowArray = []
-                      this.nowNumArray = []
-
-                      // 休息弹窗
-                      if (this.nowGroups < this.groups) {
-                        this.onRestDialog()
-                      }
-                    }
-
-                    /* 所有组完成，保存数据 */
-                    if (this.nowGroups >= this.groups) {
-                      this.saveData()
-                    }
+                  /* 完成，保存数据 */
+                  if (this.depthArray.length >= this.trainTime * 10) {
+                    this.saveData()
                   }
                 }
               }
@@ -356,66 +222,15 @@ export default {
     },
 
     /**
-     * @description: 计算图形所需参数逻辑函数
-     */
-    countChart() {
-      return new Promise((resolve, reject) => {
-        const midpoint = this.midpoint // 活动度中点
-        const target = this.target // 训练目标
-        const restTime = this.restTime // 休息时长
-        const keepTime = this.keepTime // 保持时长
-
-        const restTimeArray = []
-        for (let i = 0; i < restTime * 10 + 1; i++) {
-          restTimeArray.push(midpoint)
-        }
-
-        const interval = parseFloat(((midpoint - target) / 10).toFixed(3)) // 间隔值
-
-        const downArray = []
-        let downSum = midpoint
-        for (let i = 0; i < 9; i++) {
-          downSum = downSum - interval
-          downArray.push(downSum)
-        }
-
-        const keepTimeArray = []
-        for (let i = 0; i < keepTime * 10 + 1; i++) {
-          keepTimeArray.push(target)
-        }
-
-        const upArray = []
-        let upSum = target
-        for (let i = 0; i < 9; i++) {
-          upSum = upSum + interval
-          upArray.push(upSum)
-        }
-
-        this.standardArray = restTimeArray.concat(
-          downArray,
-          keepTimeArray,
-          upArray
-        )
-
-        this.bgArray = []
-        for (let i = 0; i < 5; i++) {
-          this.bgArray.push(...this.standardArray)
-        }
-
-        /* x轴 */
-        this.xData = []
-        for (let i = 0; i < this.bgArray.length; i++) {
-          this.xData.push(parseFloat((i * 0.1).toFixed(1)))
-        }
-
-        resolve()
-      })
-    },
-
-    /**
      * @description: 初始化echarts图形
      */
     initChart() {
+      /* x轴 */
+      this.xData = []
+      for (let i = 0; i < this.trainTime * 10; i++) {
+        this.xData.push(parseFloat((i * 0.1).toFixed(1)))
+      }
+
       this.myChart = this.$echarts.init(document.getElementById('chart'))
       this.option = {
         xAxis: {
@@ -429,13 +244,13 @@ export default {
           splitLine: {
             show: false // 隐藏背景网格线
           },
-          min: this.target - 10 >= 0 ? this.target - 10 : 0,
+          min: this.midpoint - 10 >= 0 ? this.midpoint - 10 : 0,
           max: this.midpoint + 10
         },
         legend: {},
         series: [
           {
-            name: '单组轨迹',
+            name: '轨迹',
             data: [],
             color: 'red',
             type: 'line',
@@ -443,9 +258,17 @@ export default {
             showSymbol: false
           },
           {
-            name: `参考曲线(${this.target}~${this.midpoint})`,
-            data: this.bgArray,
-            color: 'rgba(0, 255, 0, 0.5)',
+            name: `上限曲线(${this.midpoint + 5})`,
+            data: this.bgUpArray,
+            color: 'green',
+            type: 'line',
+            smooth: false,
+            showSymbol: false
+          },
+          {
+            name: `下限曲线(${this.midpoint - 5})`,
+            data: this.bgDownArray,
+            color: 'green',
             type: 'line',
             smooth: false,
             showSymbol: false
@@ -454,46 +277,6 @@ export default {
         animation: false
       }
       this.myChart.setOption(this.option)
-    },
-
-    /**
-     * @description: 休息倒计时弹窗函数
-     */
-    onRestDialog() {
-      // 进入休息状态，标志位置true
-      this.isRest = true
-
-      // 清一下实时次数
-      this.nowNum = 0
-
-      // 开启弹窗
-      this.restDialogVisible = true
-
-      // 初始化倒计时长
-      this.nowGroupRestTime = this.groupRestTime
-
-      // 开始倒计时
-      this.restTimeClock = setInterval(() => {
-        this.nowGroupRestTime -= 1
-        if (this.nowGroupRestTime === 0) {
-          this.handleSkip()
-        }
-      }, 1000)
-    },
-    /**
-     * @description: 跳过休息按钮
-     */
-    handleSkip() {
-      // 休息结束，标志位置false
-      this.isRest = false
-
-      // 清除计时器
-      if (this.restTimeClock) {
-        clearInterval(this.restTimeClock)
-      }
-
-      // 关闭弹窗
-      this.restDialogVisible = false
     },
 
     /**
@@ -507,41 +290,19 @@ export default {
       }
 
       this.isPause = false
-      this.isDelayed = true
-      this.isRest = false
-
-      /* 计算综合曲线轨迹 */
-      const allDepthArrayDelayering = [] // 数组扁平化
-      for (let i = 0; i < this.allDepthArray.length; i++) {
-        allDepthArrayDelayering.push(...this.allDepthArray[i])
-      }
-      const itemArrLen = this.allDepthArray[0].length // 单个元素数组的元素数量
-      let comprehensiveArray = []
-      let sum = 0
-      for (let i = 0; i < this.allDepthArray[0].length; i++) {
-        for (let j = 0; j < this.groups; j++) {
-          sum += allDepthArrayDelayering[itemArrLen * j + i]
-        }
-        comprehensiveArray.push(parseInt(sum / this.groups))
-        sum = 0
-      }
 
       /* 计算完成度 */
-      const contrastArray = []
-      for (let i = 0; i < this.num; i++) {
-        contrastArray.push(...this.standardArray)
-      }
       const yesArray = []
-      for (let i = 0; i < comprehensiveArray.length; i++) {
-        const item = comprehensiveArray[i]
-        const contrast = contrastArray[i]
-        const differenceVal = Math.abs(item - contrast)
-        if (differenceVal >= 0 && differenceVal <= 5) {
-          yesArray.push(differenceVal)
+      for (let i = 0; i < this.depthArray.length; i++) {
+        const item = this.depthArray[i]
+        const up = this.bgUpArray[0]
+        const down = this.bgDownArray[0]
+        if (item >= down && item <= up) {
+          yesArray.push(item)
         }
       }
-      const completion = parseFloat(
-        ((yesArray.length / comprehensiveArray.length) * 100).toFixed(0)
+      this.completion = parseFloat(
+        ((yesArray.length / this.depthArray.length) * 100).toFixed(0)
       )
 
       /* 删除Vuex训练方案选项的第一个元素 */
@@ -555,17 +316,13 @@ export default {
 
         targetUp: this.targetUp, // 上限
         targetDown: this.targetDown, // 下限
+        trainTime: this.trainTime, // 训练时长
         midpoint: this.midpoint, // 活动度中点
-        target: this.target, // 训练目标
-        num: this.num, // 训练次数
-        groups: this.groups, // 训练组数
-        groupRestTime: this.groupRestTime, // 组间休息时长
-        keepTime: this.keepTime, // 保持时长
-        restTime: this.restTime, // 休息时长
+        bgUpArray: this.bgUpArray, // 上限数组
+        bgDownArray: this.bgDownArray, // 下限数组
 
-        allDepthArray: this.allDepthArray, // 多组完整数据数组
-        comprehensiveArray: comprehensiveArray, // 综合曲线轨迹
-        completion: completion // 完成度
+        comprehensiveArray: this.depthArray, // 完整数据数组
+        completion: this.completion // 完成度%
       }
 
       /* 若后面还有训练，则暂时保存数据到 sessionStorage，然后跳到下一个训练 */
@@ -646,16 +403,8 @@ export default {
       this.isStart = false
       this.isPause = false
       this.isFinished = false
-      this.isDelayed = true
-      this.isRest = false
 
-      this.nowNumArray = [] // 用于计算剩余次数的数组
-      this.depthShowArray = [] // 实时展示曲线轨迹数组
-      this.depthArray = [] // 一组完整数据数组
-      this.allDepthArray = [] // 多组完整数据数组
-
-      this.nowNum = 0
-      this.nowGroups = 0
+      this.depthArray = [] // 完整数据数组
 
       if (this.usbPort) {
         if (!this.usbPort.isOpen) {
