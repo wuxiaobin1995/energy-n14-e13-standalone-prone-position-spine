@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-05-17 09:32:54
- * @LastEditTime: 2023-10-23 11:58:32
+ * @LastEditTime: 2023-10-25 11:42:56
  * @Description : 腹式呼吸训练-具体测量
 -->
 <template>
@@ -466,15 +466,6 @@ export default {
       .item {
         font-size: 28px;
         margin: 0 40px;
-      }
-    }
-
-    .rest-dialog {
-      @include flex(column, center, center);
-      .item {
-        font-size: 90px;
-        font-weight: 700;
-        color: green;
       }
     }
   }
