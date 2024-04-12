@@ -5,7 +5,7 @@
  * @Description : energy-n14-e13-standalone-prone-position-spine
 -->
 
-# 卧姿肢体康复评估与训练系统-单机版
+# 卧姿肢体康复评估与训练软件-单机版
 
 医用卧姿
 

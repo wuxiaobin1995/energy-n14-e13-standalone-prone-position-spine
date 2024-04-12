@@ -1,7 +1,7 @@
 <!--
  * @Author      : Mr.bin
  * @Date        : 2023-02-07 14:36:30
- * @LastEditTime: 2023-05-17 16:17:24
+ * @LastEditTime: 2024-04-10 14:15:42
  * @Description : 游戏
 -->
 <template>
@@ -150,7 +150,7 @@ export default {
         user_name: this.$store.state.currentUserInfo.userName,
         devices_sort: 'pps', // [卧姿：pps]或者[下肢蹬伸：lu]
         exe_path:
-          'C:/Program Files/energy-n14-e13-standalone-prone-position-spine/卧姿肢体康复评估与训练系统-单机版.exe' // 自己程序的绝对路径
+          'C:/Program Files/energy-n14-e13-standalone-prone-position-spine/卧姿肢体康复评估与训练软件-单机版.exe' // 自己程序的绝对路径
       })
 
       /* 使用fs库写文件 */
